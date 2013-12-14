@@ -1,0 +1,38 @@
+Clases
+
+	Arbol
+		Atributos
+		- Raiz: Nodo raiz del árbol.
+		- Criterio de particion: Info Gain, Gini Index, chi square, etc...
+	
+		Metodos
+		- fit: recibe un set de entrenamiento y ajusta el árbol.
+		- predict: recibe un dato y retorna predicción.
+		- print: Estaría bueno un método para poder ver la estructura del árbol. 
+
+
+	Nodo
+		Atributos
+		- Data: DataFrame de datos que llegaron al nodo.
+		- IsLeaf: Boolean que determina si es o no hoja.
+		- Feature: Nombre, tipo y valor de corte.
+		- Left: Hijo izquierdo.
+		- Right: Hijo derecho.
+		
+		- Class: En el caso de que sea hoja. Clase predominante en la hoja (Asumiendo que sea un nodo discreto).
+		(Podría guardar las proporciones de clases. El numero de datos de entrenamiento que llegaron al nodo y las
+		distribuciones de las clases de esto. Asi como en el ejemplo de spss modeler.)
+
+		métodos
+
+		- Split: Analiza los datos. Y decide, si es necesario hacer un split. Si es necesario, crea los
+		hijos con los métodos addLeft, addRight y los datos necesarios. De lo contrario llama a el método 
+		setLeaf para transformarse a si mismo en hoja. 
+
+		setLeaf:
+
+		addLeft: Crea un hijo nuevo.
+
+		addRight:
+
+Tests:
