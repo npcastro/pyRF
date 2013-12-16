@@ -1,4 +1,4 @@
-from Node import *
+from node import Node
 
 class Tree:
 
@@ -8,10 +8,10 @@ class Tree:
 
 	# recibe un set de entrenamiento y ajusta el arbol
 	def fit(self, data):
-		root.split(data)
+		self.root.split(data)
 
 	# recibe un dato y retorna prediccion
-	def predict():
+	def predict(self):
 		pass
 
 	# seria bueno poder ver la estructura del arbol. 

@@ -5,14 +5,15 @@
 
 class Node:
 
-	def __init__(self, data):
+	def __init__(self):
 
-		self.data = data
+		self.data = None
 		self.is_leaf = False
 		self.feat_name = ""
 		self.feat_value = None
 		self.left = None
 		self.right = None
+
 
 	def split(self):
 		pass
