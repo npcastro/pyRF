@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
 
 	nombres = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
-	data = pd.read_csv('iris.data', header = None, names = )
+	data = pd.read_csv('iris.data', header = None, names = nombres )
 
 	# clf = Tree()
 	# clf.fit(data)
