@@ -15,9 +15,16 @@ class Node:
 		self.left = None
 		self.right = None
 
+		# Reviso si es necesario particionar el nodo
+
+		# Si es, llamo a split para hacerlo
+
+		# De lo contrario llamo a set_leaf para transformarlo en hoja
+
+	# Busca el mejor corte posible para el nodo
 	def split(self):
-		# Inicializo la entropia en el peor nivel posible
-		entropia = -float('inf')
+		# Inicializo la ganancia de info en el peor nivel posible
+		max_gain = -float('inf')
 		
 		# Para cada feature (no considero la clase)
 		for f in self.data.columns[0:-1]:
@@ -30,6 +37,17 @@ class Node:
 				# Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
 				menores = self.data[self.data[f] < pivote]
 				mayores = self.data[self.data[f] > pivote]
+
+				# Calculo la ganancia de información para esta variable
+				total = len(self.data.index)
+				gain = self.entropia - (len(menores) * entropy(menores) + len(mayores) * entropy(mayores)) / total
+
+				# Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
+				if(gain > max_gain):
+					max_gain = gains
+					self.feat_name = f
+					self.feat_value = pivote
+
 
 	# Retorna la entropia de un grupo de datos
 	def entropy(self, data):
@@ -57,7 +75,7 @@ class Node:
 
 		return pivotes
 
-
+	# Convierte el nodo en hoja. Colocando la clase mas probable como resultado
 	def set_leaf(self, is_leaf):
 		pass
 
