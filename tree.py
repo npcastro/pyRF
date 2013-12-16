@@ -3,12 +3,12 @@ from Node import *
 class Tree:
 
 	def __init__(self, criterium):
-		self.root = Node()
+		# self.root = Node()
 		self.criterium = criterium		# "gain"
 
 	# recibe un set de entrenamiento y ajusta el arbol
 	def fit(self, data):
-		root.split(data)
+		self.root = Node(data)
 
 	# recibe un dato y retorna prediccion
 	def predict():
