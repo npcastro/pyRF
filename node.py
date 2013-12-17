@@ -25,8 +25,12 @@ class Node:
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
-			menores = menores.drop(self.feat_name,1)
-			mayores = mayores.drop(self.feat_name,1)
+			menores = menores.drop(self.feat_name, 1)
+			mayores = mayores.drop(self.feat_name, 1)
+
+			if self.criterium == 'confianza':
+				menores = menores.drop(self.feat_name + '_conf', 1)
+				mayores = mayores.drop(self.feat_name + '_conf', 1)
 
 			self.add_left(menores)
 			self.add_right(mayores)
@@ -72,20 +76,26 @@ class Node:
 
 	# Retorna la entropia de un grupo de datos
 	def entropy(self, data):
-		total = len(data.index)
 		clases = data['class'].unique()
+		total = len(data.index)
 
 		entropia = 0
 
 		for c in clases:
-			if self.criterium == 'gain':
-				p_c = len(data[data['class'] == c].index) / total
-				entropia = entropia - p_c * np.log2(p_c)
-			elif self.criterium == 'confianza':
-                p_c = 0
-				entropia = entropia - 0
+			p_c = len(data[data['class'] == c].index) / total
+			entropia = entropia - p_c * np.log2(p_c)
 
 		return entropia
+
+	def trust(self, data):
+		clases = data['class'].unique()
+
+		p_c = 0
+		v_c = 0
+
+		trust = 0
+
+		return trust
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
@@ -127,10 +137,12 @@ class Node:
 				return self.right.predict(tupla)
 
 	def gain(self, menores, mayores):
-		total = len(self.data.index)
 
 		if self.criterium == 'gain':
+			total = len(self.data.index)
 			gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
 		elif self.criterium == 'confianza':
+			total = 1
 			gain = self.entropia - 0
 		return gain
+
