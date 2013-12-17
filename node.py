@@ -18,11 +18,12 @@ class Node:
 		self.right = None
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
-		if(check_data()):
+		if(self.check_data()):
 			self.split()
-			self.data = self.data.drop(self.feat_name,1)
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
+			menores = menores.drop(self.feat_name,1)
+			mayores = mayores.drop(self.feat_name,1)
 			self.add_left(menores)
 			self.add_right(mayores)
 

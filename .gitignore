@@ -1,6 +1,8 @@
 /pyRF.sublime-project
 /pyRF.sublime-workspace
 
+*.pyc
+
 .DS_Store
 
 .idea

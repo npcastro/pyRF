@@ -16,4 +16,4 @@ class Tree:
 
 	# seria bueno poder ver la estructura del arbol. 
 	def show(self):
-        pass
+		pass
