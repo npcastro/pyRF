@@ -74,7 +74,7 @@ class Node:
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
-		if self.data['class'].nunique() == 1:
+		if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
 			return False
 		else: 
 			return True
