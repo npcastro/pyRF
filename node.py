@@ -74,10 +74,10 @@ class Node:
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
-		if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
-			return false
+		if self.data['class'].nunique() == 1:
+			return False
 		else: 
-			return true
+			return True
 
 	# retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
 	def get_pivotes(self, feature):
