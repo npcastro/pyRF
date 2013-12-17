@@ -40,8 +40,14 @@ class Node:
 		# Inicializo la ganancia de info en el peor nivel posible
 		max_gain = -float('inf')
 
-		# Para cada feature (no considero la clase)
-		for f in self.data.columns[0:-1]:
+		# Para cada feature (no considero la clase ni la completitud)
+		filterfeatures = []
+		for feature in self.data.columns[0:-1]:
+			if not '_comp' in feature:
+				filterfeatures.append(feature)
+
+		#for f in self.data.columns[0:-1]:
+		for f in filterfeatures:
 
 			# separo el dominio en todas las posibles divisiones para obtener la optima division
 			pivotes = self.get_pivotes(self.data[f])
@@ -76,6 +82,7 @@ class Node:
 				p_c = len(data[data['class'] == c].index) / total
 				entropia = entropia - p_c * np.log2(p_c)
 			elif self.criterium == 'confianza':
+                p_c = 0
 				entropia = entropia - 0
 
 		return entropia
