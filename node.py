@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy import stats
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
@@ -10,16 +10,23 @@ class Node:
 		self.data = data
 		self.entropia = self.entropy(data)
 		self.is_leaf = False
+		self.clase = ''
 		self.feat_name = ""
 		self.feat_value = None
 		self.left = None
 		self.right = None
 
-		# Reviso si es necesario particionar el nodo
-
-		# Si es, llamo a split para hacerlo
+		# Si es necesario particionar el nodo, llamo a split para hacerlo
+		if(check_data()):
+			self.split()
+			menores = self.data[self.data[self.feat_name] < self.feat_value]
+			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
+			self.add_left(menores)
+			self.add_right(mayores)
 
 		# De lo contrario llamo a set_leaf para transformarlo en hoja
+		else:
+			self.set_leaf()
 
 	# Busca el mejor corte posible para el nodo
 	def split(self):
@@ -62,6 +69,11 @@ class Node:
 
 		return entropia
 
+	def check_data(self):
+		if (self.data['class'].nunique() == 1):
+			return false
+		else: 
+			return true
 
 	# retorna una lista con los valores de una feature cortada en 100 partes iguales
 	def get_pivotes(self, feature):
@@ -76,8 +88,9 @@ class Node:
 		return pivotes
 
 	# Convierte el nodo en hoja. Colocando la clase mas probable como resultado
-	def set_leaf(self, is_leaf):
-		pass
+	def set_leaf(self):
+		self.is_leaf = True
+		self.clase = stats.mode( self.data['class'])[0].item()
 
 	def add_left(self, left_data):
 		self.left = Node(left_data)
