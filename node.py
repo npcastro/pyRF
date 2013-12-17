@@ -18,7 +18,7 @@ class Node:
 		self.right = None
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
-		if(self.check_data()):
+		if self.check_data():
 			self.split()
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
@@ -35,7 +35,7 @@ class Node:
 	def split(self):
 		# Inicializo la ganancia de info en el peor nivel posible
 		max_gain = -float('inf')
-		
+
 		# Para cada feature (no considero la clase)
 		for f in self.data.columns[0:-1]:
 
