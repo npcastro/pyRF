@@ -18,7 +18,7 @@ class Node:
 		self.right = None
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
-		if(check_data()):
+		if self.check_data():
 			self.split()
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
@@ -71,10 +71,10 @@ class Node:
 		return entropia
 
 	def check_data(self):
-		if (self.data['class'].nunique() == 1):
-			return false
+		if self.data['class'].nunique() == 1:
+			return False
 		else: 
-			return true
+			return True
 
 	# retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
 	def get_pivotes(self, feature):
