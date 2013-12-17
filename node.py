@@ -20,6 +20,7 @@ class Node:
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
 		if(check_data()):
 			self.split()
+			self.data = self.data.drop(self.feat_name,1)
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 			self.add_left(menores)
@@ -70,8 +71,9 @@ class Node:
 
 		return entropia
 
+	# determina se es necesario hacer un split de los datos
 	def check_data(self):
-		if (self.data['class'].nunique() == 1):
+		if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
 			return false
 		else: 
 			return true
@@ -98,3 +100,12 @@ class Node:
 
 	def add_right(self, right_data):
 		self.right = Node(right_data)
+
+	def predict(self, tupla):
+		if(self.is_leaf):
+			return self.clase
+		else:
+			if(tupla['self.feat_name'] < self.feat_value):
+				return self.left.predict(tupla)
+			else:
+				return self.right.predict(tupla)
