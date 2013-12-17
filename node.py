@@ -6,16 +6,18 @@ from scipy import stats
 
 class Node:
 
-	def __init__(self, data):
+	def __init__(self, data, criterium):
 
 		self.data = data
-		self.entropia = self.entropy(data)
+
 		self.is_leaf = False
 		self.clase = ''
 		self.feat_name = ""
 		self.feat_value = None
 		self.left = None
 		self.right = None
+		self.criterium = criterium		# 'gain'
+		self.entropia = self.entropy(data)
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
 		if self.check_data():
@@ -70,8 +72,11 @@ class Node:
 		entropia = 0
 
 		for c in clases:
-			p_c = len(data[data['class'] == c].index) / total
-			entropia = entropia - p_c * np.log2(p_c)
+			if self.criterium == 'gain':
+				p_c = len(data[data['class'] == c].index) / total
+				entropia = entropia - p_c * np.log2(p_c)
+			elif self.criterium == 'confianza':
+				entropia = entropia - 0
 
 		return entropia
 
@@ -100,10 +105,10 @@ class Node:
 		self.clase = stats.mode( self.data['class'])[0].item()
 
 	def add_left(self, left_data):
-		self.left = Node(left_data)
+		self.left = Node(left_data, self.criterium)
 
 	def add_right(self, right_data):
-		self.right = Node(right_data)
+		self.right = Node(right_data, self.criterium)
 
 	def predict(self, tupla):
 		if(self.is_leaf):
@@ -115,8 +120,10 @@ class Node:
 				return self.right.predict(tupla)
 
 	def gain(self, menores, mayores):
-
 		total = len(self.data.index)
-		gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
 
+		if self.criterium == 'gain':
+			gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+		elif self.criterium == 'confianza':
+			gain = self.entropia - 0
 		return gain

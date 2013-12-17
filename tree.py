@@ -8,7 +8,7 @@ class Tree:
 
 	# recibe un set de entrenamiento y ajusta el arbol
 	def fit(self, data):
-		self.root = Node(data)
+		self.root = Node(data, self.criterium)
 
 	# recibe un dato y retorna prediccion
 	def predict(self, tupla):
