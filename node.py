@@ -22,8 +22,10 @@ class Node:
 			self.split()
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
+
 			menores = menores.drop(self.feat_name,1)
 			mayores = mayores.drop(self.feat_name,1)
+
 			self.add_left(menores)
 			self.add_right(mayores)
 
@@ -49,8 +51,9 @@ class Node:
 				mayores = self.data[self.data[f] >= pivote]
 
 				# Calculo la ganancia de informacion para esta variable
-				total = len(self.data.index)
-				gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+
+				# gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+				gain = self.gain(menores, mayores)
 
 				# Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
 				if(gain > max_gain):
@@ -74,9 +77,9 @@ class Node:
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
-		if self.data['class'].nunique() == 1:
+		if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
 			return False
-		else: 
+		else:
 			return True
 
 	# retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
@@ -110,3 +113,10 @@ class Node:
 				return self.left.predict(tupla)
 			else:
 				return self.right.predict(tupla)
+
+	def gain(self, menores, mayores):
+
+		total = len(self.data.index)
+		gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+
+		return gain
