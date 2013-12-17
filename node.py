@@ -8,7 +8,7 @@ class Node:
 	def __init__(self, data):
 
 		self.data = data
-		self.entropia = entropy(data)
+		self.entropia = self.entropy(data)
 		self.is_leaf = False
 		self.feat_name = ""
 		self.feat_value = None
@@ -30,7 +30,7 @@ class Node:
 		for f in self.data.columns[0:-1]:
 
 			# separo el dominio en varios pedazos de la misma longitud
-			pivotes = get_pivotes(self.data[f])
+			pivotes = self.get_pivotes(self.data[f])
 
 			for pivote in pivotes:
 
@@ -38,13 +38,13 @@ class Node:
 				menores = self.data[self.data[f] < pivote]
 				mayores = self.data[self.data[f] > pivote]
 
-				# Calculo la ganancia de información para esta variable
+				# Calculo la ganancia de informacion para esta variable
 				total = len(self.data.index)
-				gain = self.entropia - (len(menores) * entropy(menores) + len(mayores) * entropy(mayores)) / total
+				gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
 
 				# Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
 				if(gain > max_gain):
-					max_gain = gains
+					max_gain = gain
 					self.feat_name = f
 					self.feat_value = pivote
 
