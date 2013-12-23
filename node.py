@@ -9,14 +9,13 @@ class Node:
 	def __init__(self, data, criterium):
 
 		self.data = data
-
 		self.is_leaf = False
 		self.clase = ''
 		self.feat_name = ""
 		self.feat_value = None
 		self.left = None
 		self.right = None
-		self.criterium = criterium		# 'gain'
+		self.criterium = criterium
 		self.entropia = self.entropy(data)
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
@@ -116,15 +115,23 @@ class Node:
 	def add_right(self, right_data):
 		self.right = Node(right_data, self.criterium)
 
-	def predict(self, tupla):
+	def predict(self, tupla, confianza=1):
 		if self.is_leaf:
-			return self.clase
+			return self.clase, confianza
 		else:
-			if tupla['self.feat_name'] < self.feat_value:
-				return self.left.predict(tupla)
+			if tupla[self.feat_name] < self.feat_value:
+				if self.criterium == 'confianza':
+					# Propago la incertidumbre del dato que estoy prediciendo
+					return self.left.predict(tupla, confianza * tupla[self.feat_name + '_conf'])
+				else:
+					return self.left.predict(tupla)
 			else:
-				return self.right.predict(tupla)
+				if self.criterium == 'confianza':
+					return self.right.predict(tupla, confianza * tupla[self.feat_name + '_conf'])
+				else:
+					return self.right.predict(tupla)
 
+    # Retorna la ganancia de dividir los datos en menores y mayores.
 	def gain(self, menores, mayores):
 
 		total = len(self.data.index)
@@ -155,7 +162,7 @@ class Node:
 
 		return confianza
 
-	# Retorna la completitud de un grupo de datos
+	# Retorna la entropia, calculada con confianza, de un grupo de datos en una variable.
 	def trust(self, data, feature):
 
 		clases = data['class'].unique()

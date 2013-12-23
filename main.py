@@ -13,4 +13,9 @@ if __name__ == '__main__':
 
     #clf = Tree('gain')
     clf = Tree('confianza')
-    clf.fit(data)
+    clf.fit(data[10:])
+
+    # result = clf.predict(data.iloc[0])
+
+    result = clf.predict_table(data[0:10])
+
