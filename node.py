@@ -103,10 +103,10 @@ class Node:
 		self.right = Node(right_data)
 
 	def predict(self, tupla):
-		if(self.is_leaf):
+		if self.is_leaf:
 			return self.clase
 		else:
-			if(tupla['self.feat_name'] < self.feat_value):
+			if tupla['self.feat_name'] < self.feat_value:
 				return self.left.predict(tupla)
 			else:
 				return self.right.predict(tupla)
