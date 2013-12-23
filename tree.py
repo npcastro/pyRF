@@ -25,11 +25,7 @@ class Tree:
 			predicted, confianza = self.root.predict(row)
 			tabla.append([clase, predicted, confianza])
 
-		return pd.DataFrame(tabla)
-
-
-
-
+		return pd.DataFrame(tabla, index=frame.index)
 
 	# seria bueno poder ver la estructura del arbol. 
 	def show(self):

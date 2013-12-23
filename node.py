@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 from scipy import stats
+from collections import Counter
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
@@ -31,8 +32,10 @@ class Node:
 				menores = menores.drop(self.feat_name + '_conf', 1)
 				mayores = mayores.drop(self.feat_name + '_conf', 1)
 
-			self.add_left(menores)
-			self.add_right(mayores)
+			if not menores.empty:
+				self.add_left(menores)
+			if not mayores.empty:
+				self.add_right(mayores)
 
 		# De lo contrario llamo a set_leaf para transformarlo en hoja
 		else:
@@ -107,7 +110,11 @@ class Node:
 	# Convierte el nodo en hoja. Colocando la clase mas probable como resultado
 	def set_leaf(self):
 		self.is_leaf = True
-		self.clase = stats.mode( self.data['class'])[0].item()
+		# self.clase = stats.mode(self.data['class'])[0].item()
+		aux = Counter(self.data['class'])
+		self.clase = aux.most_common(1)[0][0]
+		print self.clase
+		
 
 	def add_left(self, left_data):
 		self.left = Node(left_data, self.criterium)
@@ -155,7 +162,6 @@ class Node:
 
 
 	def confianza(self, menores, mayores, feature):
-
 		total = sum(menores[feature + '_conf']) + sum(mayores[feature + '_conf'])
 
 		confianza = self.entropia - (sum(menores[feature + '_conf']) * self.trust(menores, feature) + sum(mayores[feature + '_conf']) * self.trust(mayores, feature)) / total
