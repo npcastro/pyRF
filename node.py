@@ -6,24 +6,32 @@ from scipy import stats
 
 class Node:
 
-	def __init__(self, data):
+	def __init__(self, data, criterium):
 
 		self.data = data
-		self.entropia = self.entropy(data)
+
 		self.is_leaf = False
 		self.clase = ''
 		self.feat_name = ""
 		self.feat_value = None
 		self.left = None
 		self.right = None
+		self.criterium = criterium		# 'gain'
+		self.entropia = self.entropy(data)
 
 		# Si es necesario particionar el nodo, llamo a split para hacerlo
 		if self.check_data():
 			self.split()
 			menores = self.data[self.data[self.feat_name] < self.feat_value]
 			mayores = self.data[self.data[self.feat_name] >= self.feat_value]
-			menores = menores.drop(self.feat_name,1)
-			mayores = mayores.drop(self.feat_name,1)
+
+			menores = menores.drop(self.feat_name, 1)
+			mayores = mayores.drop(self.feat_name, 1)
+
+			if self.criterium == 'confianza':
+				menores = menores.drop(self.feat_name + '_conf', 1)
+				mayores = mayores.drop(self.feat_name + '_conf', 1)
+
 			self.add_left(menores)
 			self.add_right(mayores)
 
@@ -36,8 +44,10 @@ class Node:
 		# Inicializo la ganancia de info en el peor nivel posible
 		max_gain = -float('inf')
 
-		# Para cada feature (no considero la clase)
-		for f in self.data.columns[0:-1]:
+		# Para cada feature (no considero la clase ni la completitud)
+		filterfeatures = self.filterfeatures()
+
+		for f in filterfeatures:
 
 			# separo el dominio en todas las posibles divisiones para obtener la optima division
 			pivotes = self.get_pivotes(self.data[f])
@@ -49,8 +59,12 @@ class Node:
 				mayores = self.data[self.data[f] >= pivote]
 
 				# Calculo la ganancia de informacion para esta variable
-				total = len(self.data.index)
-				gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+
+				# gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+				if self.criterium == 'gain':
+					gain = self.gain(menores, mayores)
+				elif self.criterium == 'confianza':
+					gain = self.confianza(menores, mayores, f)
 
 				# Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
 				if(gain > max_gain):
@@ -58,25 +72,25 @@ class Node:
 					self.feat_name = f
 					self.feat_value = pivote
 
+	def filterfeatures(self):
+		# Para cada feature (no considero la clase ni la completitud)
+		filterfeatures = []
+		for feature in self.data.columns:
+			if self.criterium == 'gain' and feature is not 'class':
+				filterfeatures.append(feature)
+			elif self.criterium == 'confianza' and not '_conf' in feature and feature is not 'class':
+				filterfeatures.append(feature)
+		return filterfeatures
 
-	# Retorna la entropia de un grupo de datos
-	def entropy(self, data):
-		total = len(data.index)
-		clases = data['class'].unique()
-
-		entropia = 0
-
-		for c in clases:
-			p_c = len(data[data['class'] == c].index) / total
-			entropia = entropia - p_c * np.log2(p_c)
-
-		return entropia
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
-		if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
+		featuresfaltantes = self.filterfeatures()
+
+		#if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
+		if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
 			return False
-		else: 
+		else:
 			return True
 
 	# retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
@@ -97,10 +111,10 @@ class Node:
 		self.clase = stats.mode( self.data['class'])[0].item()
 
 	def add_left(self, left_data):
-		self.left = Node(left_data)
+		self.left = Node(left_data, self.criterium)
 
 	def add_right(self, right_data):
-		self.right = Node(right_data)
+		self.right = Node(right_data, self.criterium)
 
 	def predict(self, tupla):
 		if self.is_leaf:
@@ -110,3 +124,47 @@ class Node:
 				return self.left.predict(tupla)
 			else:
 				return self.right.predict(tupla)
+
+	def gain(self, menores, mayores):
+
+		total = len(self.data.index)
+
+		gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+
+		return gain
+
+	# Retorna la entropia de un grupo de datos
+	def entropy(self, data):
+		clases = data['class'].unique()
+		total = len(data.index)
+
+		entropia = 0
+
+		for c in clases:
+			p_c = len(data[data['class'] == c].index) / total
+			entropia -= p_c * np.log2(p_c)
+
+		return entropia
+
+
+	def confianza(self, menores, mayores, feature):
+
+		total = sum(menores[feature + '_conf']) + sum(mayores[feature + '_conf'])
+
+		confianza = self.entropia - (sum(menores[feature + '_conf']) * self.trust(menores, feature) + sum(mayores[feature + '_conf']) * self.trust(mayores, feature)) / total
+
+		return confianza
+
+	# Retorna la completitud de un grupo de datos
+	def trust(self, data, feature):
+
+		clases = data['class'].unique()
+		total = sum(data[feature + '_conf'])
+
+		trust = 0
+
+		for c in clases:
+			p_c = sum(data[data['class'] == c][feature + '_conf']) / total
+			trust -= p_c * np.log2(p_c)
+
+		return trust
