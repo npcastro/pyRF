@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from node import *
 
@@ -30,3 +31,18 @@ class Tree:
     # seria bueno poder ver la estructura del arbol.
     def show(self):
         pass
+
+    #Matriz de confusion a partir de tabla de prediccion
+    def confusion_matrix(self, table):
+
+        unique = np.unique(np.concatenate((table[0].values, table[1].values), axis=1))
+
+        matrix = np.zeros((len(unique), len(unique)))
+        matrix = pd.DataFrame(matrix)
+        matrix.columns = unique
+        matrix.index = unique
+
+        for index, row in table.iterrows():
+            matrix[row[0]][row[1]] += row[2]
+
+        return matrix

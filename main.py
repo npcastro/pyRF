@@ -1,4 +1,4 @@
-from tree import *
+import tree
 
 if __name__ == '__main__':
     #nombres = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
@@ -10,14 +10,15 @@ if __name__ == '__main__':
     path = "Resultados/Resultados 40.txt"
     nombres = ['Macho_id', 'Sigma_B', 'Sigma_B_conf', 'Eta_B', 'Eta_B_conf', 'stetson_L_B', 'stetson_L_B_conf',
                'CuSum_B', 'CuSum_B_conf', 'B-R', 'B-R_conf', 'class']
-    data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
+    data = tree.pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
 
-    train = pd.concat([data[0:98], data[105:197], data[204:310]])
+    train = tree.pd.concat([data[0:98], data[105:197], data[204:310]])
 
-    test = pd.concat([data[98:105], data[197:204], data[310:]])
+    test = tree.pd.concat([data[98:105], data[197:204], data[310:]])
 
     #clf = Tree('gain')
-    clf = Tree('confianza')
+    clf = tree.Tree('confianza')
     clf.fit(train)
 
     result = clf.predict_table(test)
+    matrix = clf.confusion_matrix(result)
