@@ -1,4 +1,5 @@
 import tree
+import numpy as np
 
 if __name__ == '__main__':
     #nombres = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
@@ -11,6 +12,7 @@ if __name__ == '__main__':
     nombres = ['Macho_id', 'Sigma_B', 'Sigma_B_conf', 'Eta_B', 'Eta_B_conf', 'stetson_L_B', 'stetson_L_B_conf',
                'CuSum_B', 'CuSum_B_conf', 'B-R', 'B-R_conf', 'class']
     data = tree.pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
+    data = data.reindex(np.random.permutation(data.index))
 
     train = tree.pd.concat([data[0:98], data[105:197], data[204:310]])
 
