@@ -1,26 +1,40 @@
+import tree
 import pandas as pd
-from tree import *
+import numpy as np
 
 if __name__ == '__main__':
 
-
-
-    #nombres = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
-    #data = pd.read_csv('iris.data', header=None, names=nombres)
-
-    # nombres = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class', 'sepal length_conf', 'sepal width_conf', 'petal length_conf', 'petal width_conf']
-    # data = pd.read_csv('iris_comp.data', header=None, names=nombres)
-
     path = "/Users/npcastro/workspace/pyRF/Resultados/Resultados 20.txt"
-    nombres = ['Macho_id', 'Sigma_B', 'Sigma_B_conf', 'Eta_B', 'Eta_B_conf', 'stetson_L_B', 'stetson_L_B_conf', 'CuSum_B', 'CuSum_B_conf', 'B-R', 'B-R_conf', 'class']
-    data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
+    # path = "/Users/npcastro/workspace/Features/Resultados 40.txt"
 
-    train = pd.concat([data[0:98], data[105:197], data[204:310]])
+    # Por alguna razon no puedo leer del header de los archivos la palabra class
+    with open(path, 'r') as f:
+        nombres = f.readline().strip().split(' ')
+    f.close()
+    nombres = nombres[0:-1]
+    nombres.append('class')
 
-    test = pd.concat([data[98:105], data[197:204], data[310:]])
+    data = tree.pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
 
-    #clf = Tree('gain')
-    clf = Tree('confianza')
+    train = pd.DataFrame()
+    test = pd.DataFrame()
+
+    # Genero un set de test con el 10% de los datos de cada clase
+
+    # for i in range(2,10):
+    for i in data['class'].unique():
+
+        aux = data[data['class'] == i]
+
+        total = len(aux.index)
+        fraccion = total / 10
+
+        train = train.append(aux.iloc[0:-fraccion])
+        test = test.append(aux.iloc[-fraccion:])
+
+    # clf = Tree('gain')
+    clf = tree.Tree('confianza')
     clf.fit(train)
 
     result = clf.predict_table(test)
+    matrix = clf.confusion_matrix(result)
