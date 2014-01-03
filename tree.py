@@ -18,7 +18,7 @@ class Tree:
 	# recibe un frame completo y retorna otro frame con la clase original, la predicha y la confianza de la prediccion
 	def predict_table(self, frame):
 
-		# Creo el frame e inserto la clase
+		# Creo el frame e inserto los resultados
 		tabla = []
 		for index, row in frame.iterrows():
 			clase = row['class']
@@ -27,6 +27,6 @@ class Tree:
 
 		return pd.DataFrame(tabla, index=frame.index)
 
-	# seria bueno poder ver la estructura del arbol. 
+	# seria bueno poder ver la estructura del arbol
 	def show(self):
 		pass

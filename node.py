@@ -113,7 +113,6 @@ class Node:
 		# self.clase = stats.mode(self.data['class'])[0].item()
 		aux = Counter(self.data['class'])
 		self.clase = aux.most_common(1)[0][0]
-		print self.clase
 		
 
 	def add_left(self, left_data):
