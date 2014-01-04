@@ -30,7 +30,7 @@ class Tree:
 
     # seria bueno poder ver la estructura del arbol.
     def show(self):
-        pass
+        self.root.show()
 
     #Matriz de confusion a partir de tabla de prediccion
     def confusion_matrix(self, table):

@@ -19,10 +19,13 @@ class Node:
         self.criterium = criterium
         self.entropia = self.entropy(data)
         self.level = level
+        self.is_left = False
+        self.is_right = False
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_data():
             self.split()
+            # print self.feat_name
             menores = self.data[self.data[self.feat_name] < self.feat_value]
             mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
@@ -111,9 +114,11 @@ class Node:
 
     def add_left(self, left_data):
         self.left = Node(left_data, self.criterium, self.level+1)
+        self.left.is_left = True
 
     def add_right(self, right_data):
         self.right = Node(right_data, self.criterium, self.level+1)
+        self.right.is_right = True
 
     def predict(self, tupla, confianza=1):
         if self.is_leaf:
@@ -133,8 +138,28 @@ class Node:
                 else:
                     return self.right.predict(tupla)
 
-                    # Retorna la ganancia de dividir los datos en menores y mayores.
+    def show(self, linea=""):
+        if self.is_leaf:
+            print linea + '|---- ' + str(self.clase)
 
+        elif self.is_left:
+            self.right.show(linea + '|     ')
+            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '      ')
+
+        elif self.is_right:
+            self.right.show(linea + '      ')
+            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '|     ')
+
+        # Es el nodo raiz
+        else:
+            self.right.show(linea + '      ')
+            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '      ')  
+
+    
+    # Retorna la ganancia de dividir los datos en menores y mayores.
     def gain(self, menores, mayores):
 
         total = len(self.data.index)
