@@ -25,7 +25,7 @@ class Node:
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_data():
             self.split()
-            # print self.feat_name
+            print 'Feature elegida: ' + self.feat_name
             menores = self.data[self.data[self.feat_name] < self.feat_value]
             mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
@@ -53,10 +53,13 @@ class Node:
         # Para cada feature (no considero la clase ni la completitud)
         filterfeatures = self.filterfeatures()
 
+        print filterfeatures
+
         for f in filterfeatures:
+            print 'Evaluando feature: ' + f
 
             # separo el dominio en todas las posibles divisiones para obtener la optima division
-            pivotes = self.get_pivotes(self.data[f])
+            pivotes = self.get_pivotes(self.data[f], 'aprox')
 
             for pivote in pivotes:
 
@@ -93,16 +96,28 @@ class Node:
     def check_data(self):
         featuresfaltantes = self.filterfeatures()
 
-        #if self.data['class'].nunique() == 1 or len(self.data.columns) == 1:
+        
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
+            return False
+        elif self.level >= 5:
             return False
         else:
             return True
 
     # retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
-    def get_pivotes(self, feature):
+    def get_pivotes(self, feature, calidad = 'exact'):
 
-        return feature[1:].unique()
+        if calidad == 'exact':
+            return feature[1:].unique()
+        elif calidad == 'aprox':
+            minimo = feature.min()
+            maximo = feature.max()
+            step = maximo - minimo / 100
+            pivotes = []
+            for i in range(100):
+                pivotes.append(minimo + step*i)
+
+            return pivotes
 
     # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
     def set_leaf(self):

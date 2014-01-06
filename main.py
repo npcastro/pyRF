@@ -4,15 +4,19 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    path = "/Users/npcastro/workspace/pyRF/Resultados/Resultados 20.txt"
-    # path = "/Users/npcastro/workspace/Features/Resultados 40.txt"
+    # path = "/Users/npcastro/workspace/Features/Resultados 20.txt"
+    path = "/Users/npcastro/workspace/Features/Resultados 40.txt"
+    # path = "/Users/npcastro/workspace/Features/Resultados 60.txt"
+    # path = "/Users/npcastro/workspace/Features/Resultados 80.txt"
 
     # Por alguna razon no puedo leer del header de los archivos la palabra class
-    with open(path, 'r') as f:
-        nombres = f.readline().strip().split(' ')
-    f.close()
-    nombres = nombres[0:-1]
-    nombres.append('class')
+    # with open(path, 'r') as f:
+    #     nombres = f.readline().strip().split(' ')
+    # f.close()
+    # nombres = nombres[0:-1]
+    # nombres.append('class')
+
+    nombres = ['Macho_id', 'Sigma_B', 'Sigma_B_comp', 'Eta_B', 'Eta_B_comp', 'stetson_L_B', 'stetson_L_B_comp', 'CuSum_B', 'CuSum_B_comp', 'B-R', 'B-R_comp', 'stetson_J', 'stetson_J_comp', 'stetson_K', 'stetson_K_comp', 'skew', 'skew_comp', 'kurt', 'kurt_comp', 'std', 'std_comp', 'beyond1_std', 'beyond1_std_comp', 'max_slope', 'max_slope_comp', 'amplitude', 'amplitude_comp', 'med_abs_dev', 'med_abs_dev_comp', 'class']
 
     data = tree.pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
 
