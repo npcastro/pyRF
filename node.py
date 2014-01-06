@@ -25,21 +25,26 @@ class Node:
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_data():
             self.split()
-            print 'Feature elegida: ' + self.feat_name
-            menores = self.data[self.data[self.feat_name] < self.feat_value]
-            mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
-            menores = menores.drop(self.feat_name, 1)
-            mayores = mayores.drop(self.feat_name, 1)
+            if self.feat_name != '':
+                print 'Feature elegida: ' + self.feat_name
+                menores = self.data[self.data[self.feat_name] < self.feat_value]
+                mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
-            if self.criterium == 'confianza':
-                menores = menores.drop(self.feat_name + '_comp', 1)
-                mayores = mayores.drop(self.feat_name + '_comp', 1)
+                menores = menores.drop(self.feat_name, 1)
+                mayores = mayores.drop(self.feat_name, 1)
 
-            if not menores.empty:
-                self.add_left(menores)
-            if not mayores.empty:
-                self.add_right(mayores)
+                if self.criterium == 'confianza':
+                    menores = menores.drop(self.feat_name + '_comp', 1)
+                    mayores = mayores.drop(self.feat_name + '_comp', 1)
+
+                if not menores.empty:
+                    self.add_left(menores)
+                if not mayores.empty:
+                    self.add_right(mayores)
+
+            else:
+                self.set_leaf()
 
         # De lo contrario llamo a set_leaf para transformarlo en hoja
         else:
@@ -59,7 +64,8 @@ class Node:
             print 'Evaluando feature: ' + f
 
             # separo el dominio en todas las posibles divisiones para obtener la optima division
-            pivotes = self.get_pivotes(self.data[f], 'aprox')
+            pivotes = self.get_pivotes(self.data[f], 'exact')
+            # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
             for pivote in pivotes:
 
@@ -67,9 +73,11 @@ class Node:
                 menores = self.data[self.data[f] < pivote]
                 mayores = self.data[self.data[f] >= pivote]
 
-                # Calculo la ganancia de informacion para esta variable
+                # No considero caso en que todos los datos se vayan a una sola rama
+                if menores.empty or mayores.empty:
+                    continue
 
-                # gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+                # Calculo la ganancia de informacion para esta variable
                 if self.criterium == 'gain':
                     gain = self.gain(menores, mayores)
                 elif self.criterium == 'confianza':
@@ -85,7 +93,7 @@ class Node:
         # Para cada feature (no considero la clase ni la completitud)
         filterfeatures = []
         for feature in self.data.columns:
-            if self.criterium == 'gain' and feature is not 'class':
+            if self.criterium == 'gain' and not '_comp' in feature and feature is not 'class':
                 filterfeatures.append(feature)
             elif self.criterium == 'confianza' and not '_comp' in feature and feature != 'class':
                 filterfeatures.append(feature)
@@ -96,10 +104,9 @@ class Node:
     def check_data(self):
         featuresfaltantes = self.filterfeatures()
 
-        
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
             return False
-        elif self.level >= 5:
+        elif self.level >= 7:
             return False
         else:
             return True
@@ -159,18 +166,18 @@ class Node:
 
         elif self.is_left:
             self.right.show(linea + '|     ')
-            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            print linea + '|- '+ self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '      ')
 
         elif self.is_right:
             self.right.show(linea + '      ')
-            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            print linea + '|- '+ self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '|     ')
 
         # Es el nodo raiz
         else:
             self.right.show(linea + '      ')
-            print linea + '|- '+ self.feat_name + '-' + '(' + ("%.2f" % self.feat_value) + ')'
+            print linea + '|- '+ self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '      ')  
 
     
