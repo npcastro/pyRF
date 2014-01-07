@@ -17,6 +17,10 @@ class Tree:
     def predict(self, tupla):
         return self.root.predict(tupla)
 
+    # seria bueno poder ver la estructura del arbol.
+    def show(self):
+        self.root.show()
+
     # recibe un frame completo y retorna otro frame con la clase original, la predicha y la confianza de la prediccion
     def predict_table(self, frame):
         # Creo el frame e inserto la clase
@@ -26,11 +30,7 @@ class Tree:
             predicted, confianza = self.root.predict(row)
             tabla.append([clase, predicted, confianza])
 
-        return pd.DataFrame(tabla, index=frame.index)
-
-    # seria bueno poder ver la estructura del arbol.
-    def show(self):
-        self.root.show()
+        return pd.DataFrame(tabla, index=frame.index, header=[original, predicted, trust])
 
     #Matriz de confusion a partir de tabla de prediccion
     def confusion_matrix(self, table):
@@ -46,3 +46,21 @@ class Tree:
             matrix[row[0]][row[1]] += row[2]
 
         return matrix
+
+
+    # Retorna el accuracy para una clase en particular
+    def accuracy(self, matrix, clase=0):
+        
+        correctos = matrix[clase].loc[clase]
+        total = matrix[clase].sum()
+
+        return correctos / total
+
+
+    # Retorna el recall para una clase en particular
+    def recall(self, matrix, clase):
+        
+        reconocidos = matrix[clase].loc[clase]
+        total = matrix.loc[clase].sum()
+
+        return correctos / total

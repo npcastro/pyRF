@@ -1,16 +1,16 @@
 import tree
 import pandas as pd
 import numpy as np
+import pickle
 
 if __name__ == '__main__':
 
     # path = "/Users/npcastro/workspace/Features/Resultados 20.txt"
     # path = "/Users/npcastro/workspace/Features/Resultados 40.txt"
-    # path = "/Users/npcastro/workspace/Features/Resultados 60.txt"
+    path = "/Users/npcastro/workspace/Features/Resultados 60.txt"
     # path = "/Users/npcastro/workspace/Features/Resultados 80.txt"
-    path = "/Users/npcastro/workspace/Features/Resultados 100.txt"
+    # path = "/Users/npcastro/workspace/Features/Resultados 100.txt"
 
-    # Por alguna razon no puedo leer del header de los archivos la palabra class
     # with open(path, 'r') as f:
     #     nombres = f.readline().strip().split(' ')
     # f.close()
@@ -26,7 +26,6 @@ if __name__ == '__main__':
 
     # Genero un set de test con el 10% de los datos de cada clase
 
-    # for i in range(2,10):
     for i in data['class'].unique():
 
         aux = data[data['class'] == i]
@@ -37,9 +36,20 @@ if __name__ == '__main__':
         train = train.append(aux.iloc[0:-fraccion])
         test = test.append(aux.iloc[-fraccion:])
 
-    clf = tree.Tree('gain')
-    # clf = tree.Tree('confianza')
+    # clf = tree.Tree('gain')
+    clf = tree.Tree('confianza')
     clf.fit(train)
 
     result = clf.predict_table(test)
     matrix = clf.confusion_matrix(result)
+
+
+    # Serializo los resultados con pickle
+    
+    output = open( 'arbol 60.pkl', 'w')
+    pickle.dump(clf, output)
+    output.close()
+
+    output = open( 'result 60.pkl', 'w')
+    pickle.dump(result, output)
+    output.close()
