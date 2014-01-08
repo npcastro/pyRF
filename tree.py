@@ -30,12 +30,12 @@ class Tree:
             predicted, confianza = self.root.predict(row)
             tabla.append([clase, predicted, confianza])
 
-        return pd.DataFrame(tabla, index=frame.index, header=[original, predicted, trust])
+        return pd.DataFrame(tabla, index=frame.index, columns=['original', 'predicted', 'trust'])
 
     #Matriz de confusion a partir de tabla de prediccion
     def confusion_matrix(self, table):
 
-        unique = np.unique(np.concatenate((table[0].values, table[1].values), axis=1))
+        unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values), axis=1))
 
         matrix = np.zeros((len(unique), len(unique)))
         matrix = pd.DataFrame(matrix)
@@ -47,20 +47,43 @@ class Tree:
 
         return matrix
 
+    # Matriz de confusion hard a partir de la tabla de prediccion
+    def hard_matrix(self, table):
+        unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values), axis=1))        
+
+        matrix = np.zeros((len(unique), len(unique)))
+        matrix = pd.DataFrame(matrix)
+        matrix.columns = unique
+        matrix.index = unique
+
+        for index, row in table.iterrows():
+            matrix[row[0]][row[1]] += 1
+
+        return matrix
 
     # Retorna el accuracy para una clase en particular
-    def accuracy(self, matrix, clase=0):
+    def accuracy(self, matrix, clase):
         
-        correctos = matrix[clase].loc[clase]
-        total = matrix[clase].sum()
+        if clase in matrix.columns:
+            correctos = matrix[clase].loc[clase]
+            total = matrix[clase].sum()
 
-        return correctos / total
+            return correctos / total
+
+        # Retorno un numero negativo para identificar que no hay predicciones de esa clase la matriz de confusion
+        else:
+            return -1
 
 
     # Retorna el recall para una clase en particular
     def recall(self, matrix, clase):
         
-        reconocidos = matrix[clase].loc[clase]
-        total = matrix.loc[clase].sum()
+        if clase in matrix.columns:
+            reconocidos = matrix[clase].loc[clase]
+            total = matrix.loc[clase].sum()
 
-        return correctos / total
+            return reconocidos / total
+
+        # Retorno un numero negativo para identificar que no hay predicciones de esa clase la matriz de confusion
+        else:
+            return -1

@@ -26,6 +26,7 @@ class Node:
         if self.check_data():
             self.split()
 
+            # Falta corregir esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
                 menores = self.data[self.data[self.feat_name] < self.feat_value]
@@ -106,7 +107,7 @@ class Node:
 
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
             return False
-        elif self.level >= 7:
+        elif self.level >= 8:
             return False
         else:
             return True
