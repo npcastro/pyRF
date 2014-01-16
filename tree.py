@@ -98,7 +98,7 @@ class Tree:
 
         # Reviso que ambos sean validos
         elif acc == -1 or rec == -1:
-            print 'No hay predicciones para esa clase en la matriz de confusión'
+            return -1
 
         # Retorno f_score
         else:

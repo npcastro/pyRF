@@ -9,9 +9,9 @@ if __name__ == '__main__':
 
     for p in porcentajes:
 
-        # path = "/Users/npcastro/workspace/Features/Entrenamiento var_comp/Resultados " + str(p) + ".txt"
+        path = "/Users/npcastro/workspace/Features/Entrenamiento var_comp/Resultados " + str(p) + ".txt"
         # path = "/Users/npcastro/workspace/Features/Entrenamiento comp/Resultados " + str(p) + ".txt"
-        path = "/Users/npcastro/workspace/Features/Entrenamiento trust/Resultados " + str(p) + ".txt"
+        # path = "/Users/npcastro/workspace/Features/Entrenamiento trust/Resultados " + str(p) + ".txt"
 
         # with open(path, 'r') as f:
         #     nombres = f.readline().strip().split(' ')
@@ -38,8 +38,8 @@ if __name__ == '__main__':
             train = train.append(aux.iloc[0:-fraccion])
             test = test.append(aux.iloc[-fraccion:])
 
-        clf = tree.Tree('gain')
-        # clf = tree.Tree('confianza')
+        # clf = tree.Tree('gain')
+        clf = tree.Tree('confianza')
         clf.fit(train)
 
         result = clf.predict_table(test)
