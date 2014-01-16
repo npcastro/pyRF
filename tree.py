@@ -87,3 +87,19 @@ class Tree:
         # Retorno un numero negativo para identificar que no hay predicciones de esa clase la matriz de confusion
         else:
             return -1
+
+    def f_score(self, matrix, clase):
+        acc = self.accuracy(matrix, clase)
+        rec = self.recall(matrix, clase)
+
+        # Reviso esto, para evitar divisiones por cero
+        if acc == 0 or rec == 0:
+            return 0
+
+        # Reviso que ambos sean validos
+        elif acc == -1 or rec == -1:
+            print 'No hay predicciones para esa clase en la matriz de confusión'
+
+        # Retorno f_score
+        else:
+            return 2 * acc * rec / (acc + rec)
