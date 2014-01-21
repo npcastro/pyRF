@@ -4,9 +4,10 @@ import tree
 
 RESULT_DIR = 'resultados var_comp/'
 # RESULT_DIR = 'resultados trust/'
+# RESULT_DIR = 'resultados new_var/'
 
 # Porcentaje del arbol a ocupar
-p = 40
+p = 80
 
 # Inicializo un arbol cualquiera para tener sus metodos
 clf = tree.Tree('confianza')
@@ -19,6 +20,7 @@ clf = tree.Tree('confianza')
 
 # Cargo los resultados de la prediccion
 lector = open( RESULT_DIR + 'result ' + str(p) +'.pkl', 'r')
+# lector = open( 'Result especial.pkl', 'r')
 result = pickle.load(lector)
 lector.close()
 
@@ -39,6 +41,11 @@ for clase in range(2,10):
 		# Obtengo las predicciones con una confianza mayor a cierto umbral
 		porcentaje = float(i)/100
 		aux = result[result['trust'] > porcentaje]
+
+		# porcentaje = 1.0 - float(i)/100
+		# aux = result[result['trust'] < porcentaje]
+
+
 
 		matrix = clf.confusion_matrix(aux)
 
@@ -64,7 +71,7 @@ for clase in range(2,10):
 	plt.xlim(0.0, 1.0)
 
 	plt.title( 'Class ' + str(clase) + ' f-score v/s curve percentage')
-	plt.xlabel( 'Lightcurve percentage')
+	plt.xlabel( 'trust')
 	plt.ylabel( 'f-score' )
 
 	plt.savefig('Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')

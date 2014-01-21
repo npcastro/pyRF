@@ -32,12 +32,12 @@ class Node:
                 menores = self.data[self.data[self.feat_name] < self.feat_value]
                 mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
-                menores = menores.drop(self.feat_name, 1)
-                mayores = mayores.drop(self.feat_name, 1)
+                # menores = menores.drop(self.feat_name, 1)
+                # mayores = mayores.drop(self.feat_name, 1)
 
-                if self.criterium == 'confianza':
-                    menores = menores.drop(self.feat_name + '_comp', 1)
-                    mayores = mayores.drop(self.feat_name + '_comp', 1)
+                # if self.criterium == 'confianza':
+                #     menores = menores.drop(self.feat_name + '_comp', 1)
+                #     mayores = mayores.drop(self.feat_name + '_comp', 1)
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -133,7 +133,7 @@ class Node:
         # self.clase = stats.mode(self.data['class'])[0].item()
         aux = Counter(self.data['class'])
         self.clase = aux.most_common(1)[0][0]
-        # print self.clase
+        
 
     def add_left(self, left_data):
         self.left = Node(left_data, self.criterium, self.level+1)
