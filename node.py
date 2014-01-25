@@ -31,12 +31,12 @@ class Node:
                 menores = self.data[self.data[self.feat_name] < self.feat_value]
                 mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
-                menores = menores.drop(self.feat_name, 1)
-                mayores = mayores.drop(self.feat_name, 1)
+                #menores = menores.drop(self.feat_name, 1)
+                #mayores = mayores.drop(self.feat_name, 1)
 
-                if self.criterium == 'confianza':
-                    menores = menores.drop(self.feat_name + '_comp', 1)
-                    mayores = mayores.drop(self.feat_name + '_comp', 1)
+                #if self.criterium == 'confianza':
+                    #menores = menores.drop(self.feat_name + '_comp', 1)
+                    #mayores = mayores.drop(self.feat_name + '_comp', 1)
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -171,7 +171,7 @@ class Node:
 
         elif self.is_right:
             self.right.show(linea + '      ')
-            print linea + '|- '+ self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
+            print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '|     ')
 
         # Es el nodo raiz

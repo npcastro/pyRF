@@ -1,6 +1,9 @@
 /pyRF.sublime-project
 /pyRF.sublime-workspace
 
+/Resultados
+/Resultados/.
+
 *.pyc
 
 .DS_Store
