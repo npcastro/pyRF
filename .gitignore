@@ -1,11 +1,23 @@
 /pyRF.sublime-project
 /pyRF.sublime-workspace
 
-/Resultados
-/Resultados/.
-
 *.pyc
 
 .DS_Store
 
 .idea
+
+/resultados\ trust
+/resultados trust
+
+/resultados\ var_comp
+/resultados var_comp
+
+/resultados\ comp
+/resultados comp
+
+/resultados\ new_var
+/resultados new_var
+
+/resultado\ especial
+/resultado especial

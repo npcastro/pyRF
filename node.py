@@ -26,17 +26,27 @@ class Node:
         if self.check_data():
             self.split()
 
+            # Falta corregir esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
                 menores = self.data[self.data[self.feat_name] < self.feat_value]
                 mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
+<<<<<<< HEAD
                 #menores = menores.drop(self.feat_name, 1)
                 #mayores = mayores.drop(self.feat_name, 1)
 
                 #if self.criterium == 'confianza':
                     #menores = menores.drop(self.feat_name + '_comp', 1)
                     #mayores = mayores.drop(self.feat_name + '_comp', 1)
+=======
+                # menores = menores.drop(self.feat_name, 1)
+                # mayores = mayores.drop(self.feat_name, 1)
+
+                # if self.criterium == 'confianza':
+                #     menores = menores.drop(self.feat_name + '_comp', 1)
+                #     mayores = mayores.drop(self.feat_name + '_comp', 1)
+>>>>>>> ef2ead75d86ed458cc05352d301dc95d1ccb2bf2
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -106,7 +116,7 @@ class Node:
 
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
             return False
-        elif self.level >= 7:
+        elif self.level >= 8:
             return False
         else:
             return True
@@ -132,7 +142,7 @@ class Node:
         # self.clase = stats.mode(self.data['class'])[0].item()
         aux = Counter(self.data['class'])
         self.clase = aux.most_common(1)[0][0]
-        # print self.clase
+        
 
     def add_left(self, left_data):
         self.left = Node(left_data, self.criterium, self.level+1)
