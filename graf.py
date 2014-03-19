@@ -7,7 +7,7 @@ RESULT_DIR = 'resultados var_comp/'
 # RESULT_DIR = 'resultados new_var/'
 
 # Porcentaje del arbol a ocupar
-p = 80
+p = 20
 
 # Inicializo un arbol cualquiera para tener sus metodos
 clf = tree.Tree('confianza')
@@ -70,9 +70,9 @@ for clase in range(2,10):
 	plt.ylim(0.0, 1.0)
 	plt.xlim(0.0, 1.0)
 
-	plt.title( 'Class ' + str(clase) + ' f-score v/s curve percentage')
-	plt.xlabel( 'trust')
-	plt.ylabel( 'f-score' )
+	plt.title( 'Class ' + str(clase) + ' F-Score v/s Prediction Certainty')
+	plt.xlabel( 'Minimum Stability considered')
+	plt.ylabel( 'F-Score' )
 
 	plt.savefig('Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')
 	plt.close()
