@@ -7,7 +7,7 @@ import numpy as np
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
 class Node:
-    def __init__(self, data, criterium, level = 1):
+    def __init__(self, data, criterium = 'gain', level = 1):
 
         self.data = data
         self.is_leaf = False

@@ -18,6 +18,7 @@ if __name__ == '__main__':
         # path = "/Users/npcastro/workspace/Features/Entrenamiento trust/Entrenamiento " + str(p) + ".txt"
         # path = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(p) + ".txt"
 
+        # Obtengo los nombres de las variables
         # with open(path, 'r') as f:
         #     nombres = f.readline().strip().split(' ')
         # f.close()

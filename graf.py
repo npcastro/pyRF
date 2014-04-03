@@ -74,3 +74,6 @@ for clase in range(2,10):
 
 	plt.savefig('Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')
 	plt.close()
+
+if __name__ == '__main__':
+	pass
