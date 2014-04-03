@@ -7,7 +7,7 @@ import numpy as np
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
 class Node:
-    def __init__(self, data, criterium = 'gain', level = 1):
+    def __init__(self, data, criterium, level = 1):
 
         self.data = data
         self.is_leaf = False
@@ -31,13 +31,6 @@ class Node:
                 print 'Feature elegida: ' + self.feat_name
                 menores = self.data[self.data[self.feat_name] < self.feat_value]
                 mayores = self.data[self.data[self.feat_name] >= self.feat_value]
-
-                # menores = menores.drop(self.feat_name, 1)
-                # mayores = mayores.drop(self.feat_name, 1)
-
-                # if self.criterium == 'confianza':
-                #     menores = menores.drop(self.feat_name + '_comp', 1)
-                #     mayores = mayores.drop(self.feat_name + '_comp', 1)
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -64,7 +57,7 @@ class Node:
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
-            # separo el dominio en todas las posibles divisiones para obtener la optima division
+            # separo el dominio en todas las posibles divisiones para obtener la division optima
             pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
