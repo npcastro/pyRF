@@ -1,3 +1,5 @@
+# Toma un set de entrenamiento con incertidumbre, entrena un arbol con este. Luego guarda el arbol aprendido y los resultados
+
 import tree
 import pandas as pd
 import numpy as np

@@ -45,8 +45,6 @@ for clase in range(2,10):
 		# porcentaje = 1.0 - float(i)/100
 		# aux = result[result['trust'] < porcentaje]
 
-
-
 		matrix = clf.confusion_matrix(aux)
 
 		# Si la precision es menor que cero, es porque no habian datos que superaran tal nivel de confianza

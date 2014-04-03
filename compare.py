@@ -1,8 +1,12 @@
+# Entreno un arbol basado solo en ganancias de informacion y pero despues predigo considerando la incerteza
+# Sirve para poder comparar si hay una mejora en entrenar considerando las incertezas
+
 import pickle
 import matplotlib.pyplot as plt
 import tree
 import pandas as pd
 
+# Cambia el criterio de todo un arbol para que utilice confianzas
 def change(node):
 	node.criterium = 'confianza'
 	if node.is_leaf:
@@ -14,7 +18,6 @@ def change(node):
 RESULT_DIR = 'resultados new_var/'
 
 # Entreno un arbol con el 100% de las curvas
-
 path_train = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(100) + ".txt"
 path_test = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(40) + ".txt"
 
