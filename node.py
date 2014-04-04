@@ -136,11 +136,11 @@ class Node:
         
 
     def add_left(self, left_data):
-        self.left = Node(left_data, self.criterium, self.level+1)
+        self.left = Node(left_data, self.criterium, self.level+1, self.max_depth, self.min_samples_split)
         self.left.is_left = True
 
     def add_right(self, right_data):
-        self.right = Node(right_data, self.criterium, self.level+1)
+        self.right = Node(right_data, self.criterium, self.level+1, self.max_depth, self.min_samples_split)
         self.right.is_right = True
 
     def predict(self, tupla, confianza=1):
