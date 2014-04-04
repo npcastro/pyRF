@@ -5,13 +5,15 @@ from node import *
 
 
 class Tree:
-    def __init__(self, criterium):
+    def __init__(self, criterium, max_depth=8, min_samples_split=10):
         self.root = []
         self.criterium = criterium
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
 
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data):
-        self.root = Node(data, self.criterium)
+        self.root = Node(data, self.criterium, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
 
     # recibe un dato y retorna prediccion
     def predict(self, tupla):

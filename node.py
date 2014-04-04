@@ -7,8 +7,9 @@ import numpy as np
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
 class Node:
-    def __init__(self, data, criterium, level = 1):
+    def __init__(self, data, criterium, level = 1, max_depth = 8, min_samples_split=10):
 
+        # Atributos particulares del nodo
         self.data = data
         self.is_leaf = False
         self.clase = ''
@@ -16,11 +17,15 @@ class Node:
         self.feat_value = None
         self.left = None
         self.right = None
-        self.criterium = criterium
         self.entropia = self.entropy(data)
-        self.level = level
         self.is_left = False
         self.is_right = False
+        self.level = level
+
+        # Atributos generales del arbol
+        self.criterium = criterium
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_data():
@@ -100,7 +105,9 @@ class Node:
 
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
             return False
-        elif self.level >= 8:
+        elif self.level >= self.max_depth:
+            return False
+        elif seld.data.shape[0] < self.min_samples_split
             return False
         else:
             return True
