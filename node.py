@@ -77,10 +77,7 @@ class Node:
                     continue
 
                 # Calculo la ganancia de informacion para esta variable
-                # if self.criterium == 'gain':
                 gain = self.gain(menores, mayores, f)
-                # elif self.criterium == 'confianza':
-                #     gain = self.confianza(menores, mayores, f)
 
                 # Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
                 if (gain > max_gain):
@@ -177,6 +174,8 @@ class Node:
 
     
     # Retorna la ganancia de dividir los datos en menores y mayores.
+    # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
+    # Eso debe poder arreglarse
     def gain(self, menores, mayores, feature):
 
         total = len(self.data.index)
@@ -198,31 +197,6 @@ class Node:
 
         return entropia
 
-
-    # def confianza(self, menores, mayores, feature):
-    #     total = sum(menores[feature + '_comp']) + sum(mayores[feature + '_comp'])
-
-    #     confianza = self.entropia - (
-    #         sum(menores[feature + '_comp']) * self.trust(menores, feature) + sum(
-    #             mayores[feature + '_comp']) * self.trust(
-    #             mayores, feature)) / total
-
-    #     return confianza
-
-    # Retorna la entropia, calculada con confianza, de un grupo de datos en una variable.
-    def trust(self, data, feature):
-
-        clases = data['class'].unique()
-        total = sum(data[feature + '_comp'])
-
-        trust = 0
-
-        for c in clases:
-            p_c = sum(data[data['class'] == c][feature + '_comp']) / total
-            trust -= p_c * np.log2(p_c)
-
-        return trust
-
 class CompNode(Node):
     def __init__(self, data, criterium, level=1, max_depth=8, min_samples_split=10):
 
@@ -239,49 +213,16 @@ class CompNode(Node):
 
         return confianza
 
-    # Busca el mejor corte posible para el nodo
-    # def split(self):
-    #     # Inicializo la ganancia de info en el peor nivel posible
-    #     max_gain = -float('inf')
+    # Retorna la entropia, calculada con confianza, de un grupo de datos en una variable.
+    def trust(self, data, feature):
 
-    #     # Para cada feature (no considero la clase ni la completitud)
-    #     filterfeatures = self.filterfeatures()
+        clases = data['class'].unique()
+        total = sum(data[feature + '_comp'])
 
-    #     print filterfeatures
+        trust = 0
 
-    #     for f in filterfeatures:
-    #         print 'Evaluando feature: ' + f
+        for c in clases:
+            p_c = sum(data[data['class'] == c][feature + '_comp']) / total
+            trust -= p_c * np.log2(p_c)
 
-    #         # separo el dominio en todas las posibles divisiones para obtener la division optima
-    #         pivotes = self.get_pivotes(self.data[f], 'exact')
-    #         # pivotes = self.get_pivotes(self.data[f], 'aprox')
-
-    #         for pivote in pivotes:
-
-    #             # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-    #             menores = self.data[self.data[f] < pivote]
-    #             mayores = self.data[self.data[f] >= pivote]
-
-    #             # No considero caso en que todos los datos se vayan a una sola rama
-    #             if menores.empty or mayores.empty:
-    #                 continue
-
-    #             # Calculo la ganancia de informacion para esta variable
-    #             gain = self.confianza(menores, mayores, f)
-
-    #             # Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
-    #             if (gain > max_gain):
-    #                 max_gain = gain
-    #                 self.feat_name = f
-    #                 self.feat_value = pivote
-
-    # def filterfeatures(self):
-    #     filterfeatures = []
-    #     for feature in self.data.columns:
-    #         if self.criterium == 'gain' and not '_comp' in feature and feature is not 'class':
-    #             filterfeatures.append(feature)
-    #         elif self.criterium == 'confianza' and not '_comp' in feature and feature != 'class':
-    #             filterfeatures.append(feature)
-    #     return filterfeatures
-
-    
+        return trust
