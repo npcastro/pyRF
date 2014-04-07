@@ -88,15 +88,9 @@ class Node:
                     self.feat_name = f
                     self.feat_value = pivote
 
+    # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):
-        # Para cada feature (no considero la clase ni la completitud)
-        filterfeatures = []
-        for feature in self.data.columns:
-            if self.criterium == 'gain' and not '_comp' in feature and feature is not 'class':
-                filterfeatures.append(feature)
-            elif self.criterium == 'confianza' and not '_comp' in feature and feature != 'class':
-                filterfeatures.append(feature)
-        return filterfeatures
+        return [f for f in self.data.columns if not '_comp' in f and f is not 'class']
 
 
     # determina se es necesario hacer un split de los datos
@@ -107,8 +101,8 @@ class Node:
             return False
         elif self.level >= self.max_depth:
             return False
-        elif seld.data.shape[0] < self.min_samples_split
-            return False
+        # elif self.data.shape[0] < self.min_samples_split
+        #     return False
         else:
             return True
 
@@ -228,3 +222,59 @@ class Node:
             trust -= p_c * np.log2(p_c)
 
         return trust
+
+class CompNode(Node):
+    def __init__(self, data, criterium, level=1, max_depth=8, min_samples_split=10):
+
+        Node.__init__(self, data, criterium, level, max_depth, min_samples_split)
+        # super(Node,self.init(self, data, criterium, level, max_depth, min_samples_split))
+
+    # Busca el mejor corte posible para el nodo
+    # def split(self):
+    #     # Inicializo la ganancia de info en el peor nivel posible
+    #     max_gain = -float('inf')
+
+    #     # Para cada feature (no considero la clase ni la completitud)
+    #     filterfeatures = self.filterfeatures()
+
+    #     print filterfeatures
+
+    #     for f in filterfeatures:
+    #         print 'Evaluando feature: ' + f
+
+    #         # separo el dominio en todas las posibles divisiones para obtener la division optima
+    #         pivotes = self.get_pivotes(self.data[f], 'exact')
+    #         # pivotes = self.get_pivotes(self.data[f], 'aprox')
+
+    #         for pivote in pivotes:
+
+    #             # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+    #             menores = self.data[self.data[f] < pivote]
+    #             mayores = self.data[self.data[f] >= pivote]
+
+    #             # No considero caso en que todos los datos se vayan a una sola rama
+    #             if menores.empty or mayores.empty:
+    #                 continue
+
+    #             # Calculo la ganancia de informacion para esta variable
+    #             if self.criterium == 'gain':
+    #                 gain = self.gain(menores, mayores)
+    #             elif self.criterium == 'confianza':
+    #                 gain = self.confianza(menores, mayores, f)
+
+    #             # Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
+    #             if (gain > max_gain):
+    #                 max_gain = gain
+    #                 self.feat_name = f
+    #                 self.feat_value = pivote
+
+    # def filterfeatures(self):
+    #     filterfeatures = []
+    #     for feature in self.data.columns:
+    #         if self.criterium == 'gain' and not '_comp' in feature and feature is not 'class':
+    #             filterfeatures.append(feature)
+    #         elif self.criterium == 'confianza' and not '_comp' in feature and feature != 'class':
+    #             filterfeatures.append(feature)
+    #     return filterfeatures
+
+    
