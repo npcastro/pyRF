@@ -139,18 +139,9 @@ class Node:
             return self.clase, confianza
         else:
             if tupla[self.feat_name] < self.feat_value:
-                if self.criterium == 'confianza':
-                    # Propago la incertidumbre del dato que estoy prediciendo
-                    # return self.left.predict(tupla, confianza * tupla[self.feat_name + '_comp'])
-                    return self.left.predict(tupla, (confianza + tupla[self.feat_name + '_comp'])/2)
-                else:
-                    return self.left.predict(tupla)
+                return self.left.predict(tupla)
             else:
-                if self.criterium == 'confianza':
-                    # return self.right.predict(tupla, confianza * tupla[self.feat_name + '_comp'])
-                    return self.right.predict(tupla, (confianza + tupla[self.feat_name + '_comp'])/2)
-                else:
-                    return self.right.predict(tupla)
+                return self.right.predict(tupla)
 
     def show(self, linea=""):
         if self.is_leaf:
@@ -225,3 +216,16 @@ class CompNode(Node):
             trust -= p_c * np.log2(p_c)
 
         return trust
+
+    def predict(self, tupla, confianza=1):
+        if self.is_leaf:
+            return self.clase, confianza
+        else:
+            if tupla[self.feat_name] < self.feat_value:
+                # Propago la incertidumbre del dato que estoy prediciendo
+                # return self.left.predict(tupla, confianza * tupla[self.feat_name + '_comp'])
+                return self.left.predict(tupla, (confianza + tupla[self.feat_name + '_comp'])/2)
+                
+            else:
+                # return self.right.predict(tupla, confianza * tupla[self.feat_name + '_comp'])
+                return self.right.predict(tupla, (confianza + tupla[self.feat_name + '_comp'])/2)
