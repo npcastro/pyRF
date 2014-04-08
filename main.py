@@ -35,7 +35,7 @@ if __name__ == '__main__':
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        data = data.iloc[0:300]
+        # data = data.iloc[0:300]
 
         # Hago cross validation
         skf = cross_validation.StratifiedKFold(data['class'], n_folds=folds)
