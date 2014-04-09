@@ -14,9 +14,9 @@ class Tree:
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data):
         if self.criterium == 'gain':
-            self.root = Node(data, self.criterium, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+            self.root = Node(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
         elif self.criterium == 'confianza':
-            self.root = CompNode(data, self.criterium, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+            self.root = CompNode(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
 
     # recibe un dato y retorna prediccion
     def predict(self, tupla):

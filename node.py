@@ -7,7 +7,7 @@ import numpy as np
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
 class Node:
-    def __init__(self, data, criterium, level = 1, max_depth = 8, min_samples_split=10):
+    def __init__(self, data, level = 1, max_depth = 8, min_samples_split=10):
 
         # Atributos particulares del nodo
         self.data = data
@@ -23,7 +23,6 @@ class Node:
         self.level = level
 
         # Atributos generales del arbol
-        self.criterium = criterium
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
 
@@ -127,11 +126,11 @@ class Node:
         
 
     def add_left(self, left_data):
-        self.left = self.__class__(left_data, self.criterium, self.level+1, self.max_depth, self.min_samples_split)
+        self.left = self.__class__(left_data, self.level+1, self.max_depth, self.min_samples_split)
         self.left.is_left = True
 
     def add_right(self, right_data):
-        self.right = self.__class__(right_data, self.criterium, self.level+1, self.max_depth, self.min_samples_split)
+        self.right = self.__class__(right_data, self.level+1, self.max_depth, self.min_samples_split)
         self.right.is_right = True
 
     def predict(self, tupla, confianza=1):
@@ -189,9 +188,9 @@ class Node:
         return entropia
 
 class CompNode(Node):
-    def __init__(self, data, criterium, level=1, max_depth=8, min_samples_split=10):
+    def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
 
-        Node.__init__(self, data, criterium, level, max_depth, min_samples_split)
+        Node.__init__(self, data, level, max_depth, min_samples_split)
 
     def gain(self, menores, mayores, feature):
         total = sum(menores[feature + '_comp']) + sum(mayores[feature + '_comp'])
