@@ -1,5 +1,6 @@
 from node import *
 import scipy.stats
+import pandas as pd
 
 
 class UNode(Node):
@@ -68,10 +69,10 @@ class UNode(Node):
 				menor[feature_name + '.r'] = pivote
 				menores.append(menor)
 
-		return menores
+		return pd.DataFrame(menores)
 		# return self.data[self.data[feature] < pivote]
 
-	def get_mayores(self, feature, pivote):
+	def get_mayores(self, feature_name, pivote):
 		# return self.data[self.data[feature] >= pivote]
 		mayores = []
 
@@ -106,7 +107,7 @@ class UNode(Node):
 				mayor[feature_name + '.r'] = pivote
 				mayores.append(mayor)
 
-		return mayores
+		return pd.DataFrame(mayores)
 
 	"""
 	Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
@@ -117,7 +118,7 @@ class UNode(Node):
 	pivote: valor de corte
 	how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
 	"""
-	def get_weight(w, mean, std, l, r, pivote, how='menor'):
+	def get_weight(self, w, mean, std, l, r, pivote, how='menor'):
 		
 		total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
 
@@ -135,7 +136,7 @@ class UNode(Node):
 	# Eso debe poder arreglarse
 	def gain(self, menores, mayores, feature):
 
-		total = data['weight'].sum()
+		total = self.data['weight'].sum()
 
 		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
 

@@ -54,8 +54,8 @@ if __name__ == '__main__':
 
             clf = None
             # clf = tree.Tree('confianza')
-            # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty')
+            clf = tree.Tree('gain')
+            # clf = tree.Tree('uncertainty')
 
             clf.fit(train)
 
