@@ -98,8 +98,8 @@ class Node:
             return False
         elif self.level >= self.max_depth:
             return False
-        # elif self.data.shape[0] < self.min_samples_split
-        #     return False
+        elif self.data.shape[0] < self.min_samples_split
+            return False
         else:
             return True
 
