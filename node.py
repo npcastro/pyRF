@@ -86,8 +86,11 @@ class Node:
 
     # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):
-        return [f for f in self.data.columns if not '_comp' in f and f is not 'class']
-
+        filter_arr = []
+        for f in self.data.columns:
+            if not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and f != 'weight' and f != 'class':
+                filter_arr.append(f)
+        return filter_arr
 
     # determina se es necesario hacer un split de los datos
     def check_data(self):

@@ -15,10 +15,12 @@ if __name__ == '__main__':
 
     for p in porcentajes:
 
-        path = "/Users/npcastro/workspace/Features/Entrenamiento var_comp/Entrenamiento " + str(p) + ".txt"
+        # path = "/Users/npcastro/workspace/Features/Entrenamiento var_comp/Entrenamiento " + str(p) + ".txt"
         # path = "/Users/npcastro/workspace/Features/Entrenamiento comp/Entrenamiento " + str(p) + ".txt"
         # path = "/Users/npcastro/workspace/Features/Entrenamiento trust/Entrenamiento " + str(p) + ".txt"
         # path = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(p) + ".txt"
+
+        path = "sets/u_iris 10.csv"
 
         # Obtengo los nombres de las variables
         with open(path, 'r') as f:
@@ -28,12 +30,14 @@ if __name__ == '__main__':
         nombres.append('class')
 
 
-        data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
+        # data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
+
+        data = pd.read_csv(path)
 
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        data = data.iloc[0:300]
+        # data = data.iloc[0:300]
 
         # Hago cross validation
         skf = cross_validation.StratifiedKFold(data['class'], n_folds=folds)
