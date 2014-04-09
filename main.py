@@ -21,13 +21,11 @@ if __name__ == '__main__':
         # path = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(p) + ".txt"
 
         # Obtengo los nombres de las variables
-        # with open(path, 'r') as f:
-        #     nombres = f.readline().strip().split(' ')
-        # f.close()
-        # nombres = nombres[0:-1]
-        # nombres.append('class')
-
-        nombres = ['Macho_id', 'Sigma_B', 'Sigma_B_comp', 'Eta_B', 'Eta_B_comp', 'stetson_L_B', 'stetson_L_B_comp', 'CuSum_B', 'CuSum_B_comp', 'B-R', 'B-R_comp', 'stetson_J', 'stetson_J_comp', 'stetson_K', 'stetson_K_comp', 'skew', 'skew_comp', 'kurt', 'kurt_comp', 'std', 'std_comp', 'beyond1_std', 'beyond1_std_comp', 'max_slope', 'max_slope_comp', 'amplitude', 'amplitude_comp', 'med_abs_dev', 'med_abs_dev_comp', 'class']
+        with open(path, 'r') as f:
+            nombres = f.readline().strip().split(' ')
+        f.close()
+        nombres = nombres[0:-1]
+        nombres.append('class')
 
 
         data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
@@ -35,7 +33,7 @@ if __name__ == '__main__':
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        # data = data.iloc[0:300]
+        data = data.iloc[0:300]
 
         # Hago cross validation
         skf = cross_validation.StratifiedKFold(data['class'], n_folds=folds)
@@ -47,8 +45,8 @@ if __name__ == '__main__':
             count += 1
             train, test = data.iloc[train_index], data.iloc[test_index]
 
-            # clf = tree.Tree('confianza')
-            clf = tree.Tree('gain')
+            clf = tree.Tree('confianza')
+            # clf = tree.Tree('gain')
             clf.fit(train)
 
             results.append(clf.predict_table(test))
@@ -58,10 +56,10 @@ if __name__ == '__main__':
 
         # Serializo los resultados con pickle
         
-        output = open( 'arbol ' + str(p) + '.pkl', 'w')
+        output = open( 'output/arbol ' + str(p) + '.pkl', 'w')
         pickle.dump(clf, output)
         output.close()
 
-        output = open( 'result '+ str(p) + '.pkl', 'w')
+        output = open( 'output/result '+ str(p) + '.pkl', 'w')
         pickle.dump(result, output)
         output.close()
