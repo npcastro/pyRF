@@ -45,8 +45,10 @@ if __name__ == '__main__':
             count += 1
             train, test = data.iloc[train_index], data.iloc[test_index]
 
-            clf = tree.Tree('confianza')
+            # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
+            clf = tree.Tree('uncertainty')
+
             clf.fit(train)
 
             results.append(clf.predict_table(test))

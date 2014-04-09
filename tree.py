@@ -3,7 +3,7 @@ import numpy as np
 
 from node import *
 from CompNode import *
-
+from UNode import *
 
 class Tree:
     def __init__(self, criterium, max_depth=8, min_samples_split=10):
@@ -18,6 +18,8 @@ class Tree:
             self.root = Node(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
         elif self.criterium == 'confianza':
             self.root = CompNode(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+        elif self.criterium == 'uncertainty':
+            self.root = UNode(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
 
     # recibe un dato y retorna prediccion
     def predict(self, tupla):
