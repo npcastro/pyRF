@@ -31,8 +31,11 @@ if __name__ == '__main__':
 
 
         # data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
-
         data = pd.read_csv(path)
+
+        data['weight'] = data['weight'].astype(float)
+
+
 
         data = data.dropna(axis = 0, how='any')
 

@@ -130,26 +130,28 @@ class UNode(Node):
 			return w * (pivot_mass / total_mass)
 
 
-	# # Retorna la ganancia de dividir los datos en menores y mayores.
-	# # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
-	# # Eso debe poder arreglarse
-	# def gain(self, menores, mayores, feature):
+	# Retorna la ganancia de dividir los datos en menores y mayores.
+	# Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
+	# Eso debe poder arreglarse
+	def gain(self, menores, mayores, feature):
 
-	# 	total = len(self.data.index)
+		total = data['weight'].sum()
 
-	# 	gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
 
-	# 	return gain
+		return gain
 
-	# # Retorna la entropia de un grupo de datos
-	# def entropy(self, data):
-	# 	clases = data['class'].unique()
-	# 	total = len(data.index)
+	# Retorna la entropia de un grupo de datos
+	def entropy(self, data):
+		clases = data['class'].unique()
 
-	# 	entropia = 0
+		# El total es la masa de probabilidad total del grupo de datos
+		total = data['weight'].sum()
 
-	# 	for c in clases:
-	# 		p_c = len(data[data['class'] == c].index) / total
-	# 		entropia -= p_c * np.log2(p_c)
+		entropia = 0
 
-	# 	return entropia
+		for c in clases:
+			p_c = data[data['class'] == c]['weight'].sum() / total
+			entropia -= p_c * np.log2(p_c)
+
+		return entropia
