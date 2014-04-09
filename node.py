@@ -68,8 +68,8 @@ class Node:
             for pivote in pivotes:
 
                 # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-                menores = self.data[self.data[f] < pivote]
-                mayores = self.data[self.data[f] >= pivote]
+                menores = self.get_menores(f, pivote)
+                mayores = self.get_mayores(f, pivote)
 
                 # No considero caso en que todos los datos se vayan a una sola rama
                 if menores.empty or mayores.empty:
@@ -83,6 +83,12 @@ class Node:
                     max_gain = gain
                     self.feat_name = f
                     self.feat_value = pivote
+
+    def get_menores(self, feature, pivote):
+        return self.data[self.data[feature] < pivote]
+
+    def get_mayores(self, feature, pivote):
+        return self.data[self.data[feature] >= pivote]
 
     # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):

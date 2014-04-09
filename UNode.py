@@ -19,7 +19,6 @@ class UNode(Node):
 		else:
 			return True
 
-
 	# Creo que no es necesario que reciba el frame
 	def total_samples_mass(data, clase):
 		return data[data['class'] == clase]['weight'].sum()
