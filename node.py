@@ -33,8 +33,10 @@ class Node:
             # Falta corregir esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
-                menores = self.data[self.data[self.feat_name] < self.feat_value]
-                mayores = self.data[self.data[self.feat_name] >= self.feat_value]
+                menores = self.get_menores(self.feat_name, self.feat_value)
+                mayores = self.get_mayores(self.feat_name, self.feat_value)                
+                # menores = self.data[self.data[self.feat_name] < self.feat_value]
+                # mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
                 if not menores.empty:
                     self.add_left(menores)
