@@ -23,7 +23,12 @@ class Tree:
 
     # recibe un dato y retorna prediccion
     def predict(self, tupla):
-        return self.root.predict(tupla)
+        if self.criterium != 'uncertainty':
+            return self.root.predict(tupla)
+        else:
+            clases = self.root.data['class'].unique()
+            prediction = {c: 0.0 for c in clases }
+            return self.root.predict(tupla, prediction)
 
     # seria bueno poder ver la estructura del arbol.
     def show(self):

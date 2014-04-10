@@ -54,22 +54,22 @@ if __name__ == '__main__':
 
             clf = None
             # clf = tree.Tree('confianza')
-            clf = tree.Tree('gain')
-            # clf = tree.Tree('uncertainty')
+            # clf = tree.Tree('gain')
+            clf = tree.Tree('uncertainty')
 
             clf.fit(train)
 
-            results.append(clf.predict_table(test))
+        #     results.append(clf.predict_table(test))
 
-        result = pd.concat(results)
-        matrix = clf.confusion_matrix(result)
+        # result = pd.concat(results)
+        # matrix = clf.confusion_matrix(result)
 
-        # Serializo los resultados con pickle
+        # # Serializo los resultados con pickle
         
-        output = open( 'output/arbol ' + str(p) + '.pkl', 'w')
-        pickle.dump(clf, output)
-        output.close()
+        # output = open( 'output/arbol ' + str(p) + '.pkl', 'w')
+        # pickle.dump(clf, output)
+        # output.close()
 
-        output = open( 'output/result '+ str(p) + '.pkl', 'w')
-        pickle.dump(result, output)
-        output.close()
+        # output = open( 'output/result '+ str(p) + '.pkl', 'w')
+        # pickle.dump(result, output)
+        # output.close()

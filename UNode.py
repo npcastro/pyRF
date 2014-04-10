@@ -1,6 +1,7 @@
 from node import *
 import scipy.stats
 import pandas as pd
+from copy import deepcopy
 
 
 class UNode(Node):
@@ -29,7 +30,7 @@ class UNode(Node):
 	def get_pivotes(self, feature, calidad = 'exact'):
 
 		name = feature.name.rstrip('.mean')
-		bounds = self.data[name + '.l'] + self.data[name + '.r']
+		bounds = self.data[name + '.l'].tolist() + self.data[name + '.r'].tolist()
 
 		# Para eliminar valores repetidos
 		return list(set(bounds))
@@ -120,6 +121,9 @@ class UNode(Node):
 	"""
 	def get_weight(self, w, mean, std, l, r, pivote, how='menor'):
 		
+		if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
+			return 0
+
 		total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
 
 		if how == 'menor':
@@ -156,3 +160,29 @@ class UNode(Node):
 			entropia -= p_c * np.log2(p_c)
 
 		return entropia
+
+	def predict(self, tupla, prediction, w=1):
+		if self.is_leaf:
+			aux = deepcopy(prediction)
+			aux[self.clase] += w
+			print w
+			print aux
+			return aux
+
+		# Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
+		else:
+			feature_name = self.feat_name.rstrip('.mean')
+			mean = tupla[feature_name + '.mean']
+			std = tupla[feature_name + '.std']
+			l = tupla[feature_name + '.l']
+			r = tupla[feature_name + '.r']
+			pivote = self.feat_value
+
+			w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
+			w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
+			
+			a = self.right.predict(tupla, prediction, w_right)
+			b = self.left.predict(tupla, prediction, w_left)
+
+			# Tengo que retornar la suma elementwise de los diccionarios a y b
+			return {key: a[key] + b[key] for key in a}
