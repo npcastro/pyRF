@@ -128,11 +128,11 @@ class UNode(Node):
 
 		if how == 'menor':
 			pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
-			return w * (pivot_mass / total_mass)
+			return min([w * (pivot_mass / total_mass), 1])
 
 		elif how == 'mayor':
 			pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
-			return w * (pivot_mass / total_mass)
+			return min([w * (pivot_mass / total_mass), 1])
 
 
 	# Retorna la ganancia de dividir los datos en menores y mayores.
