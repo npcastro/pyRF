@@ -28,8 +28,15 @@ class Tree:
         else:
             # diccionario con las clases y sus probabilidades
             prediction = self.root.predict(tupla)
-            maxima = max(prediction) 
-            return maxima, prediction[maxima] 
+
+            # Busco la clase con la mayor probabilidad y su probabilidad
+            maximo = max(prediction.values()) 
+            clase = None
+            for key in prediction.keys():
+                if maximo ==prediction[key]:
+                    clase = key
+
+            return clase, maximo
 
     # Recibe un dato y retorna una prediccion probabilistica
     def predict_soft(self, tupla):

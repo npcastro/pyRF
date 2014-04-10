@@ -35,3 +35,4 @@ for train_index, test_index in skf:
 
 result = pd.concat(results)
 matrix = clf.confusion_matrix(result)	
+hard = clf.hard_matrix(result)
