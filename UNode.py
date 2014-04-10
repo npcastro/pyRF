@@ -165,8 +165,6 @@ class UNode(Node):
 		if self.is_leaf:
 			aux = deepcopy(prediction)
 			aux[self.clase] += w
-			print w
-			print aux
 			return aux
 
 		# Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores

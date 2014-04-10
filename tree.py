@@ -26,11 +26,21 @@ class Tree:
         if self.criterium != 'uncertainty':
             return self.root.predict(tupla)
         else:
+            # diccionario con las clases y sus probabilidades
+            prediction = self.root.predict(tupla, prediction)
+            maxima = max(prediction) 
+            return maxima, prediction[maxima] 
+
+    # Recibe un dato y retorna una prediccion probabilistica
+    def predict_soft(self, tupla):
+        if self.criterium != 'uncertainty':
+            return self.root.predict(tupla)
+        else:
             clases = self.root.data['class'].unique()
             prediction = {c: 0.0 for c in clases }
             return self.root.predict(tupla, prediction)
 
-    # seria bueno poder ver la estructura del arbol.
+    # Imprime la estructura del arbol en la consola
     def show(self):
         self.root.show()
 
