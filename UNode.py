@@ -161,7 +161,11 @@ class UNode(Node):
 
 		return entropia
 
-	def predict(self, tupla, prediction, w=1):
+	def predict(self, tupla, prediction={}, w=1):
+		# Si es que es el nodo raiz
+		if len(prediction.keys()) == 0:
+			prediction = {c: 0.0 for c in self.data['class'].unique() }
+
 		if self.is_leaf:
 			aux = deepcopy(prediction)
 			aux[self.clase] += w

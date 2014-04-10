@@ -27,7 +27,7 @@ class Tree:
             return self.root.predict(tupla)
         else:
             # diccionario con las clases y sus probabilidades
-            prediction = self.root.predict(tupla, prediction)
+            prediction = self.root.predict(tupla)
             maxima = max(prediction) 
             return maxima, prediction[maxima] 
 
@@ -36,9 +36,10 @@ class Tree:
         if self.criterium != 'uncertainty':
             return self.root.predict(tupla)
         else:
-            clases = self.root.data['class'].unique()
-            prediction = {c: 0.0 for c in clases }
-            return self.root.predict(tupla, prediction)
+            # clases = self.root.data['class'].unique()
+            # prediction = {c: 0.0 for c in clases }
+            # return self.root.predict(tupla, prediction)
+            return self.root.predict(tupla)
 
     # Imprime la estructura del arbol en la consola
     def show(self):
@@ -50,7 +51,7 @@ class Tree:
         tabla = []
         for index, row in frame.iterrows():
             clase = row['class']
-            predicted, confianza = self.root.predict(row)
+            predicted, confianza = self.predict(row)
             tabla.append([clase, predicted, confianza])
 
         return pd.DataFrame(tabla, index=frame.index, columns=['original', 'predicted', 'trust'])

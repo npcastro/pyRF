@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
             clf.fit(train)
 
-        #     results.append(clf.predict_table(test))
+            results.append(clf.predict_table(test))
 
         # result = pd.concat(results)
         # matrix = clf.confusion_matrix(result)
