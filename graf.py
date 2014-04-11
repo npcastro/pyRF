@@ -8,8 +8,9 @@ import tree
 RESULT_DIR = 'resultados iris/'
 
 # Porcentaje a ocupar
-p = 30
-for p in [5,10,15,20,25,30,35,40,45,50,55,60,65,70]:
+# porcentajes = [5,10,15,20,25,30,35,40,45,50,55,60,65,70]
+porcentajes = [50]
+for p in porcentajes:
 	
 	# Inicializo un arbol cualquiera para tener sus metodos
 	clf = tree.Tree('uncertainty')
