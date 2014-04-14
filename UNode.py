@@ -8,6 +8,7 @@ class UNode(Node):
 	def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
 
 		Node.__init__(self, data, level, max_depth, min_samples_split)
+		self.n_rows = self.data['weight'].sum()
 
 	# determina se es necesario hacer un split de los datos
 	def check_data(self):
@@ -140,9 +141,10 @@ class UNode(Node):
 	# Eso debe poder arreglarse
 	def gain(self, menores, mayores, feature):
 
-		total = self.data['weight'].sum()
+		# total = self.data['weight'].sum()
 
-		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
+		# gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
+		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / self.n_rows
 
 		return gain
 

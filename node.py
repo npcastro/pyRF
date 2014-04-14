@@ -21,6 +21,7 @@ class Node:
         self.is_left = False
         self.is_right = False
         self.level = level
+        self.n_rows = len(data.index)
 
         # Atributos generales del arbol
         self.max_depth = max_depth
@@ -117,13 +118,13 @@ class Node:
     def get_pivotes(self, feature, calidad = 'exact'):
 
         if calidad == 'exact':
-            return feature[1:].unique()
+            return feature[1:].unique() 
         elif calidad == 'aprox':
             minimo = feature.min()
             maximo = feature.max()
             step = maximo - minimo / 100
             pivotes = []
-            for i in range(100):
+            for i in xrange(100):
                 pivotes.append(minimo + step*i)
 
             return pivotes
@@ -178,10 +179,7 @@ class Node:
     # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
     # Eso debe poder arreglarse
     def gain(self, menores, mayores, feature):
-
-        total = len(self.data.index)
-
-        gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / total
+        gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / self.n_rows
 
         return gain
 
