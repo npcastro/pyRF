@@ -64,18 +64,21 @@ class Node:
 
         print filterfeatures
 
+        pivot_gain = self.pivot_gain
+        get_pivotes = self.get_pivotes
+
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
             # separo el dominio en todas las posibles divisiones para obtener la division optima
-            pivotes = self.get_pivotes(self.data[f], 'exact')
+            pivotes = get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
             # pool = ProcessingPool(processes=3)
             # ganancias = pool.map(lambda b: self.pivot_gain(b, f), pivotes)
             # ganancias = pool.map(self.parallel_helper, zip(pivotes, [f]*len(pivotes)))
 
-            ganancias = map(lambda b, f=f: self.pivot_gain(pivote=b, f=f), pivotes)
+            ganancias = map(lambda b, f=f: pivot_gain(pivote=b, f=f), pivotes)
 
             # Agrego el minimo valor posible de ganancia y reduzco
             ganancias.append([-float('inf'), None])
@@ -213,8 +216,9 @@ class Node:
 
         entropia = 0
 
+        log = np.log2
         for c in clases:
             p_c = len(data[data['class'] == c].index) / total
-            entropia -= p_c * np.log2(p_c)
+            entropia -= p_c * log(p_c)
 
         return entropia
