@@ -1,8 +1,9 @@
 from __future__ import division
 from collections import Counter
 
-import multiprocessing
+from pathos.multiprocessing import ProcessingPool
 import numpy as np
+
 
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
@@ -54,6 +55,7 @@ class Node:
 
     # Busca el mejor corte posible para el nodo
     def split(self):
+
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = -float('inf')
 
@@ -69,12 +71,14 @@ class Node:
             pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
-            # pool = multiprocessing.Pool(processes=3)
-            # ganancias = pool.map(self.pivot_gain, pivotes, [f]*len(pivotes))
-            ganancias = map(self.pivot_gain, pivotes, [f]*len(pivotes))
+            # pool = ProcessingPool(processes=3)
+            # ganancias = pool.map(lambda b: self.pivot_gain(b, f), pivotes)
+            # ganancias = pool.map(self.parallel_helper, zip(pivotes, [f]*len(pivotes)))
+
+            ganancias = map(lambda b, f=f: self.pivot_gain(pivote=b, f=f), pivotes)
 
             # Agrego el minimo valor posible de ganancia y reduzco
-            ganancias.append([max_gain, None])
+            ganancias.append([-float('inf'), None])
             pivot_max = reduce(self.maximo, ganancias)
 
             # Si es mejor que el maximo valor anterior agrego
@@ -82,6 +86,9 @@ class Node:
                 max_gain = pivot_max[0]
                 self.feat_value = pivot_max[1]
                 self.feat_name = pivot_max[2]
+
+    def parallel_helper(self, args):
+        return self.pivot_gain(*args)
 
     # Toma un pivote y una feature, y retorna su ganancia de informacion
     def pivot_gain(self, pivote, f):
