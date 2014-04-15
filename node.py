@@ -1,6 +1,7 @@
 from __future__ import division
 from collections import Counter
 
+import multiprocessing
 import numpy as np
 
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
@@ -68,24 +69,39 @@ class Node:
             pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
-            for pivote in pivotes:
+            # pool = multiprocessing.Pool(processes=3)
+            # ganancias = pool.map(self.pivot_gain, pivotes, [f]*len(pivotes))
+            ganancias = map(self.pivot_gain, pivotes, [f]*len(pivotes))
 
-                # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-                menores = self.get_menores(f, pivote)
-                mayores = self.get_mayores(f, pivote)
+            # Agrego el minimo valor posible de ganancia y reduzco
+            ganancias.append([max_gain, None])
+            pivot_max = reduce(self.maximo, ganancias)
 
-                # No considero caso en que todos los datos se vayan a una sola rama
-                if menores.empty or mayores.empty:
-                    continue
+            # Si es mejor que el maximo valor anterior agrego
+            if (pivot_max[0] > max_gain):
+                max_gain = pivot_max[0]
+                self.feat_value = pivot_max[1]
+                self.feat_name = pivot_max[2]
 
-                # Calculo la ganancia de informacion para esta variable
-                gain = self.gain(menores, mayores, f)
+    # Toma un pivote y una feature, y retorna su ganancia de informacion
+    def pivot_gain(self, pivote, f):
+        
+        # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+        menores = self.get_menores(f, pivote)
+        mayores = self.get_mayores(f, pivote)
 
-                # Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
-                if (gain > max_gain):
-                    max_gain = gain
-                    self.feat_name = f
-                    self.feat_value = pivote
+        # No considero caso en que todos los datos se vayan a una sola rama
+        if menores.empty or mayores.empty:
+            return [-float('inf'), None, None]
+
+        # Calculo la ganancia de informacion para esta variable
+        return [self.gain(menores, mayores, f), pivote, f]
+
+    def maximo(self, a, b):
+        if a[0] > b[0]:
+            return a
+        else:
+            return b
 
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
