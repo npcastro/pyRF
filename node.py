@@ -6,6 +6,7 @@ import numpy as np
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
+
 class Node:
     def __init__(self, data, level = 1, max_depth = 8, min_samples_split=10):
 
@@ -179,11 +180,12 @@ class Node:
     # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
     # Eso debe poder arreglarse
     def gain(self, menores, mayores, feature):
-        gain = self.entropia - (len(menores) * self.entropy(menores) + len(mayores) * self.entropy(mayores)) / self.n_rows
+        gain = self.entropia - (len(menores.index) * self.entropy(menores) + len(mayores.index) * self.entropy(mayores)) / self.n_rows
 
         return gain
 
     # Retorna la entropia de un grupo de datos
+    cythonmagic.cython
     def entropy(self, data):
         clases = data['class'].unique()
         total = len(data.index)
