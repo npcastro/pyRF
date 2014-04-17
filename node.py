@@ -71,16 +71,26 @@ class Node:
             print 'Evaluando feature: ' + f
 
             # separo el dominio en todas las posibles divisiones para obtener la division optima
-            pivotes = self.get_pivotes(self.data[f], 'exact')
+            # pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
-            for pivote in pivotes:                
+            # Ordeno el frame segun la feature indicada
+            self.data.sort(f, inplace=True)
 
-                # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-                menores = self.get_menores(f, pivote)
-                mayores = self.get_mayores(f, pivote)
+            # for pivote in pivotes:                
+
+            #     # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+            #     menores = self.get_menores(f, pivote)
+            #     mayores = self.get_mayores(f, pivote)
+
+            for i in xrange(self.n_rows):
+
+                menores = self.data[0:i+1]
+                mayores = self.data[i+1:]
+                pivote = self.data[f].iloc[i+1]
 
                 # No considero caso en que todos los datos se vayan a una sola rama
+                # Esto ya no es necesario de esta forma
                 if menores.empty or mayores.empty:
                     continue
 
@@ -92,40 +102,6 @@ class Node:
                     self.feat_value = pivote
                     self.feat_name = f
 
-            # Enfoque map reduce
-            # ganancias = map(lambda b, f=f: pivot_gain(pivote=b, f=f), pivotes)
-            # # Agrego el minimo valor posible de ganancia y reduzco
-            # ganancias.append([-float('inf'), None])
-            # pivot_max = reduce(self.maximo, ganancias)
-
-            # # Si es mejor que el maximo valor anterior agrego
-            # if (pivot_max[0] > max_gain):
-            #     max_gain = pivot_max[0]
-            #     self.feat_value = pivot_max[1]
-            #     self.feat_name = pivot_max[2]
-
-    def parallel_helper(self, args):
-        return self.pivot_gain(*args)
-
-    # Toma un pivote y una feature, y retorna su ganancia de informacion
-    def pivot_gain(self, pivote, f):
-        
-        # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-        menores = self.get_menores(f, pivote)
-        mayores = self.get_mayores(f, pivote)
-
-        # No considero caso en que todos los datos se vayan a una sola rama
-        if menores.empty or mayores.empty:
-            return [-float('inf'), None, None]
-
-        # Calculo la ganancia de informacion para esta variable
-        return [self.gain(menores, mayores, f), pivote, f]
-
-    def maximo(self, a, b):
-        if a[0] > b[0]:
-            return a
-        else:
-            return b
     
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
@@ -235,4 +211,42 @@ class Node:
             p_c = len(data[data['class'] == c].index) / total
             entropia -= p_c * log(p_c)
 
+        # Otro enfoque
+        # for w in self.get_weight_by_class(data[['class', 'weight']]).items():
+        #     p_c = w[1] / total
+        #         entropia -= p_c * log(p_c)
+
         return entropia
+
+    def get_weight_by_class(self, data):
+        x = {}
+        for index, row in data.iterrows():
+            if row['class'] in x.keys():
+                x[row['class']] += row['weight']
+            else:
+                x[row['class']] = row['weight']
+        return x
+
+
+    def parallel_helper(self, args):
+        return self.pivot_gain(*args)
+
+    # Toma un pivote y una feature, y retorna su ganancia de informacion
+    def pivot_gain(self, pivote, f):
+        
+        # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+        menores = self.get_menores(f, pivote)
+        mayores = self.get_mayores(f, pivote)
+
+        # No considero caso en que todos los datos se vayan a una sola rama
+        if menores.empty or mayores.empty:
+            return [-float('inf'), None, None]
+
+        # Calculo la ganancia de informacion para esta variable
+        return [self.gain(menores, mayores, f), pivote, f]
+
+    def maximo(self, a, b):
+        if a[0] > b[0]:
+            return a
+        else:
+            return b
