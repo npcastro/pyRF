@@ -3,6 +3,7 @@ from collections import Counter
 
 import numpy as np
 
+
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 
@@ -11,6 +12,7 @@ class Node:
     def __init__(self, data, level = 1, max_depth = 8, min_samples_split=10):
 
         # Atributos particulares del nodo
+
         self.data = data
         self.is_leaf = False
         self.clase = ''
@@ -54,6 +56,7 @@ class Node:
 
     # Busca el mejor corte posible para el nodo
     def split(self):
+
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = -float('inf')
 
@@ -62,6 +65,8 @@ class Node:
 
         print filterfeatures
 
+        pivot_gain = self.pivot_gain
+
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
@@ -69,7 +74,7 @@ class Node:
             pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
-            for pivote in pivotes:
+            for pivote in pivotes:                
 
                 # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
                 menores = self.get_menores(f, pivote)
@@ -80,14 +85,48 @@ class Node:
                     continue
 
                 # Calculo la ganancia de informacion para esta variable
-                gain = self.gain(menores, mayores, f)
+                pivot_gain = self.gain(menores, mayores, f)
 
-                # Comparo con la ganancia anterior, si es mejor guardo el gain, la feature correspondiente y el pivote
-                if (gain > max_gain):
-                    max_gain = gain
-                    self.feat_name = f
+                if pivot_gain > max_gain:
+                    max_gain = pivot_gain
                     self.feat_value = pivote
+                    self.feat_name = f
 
+            # Enfoque map reduce
+            # ganancias = map(lambda b, f=f: pivot_gain(pivote=b, f=f), pivotes)
+            # # Agrego el minimo valor posible de ganancia y reduzco
+            # ganancias.append([-float('inf'), None])
+            # pivot_max = reduce(self.maximo, ganancias)
+
+            # # Si es mejor que el maximo valor anterior agrego
+            # if (pivot_max[0] > max_gain):
+            #     max_gain = pivot_max[0]
+            #     self.feat_value = pivot_max[1]
+            #     self.feat_name = pivot_max[2]
+
+    def parallel_helper(self, args):
+        return self.pivot_gain(*args)
+
+    # Toma un pivote y una feature, y retorna su ganancia de informacion
+    def pivot_gain(self, pivote, f):
+        
+        # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+        menores = self.get_menores(f, pivote)
+        mayores = self.get_mayores(f, pivote)
+
+        # No considero caso en que todos los datos se vayan a una sola rama
+        if menores.empty or mayores.empty:
+            return [-float('inf'), None, None]
+
+        # Calculo la ganancia de informacion para esta variable
+        return [self.gain(menores, mayores, f), pivote, f]
+
+    def maximo(self, a, b):
+        if a[0] > b[0]:
+            return a
+        else:
+            return b
+    
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
 
@@ -185,15 +224,15 @@ class Node:
         return gain
 
     # Retorna la entropia de un grupo de datos
-    cythonmagic.cython
     def entropy(self, data):
         clases = data['class'].unique()
         total = len(data.index)
 
         entropia = 0
 
+        log = np.log2
         for c in clases:
             p_c = len(data[data['class'] == c].index) / total
-            entropia -= p_c * np.log2(p_c)
+            entropia -= p_c * log(p_c)
 
         return entropia
