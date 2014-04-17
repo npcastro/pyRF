@@ -21,5 +21,5 @@ f = nodo.filterfeatures()[0]	#Una feature
 
 p = nodo.get_pivotes(data[f], 'exact')  #pivotes
 
-menores = nodo.get_menores(f, p[200])
-mayores = nodo.get_mayores(f, p[200])
+menores = nodo.get_menores(f, p[1000])
+mayores = nodo.get_mayores(f, p[1000])

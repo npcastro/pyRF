@@ -70,12 +70,12 @@ class Node:
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
+            # Ordeno el frame segun la feature indicada
+            self.data.sort(f, inplace=True)
+
             # separo el dominio en todas las posibles divisiones para obtener la division optima
             # pivotes = self.get_pivotes(self.data[f], 'exact')
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
-
-            # Ordeno el frame segun la feature indicada
-            self.data.sort(f, inplace=True)
 
             # for pivote in pivotes:                
 
@@ -85,12 +85,11 @@ class Node:
 
             for i in xrange(self.n_rows):
 
-                menores = self.data[0:i+1]
-                mayores = self.data[i+1:]
-                pivote = self.data[f].iloc[i+1]
+                menores = self.data[0:i]
+                mayores = self.data[i:]
+                pivote = self.data[f].iloc[i]
 
                 # No considero caso en que todos los datos se vayan a una sola rama
-                # Esto ya no es necesario de esta forma
                 if menores.empty or mayores.empty:
                     continue
 
@@ -101,6 +100,7 @@ class Node:
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = f
+            break
 
     
     def get_menores(self, feature, pivote):
@@ -201,31 +201,28 @@ class Node:
 
     # Retorna la entropia de un grupo de datos
     def entropy(self, data):
-        clases = data['class'].unique()
+        
         total = len(data.index)
-
         entropia = 0
-
         log = np.log2
-        for c in clases:
-            p_c = len(data[data['class'] == c].index) / total
-            entropia -= p_c * log(p_c)
 
-        # Otro enfoque
-        # for w in self.get_weight_by_class(data[['class', 'weight']]).items():
-        #     p_c = w[1] / total
-        #         entropia -= p_c * log(p_c)
+        # clases = data['class'].unique()
+        
+        # for c in clases:
+        #     p_c = len(data[data['class'] == c].index) / total
+        #     entropia -= p_c * log(p_c)
+
+        g = data.groupby('class')
+        for count in g.size():
+            entropia -= (count / total) * log(count / total)
+
+        # Enfoque para UNode tbn
+        # pesos = data.groupby('class')['weight']
+        # for suma in pesos.sum():
+        #     entropia -= (suma / total) * log(suma / total)
 
         return entropia
 
-    def get_weight_by_class(self, data):
-        x = {}
-        for index, row in data.iterrows():
-            if row['class'] in x.keys():
-                x[row['class']] += row['weight']
-            else:
-                x[row['class']] = row['weight']
-        return x
 
 
     def parallel_helper(self, args):
