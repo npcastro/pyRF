@@ -10,14 +10,11 @@ static PyObject* pyRF_prob_cdf(PyObject* self, PyObject *args)
 	double a;
 	double b;
 
-   if (!PyArg_ParseTuple(args, "fffff", &x, &mu, &s, &a, &b)) {
-     double cdf;
-     //cdf = normal_truncated_ab_cdf(x, mu, s, a, b);
-   	 return Py_BuildValue('d', cdf);
+   if (!PyArg_ParseTuple(args, "ddddd", &x, &mu, &s, &a, &b)) {
+      return NULL;
    }
-   
-   /* Do something interesting here. */
-   Py_RETURN_NONE;
+   double cdf = normal_truncated_ab_cdf(x, mu, s, a, b);
+   return Py_BuildValue("d", cdf);
 }
 
 static char prob_docs[] =
@@ -26,8 +23,8 @@ static char prob_docs[] =
 static PyMethodDef pyRF_funcs[] = {
     {"cdf", (PyCFunction)pyRF_prob_cdf, 
      METH_VARARGS, prob_docs},
-    { NULL, NULL, 0, NULL }
-};
+    { NULL, NULL, 0, NULL }    /* Sentinel */
+};/* Sentinel */
 
 void initpyRF_prob(void)
 {
