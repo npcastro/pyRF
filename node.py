@@ -34,13 +34,11 @@ class Node:
         if self.check_data():
             self.split()
 
-            # Falta corregir esto. No entiendo pq a veces el split deja el feat_name como vacio
+            # Ojo con esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)                
-                # menores = self.data[self.data[self.feat_name] < self.feat_value]
-                # mayores = self.data[self.data[self.feat_name] >= self.feat_value]
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -65,8 +63,6 @@ class Node:
 
         print filterfeatures
 
-        pivot_gain = self.pivot_gain
-
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
@@ -78,20 +74,19 @@ class Node:
             # pivotes = self.get_pivotes(self.data[f], 'aprox')
 
             # for pivote in pivotes:                
-
             #     # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
             #     menores = self.get_menores(f, pivote)
             #     mayores = self.get_mayores(f, pivote)
 
-            for i in xrange(self.n_rows):
+            for i in xrange(1,self.n_rows):
 
                 menores = self.data[0:i]
                 mayores = self.data[i:]
-                pivote = self.data[f].iloc[i]
+                pivote = self.data.at[i,f]
 
                 # No considero caso en que todos los datos se vayan a una sola rama
-                if menores.empty or mayores.empty:
-                    continue
+                # if menores.empty or mayores.empty:
+                #     continue
 
                 # Calculo la ganancia de informacion para esta variable
                 pivot_gain = self.gain(menores, mayores, f)
@@ -100,7 +95,6 @@ class Node:
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = f
-            break
 
     
     def get_menores(self, feature, pivote):
@@ -149,8 +143,8 @@ class Node:
     def set_leaf(self):
         self.is_leaf = True
         # self.clase = stats.mode(self.data['class'])[0].item()
-        aux = Counter(self.data['class'])
-        self.clase = aux.most_common(1)[0][0]
+        # self.clase = Counter(self.data['class']).most_common(1)[0][0]
+        self.clase = self.data['class'].value_counts().idxmax()
         
 
     def add_left(self, left_data):
@@ -222,28 +216,3 @@ class Node:
         #     entropia -= (suma / total) * log(suma / total)
 
         return entropia
-
-
-
-    def parallel_helper(self, args):
-        return self.pivot_gain(*args)
-
-    # Toma un pivote y una feature, y retorna su ganancia de informacion
-    def pivot_gain(self, pivote, f):
-        
-        # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-        menores = self.get_menores(f, pivote)
-        mayores = self.get_mayores(f, pivote)
-
-        # No considero caso en que todos los datos se vayan a una sola rama
-        if menores.empty or mayores.empty:
-            return [-float('inf'), None, None]
-
-        # Calculo la ganancia de informacion para esta variable
-        return [self.gain(menores, mayores, f), pivote, f]
-
-    def maximo(self, a, b):
-        if a[0] > b[0]:
-            return a
-        else:
-            return b
