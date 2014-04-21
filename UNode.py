@@ -37,80 +37,80 @@ class UNode(Node):
 		# Para eliminar valores repetidos
 		return list(set(bounds))
 
-	def get_menores(self, feature_name, pivote):
-		menores = []
+	# def get_menores(self, feature_name, pivote):
+	# 	menores = []
 
-		# limpio el nombre de la feature
-		feature_name = feature_name.rstrip('.mean')
+	# 	# limpio el nombre de la feature
+	# 	feature_name = feature_name.rstrip('.mean')
 
-		# Para cada tupla en el frame
-		for index, row in self.data.iterrows():
+	# 	# Para cada tupla en el frame
+	# 	for index, row in self.data.iterrows():
 
-			# si toda la masa de probabilidad esta bajo el pivote
-			if row[feature_name + '.r'] <= pivote:
-				menores.append(row)
+	# 		# si toda la masa de probabilidad esta bajo el pivote
+	# 		if row[feature_name + '.r'] <= pivote:
+	# 			menores.append(row)
 
-			# si no hay masa de probabilidad bajo el pivote
-			elif row[feature_name + '.l'] >= pivote:
-				continue
+	# 		# si no hay masa de probabilidad bajo el pivote
+	# 		elif row[feature_name + '.l'] >= pivote:
+	# 			continue
 
-			# si una fraccion de la masa esta bajo el pivote
-			else:
-				# obtengo los parametros de la distribucion de la feature
-				menor = row
-				w = menor['weight']
-				mean = menor[feature_name+'.mean']
-				std = menor[feature_name+'.std']
-				l = menor[feature_name+'.l']
-				r = menor[feature_name+'.r']
+	# 		# si una fraccion de la masa esta bajo el pivote
+	# 		else:
+	# 			# obtengo los parametros de la distribucion de la feature
+	# 			menor = row
+	# 			w = menor['weight']
+	# 			mean = menor[feature_name+'.mean']
+	# 			std = menor[feature_name+'.std']
+	# 			l = menor[feature_name+'.l']
+	# 			r = menor[feature_name+'.r']
 
 
-				# calculo el nuevo peso de tupla cuya feature es menor al pivote
-				menor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'menor')
+	# 			# calculo el nuevo peso de tupla cuya feature es menor al pivote
+	# 			menor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'menor')
 
-				# pongo la distribucion para la nueva tupla
-				menor[feature_name + '.r'] = pivote
-				menores.append(menor)
+	# 			# pongo la distribucion para la nueva tupla
+	# 			menor[feature_name + '.r'] = pivote
+	# 			menores.append(menor)
 
-		return pd.DataFrame(menores)
+	# 	return pd.DataFrame(menores)
 		# return self.data[self.data[feature] < pivote]
 
-	def get_mayores(self, feature_name, pivote):
-		# return self.data[self.data[feature] >= pivote]
-		mayores = []
+	# def get_mayores(self, feature_name, pivote):
+	# 	# return self.data[self.data[feature] >= pivote]
+	# 	mayores = []
 
-		# limpio el nombre de la feature
-		feature_name = feature_name.rstrip('.mean')
+	# 	# limpio el nombre de la feature
+	# 	feature_name = feature_name.rstrip('.mean')
 
-		# Para cada tupla en el frame
-		for index, row in self.data.iterrows():
+	# 	# Para cada tupla en el frame
+	# 	for index, row in self.data.iterrows():
 
-			# si toda la masa de probabilidad esta sobre el pivote
-			if row[feature_name + '.l'] >= pivote:
-				mayores.append(row)
+	# 		# si toda la masa de probabilidad esta sobre el pivote
+	# 		if row[feature_name + '.l'] >= pivote:
+	# 			mayores.append(row)
 
-			# si no hay masa de probabilidad sobre el pivote
-			elif row[feature_name + '.r'] <= pivote:
-				continue
+	# 		# si no hay masa de probabilidad sobre el pivote
+	# 		elif row[feature_name + '.r'] <= pivote:
+	# 			continue
 
-			# si una fraccion de la masa esta sobre el pivote
-			else:
-				# obtengo los parametros de la distribucion de la feature
-				mayor = row
-				w = mayor['weight']
-				mean = mayor[feature_name+'.mean']
-				std = mayor[feature_name+'.std']
-				l = mayor[feature_name+'.l']
-				r = mayor[feature_name+'.r']
+	# 		# si una fraccion de la masa esta sobre el pivote
+	# 		else:
+	# 			# obtengo los parametros de la distribucion de la feature
+	# 			mayor = row
+	# 			w = mayor['weight']
+	# 			mean = mayor[feature_name+'.mean']
+	# 			std = mayor[feature_name+'.std']
+	# 			l = mayor[feature_name+'.l']
+	# 			r = mayor[feature_name+'.r']
 
-				# calculo el nuevo peso de la nueva tupla cuyo valor de la feature es mayor al pivote
-				mayor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'mayor')
+	# 			# calculo el nuevo peso de la nueva tupla cuyo valor de la feature es mayor al pivote
+	# 			mayor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'mayor')
 
-				# pongo la distribucion para la nueva tupla
-				mayor[feature_name + '.r'] = pivote
-				mayores.append(mayor)
+	# 			# pongo la distribucion para la nueva tupla
+	# 			mayor[feature_name + '.r'] = pivote
+	# 			mayores.append(mayor)
 
-		return pd.DataFrame(mayores)
+	# 	return pd.DataFrame(mayores)
 
 	"""
 	Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
@@ -121,12 +121,61 @@ class UNode(Node):
 	pivote: valor de corte
 	how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
 	"""
-	def get_weight(self, w, mean, std, l, r, pivote, how='menor'):
+	# def get_weight(self, w, mean, std, l, r, pivote, how='menor'):
 		
-		if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
-			return 0
+	# 	if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
+	# 		return 0
 
-		# total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
+	# 	# total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
+
+	# 	if how == 'menor':
+	# 	# 	pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
+	# 	#	return min([w * (pivot_mass / total_mass), 1])
+	# 		return min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
+
+	# 	elif how == 'mayor':
+	# 	# 	pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
+	# 	#	return min([w * (pivot_mass / total_mass), 1])
+	# 	 	return min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+	
+
+	def get_menores(self, feature_name, pivote):
+		#menores = []
+
+		# limpio el nombre de la feature
+		feature_name = feature_name.rstrip('.mean')
+
+		menores = self.data[self.data[feature_name + '.l'] < pivote]
+		menores['weight'] = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
+		menores[feature_name + '.r'] = menores.apply(func=self.minimal, axis=1, args=[pivote, feature_name]) 
+
+		return pd.DataFrame(menores)
+
+	def get_menores(self, feature_name, pivote):
+		#menores = []
+
+		# limpio el nombre de la feature
+		feature_name = feature_name.rstrip('.mean')
+
+		mayores = self.data[self.data[feature_name + '.l'] >= pivote]
+		mayores['weight'] = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
+		mayores[feature_name + '.r'] = mayores.apply(func=self.minimal, axis=1, args=[pivote, feature_name]) 
+
+		return pd.DataFrame(mayores)
+
+
+	def get_weight(self, menor, pivote, feature_name, how):
+
+		l = menor[feature_name+'.l']
+		r = menor[feature_name+'.r']
+
+		#if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
+		#	return 0
+
+		w = menor['weight']
+		mean = menor[feature_name+'.mean']
+		std = menor[feature_name+'.std']
+		
 
 		if how == 'menor':
 		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
@@ -137,7 +186,9 @@ class UNode(Node):
 		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
 		#	return min([w * (pivot_mass / total_mass), 1])
 		 	return min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
-		
+
+	def minimal(self, menor, pivote, feature_name):
+		return min(pivote, menor[feature_name + '.r'])
 
 	# Retorna la ganancia de dividir los datos en menores y mayores.
 	# Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
