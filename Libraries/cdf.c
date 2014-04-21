@@ -24,7 +24,7 @@ static PyMethodDef pyRF_funcs[] = {
     {"cdf", (PyCFunction)pyRF_prob_cdf, 
      METH_VARARGS, prob_docs},
     { NULL, NULL, 0, NULL }    /* Sentinel */
-};/* Sentinel */
+};
 
 void initpyRF_prob(void)
 {
