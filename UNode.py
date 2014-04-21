@@ -1,7 +1,8 @@
 from node import *
-import scipy.stats
+#import scipy.stats
 import pandas as pd
 from copy import deepcopy
+import pyRF_prob
 
 
 class UNode(Node):
@@ -125,16 +126,18 @@ class UNode(Node):
 		if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
 			return 0
 
-		total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
+		# total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
 
 		if how == 'menor':
-			pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
-			return min([w * (pivot_mass / total_mass), 1])
+		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
+		#	return min([w * (pivot_mass / total_mass), 1])
+			return min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
 
 		elif how == 'mayor':
-			pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
-			return min([w * (pivot_mass / total_mass), 1])
-
+		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
+		#	return min([w * (pivot_mass / total_mass), 1])
+		 	return min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+		
 
 	# Retorna la ganancia de dividir los datos en menores y mayores.
 	# Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 

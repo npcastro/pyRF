@@ -1,0 +1,3 @@
+LIBRARY pyRF_prob.pyd
+EXPORTS
+initpyRF_prob
