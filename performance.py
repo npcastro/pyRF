@@ -1,6 +1,12 @@
-# import tree
+import tree
 from node import *
+from UNode import *
 import pandas as pd
+
+import cProfile as cp
+import pstats
+import timeit
+
 
 # Leo los datos
 path = "sets/macho 20.csv"
@@ -9,20 +15,30 @@ data = pd.read_csv(path)
 # Agrego el peso de las tuplas
 data['weight'] = data['weight'].astype(float)
 
-# Transformo la clase a numeros
-# clases = pd.Categorical(data['class'])
-# nombres_clases = clases.levels[0]		# Los nombres de las clases estan en un arreglo con correspondencia a los numeros que les asignan
-# data['class'] = pd.Series(clases.labels)
+# Para testeo rapido
+data = data[0:500]
 
-
+##################### Node.py ##########################
 nodo = Node(data, level = 10) # Con 10 evito que el nodo crezca
 
-f = nodo.filterfeatures()[0]	#Una feature
+f = nodo.filterfeatures()[0]	
+p = nodo.get_pivotes(data[f], 'exact')  
+# menores = nodo.get_menores(f, p[100])
+# mayores = nodo.get_mayores(f, p[100])
 
-p = nodo.get_pivotes(data[f], 'exact')  #pivotes
 
-menores = nodo.get_menores(f, p[1000])
-mayores = nodo.get_mayores(f, p[1000])
+##################### UNode.py ##########################
+unodo = UNode(data, level = 10)
+
+# cp.run('unodo.get_menores(f,p[100])', 'restats')
+# p = pstats.Stats('restats')
+# p.sort_stats('time').print_stats(10)
+
+
+
+
+
+
 
 #!/usr/bin/python
 # import pyRF_prob

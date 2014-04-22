@@ -24,6 +24,52 @@ class UNode(Node):
 		# Para eliminar valores repetidos
 		return list(set(bounds))
 
+	# Busca el mejor corte posible para el nodo
+	def split(self):
+
+		# Inicializo la ganancia de info en el peor nivel posible
+		max_gain = -float('inf')
+
+		# Para cada feature (no considero la clase ni la completitud)
+		filterfeatures = self.filterfeatures()
+
+		print filterfeatures
+
+		for f in filterfeatures:
+			print 'Evaluando feature: ' + f
+
+			# # Ordeno el frame segun la feature indicada
+			# self.data.sort(f, inplace=True)
+
+			# for i in xrange(1,self.n_rows):
+
+				# menores = self.data[0:i]
+				# mayores = self.data[i:]
+				# pivote = self.data.at[i,f]
+				
+			pivotes = self.get_pivotes(self.data[f], 'exact')
+			# pivotes = self.get_pivotes(self.data[f], 'aprox')
+
+			for pivote in pivotes:                
+
+				# Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+				menores = self.get_menores(f, pivote)
+				mayores = self.get_mayores(f, pivote)
+
+				# No considero caso en que todos los datos se vayan a una sola rama
+				if menores.empty or mayores.empty:
+					continue
+
+				# Calculo la ganancia de informacion para esta variable
+				pivot_gain = self.gain(menores, mayores, f)
+
+				if pivot_gain > max_gain:
+					max_gain = pivot_gain
+					self.feat_value = pivote
+					self.feat_name = f
+
+			break #para probar cuanto demora una sola feature
+
 	def get_menores(self, feature_name, pivote):
 		menores = []
 
@@ -50,7 +96,6 @@ class UNode(Node):
 				std = menor[feature_name+'.std']
 				l = menor[feature_name+'.l']
 				r = menor[feature_name+'.r']
-
 
 				# calculo el nuevo peso de tupla cuya feature es menor al pivote
 				menor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'menor')
@@ -93,8 +138,10 @@ class UNode(Node):
 				# calculo el nuevo peso de la nueva tupla cuyo valor de la feature es mayor al pivote
 				mayor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'mayor')
 
+				mayor['weight'] = self.get_weight(w, mean , std, l, r, pivote, 'mayor')
+
 				# pongo la distribucion para la nueva tupla
-				mayor[feature_name + '.r'] = pivote
+				mayor[feature_name + '.l'] = pivote
 				mayores.append(mayor)
 
 		return pd.DataFrame(mayores)
@@ -116,14 +163,14 @@ class UNode(Node):
 		# total_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(l)
 
 		if how == 'menor':
-		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
-		#	return min([w * (pivot_mass / total_mass), 1])
+			# pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
+			# return min([w * (pivot_mass / total_mass), 1])
 			return min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
 
 		elif how == 'mayor':
-		# 	pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
-		#	return min([w * (pivot_mass / total_mass), 1])
-		 	return min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+			# pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
+			# return min([w * (pivot_mass / total_mass), 1])
+			return min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
 		
 
 	# Retorna la ganancia de dividir los datos en menores y mayores.
@@ -140,16 +187,15 @@ class UNode(Node):
 
 	# Retorna la entropia de un grupo de datos
 	def entropy(self, data):
-		clases = data['class'].unique()
 
 		# El total es la masa de probabilidad total del grupo de datos
 		total = data['weight'].sum()
-
+		log = np.log2
 		entropia = 0
 
-		for c in clases:
-			p_c = data[data['class'] == c]['weight'].sum() / total
-			entropia -= p_c * np.log2(p_c)
+		pesos = data.groupby('class')['weight']
+		for suma in pesos.sum():
+			entropia -= (suma / total) * log(suma / total)
 
 		return entropia
 
