@@ -16,15 +16,15 @@ data = pd.read_csv(path)
 data['weight'] = data['weight'].astype(float)
 
 # Para testeo rapido
-# data = data[0:500]
+data = data[0:500]
 
 ##################### Node.py ##########################
 nodo = Node(data, level = 10) # Con 10 evito que el nodo crezca
 
 f = nodo.filterfeatures()[0]	
 p = nodo.get_pivotes(data[f], 'exact')  
-# menores = nodo.get_menores(f, p[100])
-# mayores = nodo.get_mayores(f, p[100])
+menores = nodo.get_menores(f, p[100])
+mayores = nodo.get_mayores(f, p[100])
 
 
 ##################### UNode.py ##########################

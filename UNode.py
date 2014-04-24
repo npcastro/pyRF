@@ -21,8 +21,10 @@ class UNode(Node):
 		name = feature.name.rstrip('.mean')
 		bounds = self.data[name + '.l'].tolist() + self.data[name + '.r'].tolist()
 
-		# Para eliminar valores repetidos
-		return list(set(bounds))
+
+		ret = list(set(bounds)) # Para eliminar valores repetidos
+		ret.sort()	# Elimino los bordes, aunque talvez sea mejor poner un if mas adelante noma
+		return ret[1:-1]
 
 	# Busca el mejor corte posible para el nodo
 	def split(self):
