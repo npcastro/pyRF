@@ -16,7 +16,7 @@ data = pd.read_csv(path)
 data['weight'] = data['weight'].astype(float)
 
 # Para testeo rapido
-data = data[0:500]
+# data = data[0:500]
 
 ##################### Node.py ##########################
 nodo = Node(data, level = 10) # Con 10 evito que el nodo crezca
