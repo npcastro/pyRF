@@ -24,51 +24,51 @@ class UNode(Node):
 		# Para eliminar valores repetidos
 		return list(set(bounds))
 
-	# # Busca el mejor corte posible para el nodo
-	# def split(self):
+	# Busca el mejor corte posible para el nodo
+	def split(self):
 
-	# 	# Inicializo la ganancia de info en el peor nivel posible
-	# 	max_gain = -float('inf')
+		# Inicializo la ganancia de info en el peor nivel posible
+		max_gain = -float('inf')
 
-	# 	# Para cada feature (no considero la clase ni la completitud)
-	# 	filterfeatures = self.filterfeatures()
+		# Para cada feature (no considero la clase ni la completitud)
+		filterfeatures = self.filterfeatures()
 
-	# 	print filterfeatures
+		print filterfeatures
 
-	# 	for f in filterfeatures:
-	# 		print 'Evaluando feature: ' + f
+		for f in filterfeatures:
+			print 'Evaluando feature: ' + f
 
-	# 		# # Ordeno el frame segun la feature indicada
-	# 		# self.data.sort(f, inplace=True)
+			# # Ordeno el frame segun la feature indicada
+			# self.data.sort(f, inplace=True)
 
-	# 		# for i in xrange(1,self.n_rows):
+			# for i in xrange(1,self.n_rows):
 
-	# 			# menores = self.data[0:i]
-	# 			# mayores = self.data[i:]
-	# 			# pivote = self.data.at[i,f]
+				# menores = self.data[0:i]
+				# mayores = self.data[i:]
+				# pivote = self.data.at[i,f]
 				
-	# 		pivotes = self.get_pivotes(self.data[f], 'exact')
-	# 		# pivotes = self.get_pivotes(self.data[f], 'aprox')
+			pivotes = self.get_pivotes(self.data[f], 'exact')
+			# pivotes = self.get_pivotes(self.data[f], 'aprox')
 
-	# 		for pivote in pivotes:                
+			for pivote in pivotes:                
 
-	# 			# Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-	# 			menores = self.get_menores(f, pivote)
-	# 			mayores = self.get_mayores(f, pivote)
+				# Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
+				menores = self.get_menores(f, pivote)
+				mayores = self.get_mayores(f, pivote)
 
-	# 			# No considero caso en que todos los datos se vayan a una sola rama
-	# 			if menores.empty or mayores.empty:
-	# 				continue
+				# No considero caso en que todos los datos se vayan a una sola rama
+				if menores.empty or mayores.empty:
+					continue
 
-	# 			# Calculo la ganancia de informacion para esta variable
-	# 			pivot_gain = self.gain(menores, mayores, f)
+				# Calculo la ganancia de informacion para esta variable
+				pivot_gain = self.gain(menores, mayores, f)
 
-	# 			if pivot_gain > max_gain:
-	# 				max_gain = pivot_gain
-	# 				self.feat_value = pivote
-	# 				self.feat_name = f
+				if pivot_gain > max_gain:
+					max_gain = pivot_gain
+					self.feat_value = pivote
+					self.feat_name = f
 
-	# 		break #para probar cuanto demora una sola feature
+			break #para probar cuanto demora una sola feature
 
 
 	# def get_menores(self, feature_name, pivote):
@@ -178,7 +178,7 @@ class UNode(Node):
 		# limpio el nombre de la feature
 		feature_name = feature_name.rstrip('.mean')
 
-		menores = self.data[self.data[feature_name + '.l'] < pivote]
+		menores = self.data[self.data[feature_name + '.r'] < pivote]
 		menores['weight'] = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
 		menores[feature_name + '.r'] = menores.apply(func=self.minimal, axis=1, args=[pivote, feature_name]) 
 
