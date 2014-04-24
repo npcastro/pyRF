@@ -178,21 +178,21 @@ class UNode(Node):
 		# limpio el nombre de la feature
 		feature_name = feature_name.rstrip('.mean')
 
-		menores = self.data[self.data[feature_name + '.r'] < pivote]
+		menores = self.data[self.data[feature_name + '.l'] < pivote]
 		menores['weight'] = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
 		menores[feature_name + '.r'] = menores.apply(func=self.minimal, axis=1, args=[pivote, feature_name]) 
 
 		return pd.DataFrame(menores)
 
-	def get_menores(self, feature_name, pivote):
+	def get_mayores(self, feature_name, pivote):
 		#menores = []
 
 		# limpio el nombre de la feature
 		feature_name = feature_name.rstrip('.mean')
 
-		mayores = self.data[self.data[feature_name + '.l'] >= pivote]
+		mayores = self.data[self.data[feature_name + '.r'] >= pivote]
 		mayores['weight'] = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
-		mayores[feature_name + '.r'] = mayores.apply(func=self.minimal, axis=1, args=[pivote, feature_name]) 
+		mayores[feature_name + '.l'] = mayores.apply(func=self.maximal, axis=1, args=[pivote, feature_name]) 
 
 		return pd.DataFrame(mayores)
 
@@ -222,6 +222,9 @@ class UNode(Node):
 
 	def minimal(self, menor, pivote, feature_name):
 		return min(pivote, menor[feature_name + '.r'])
+
+	def maximal(self, mayor, pivote, feature_name):
+		return max(pivote, mayor[feature_name + '.l'])
 
 	# Retorna la ganancia de dividir los datos en menores y mayores.
 	# Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
