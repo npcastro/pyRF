@@ -28,12 +28,12 @@ f = nodo.filterfeatures()[0]
 p = nodo.get_pivotes(data[f], 'exact')
 
 
-#menores = nodo.get_menores(f, p[100])
-#mayores = nodo.get_mayores(f, p[100])
+menores = nodo.get_menores(f, p[100])
+mayores = nodo.get_mayores(f, p[100])
 
 
 ##################### UNode.py ##########################
-#unodo = UNode(data, level = 10)
+unodo = UNode(data, level = 10)
 
 # cp.run('unodo.get_menores(f,p[100])', 'restats')
 # p = pstats.Stats('restats')

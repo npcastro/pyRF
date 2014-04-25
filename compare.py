@@ -15,7 +15,7 @@ def change(node):
 		change(node.right)
 		change(node.left)
 
-RESULT_DIR = 'resultados new_var/'
+RESULT_DIR = 'Resultados/resultados new_var/'
 
 # Entreno un arbol con el 100% de las curvas
 path_train = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(100) + ".txt"

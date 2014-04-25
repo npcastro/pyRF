@@ -2,10 +2,10 @@ import pickle
 import matplotlib.pyplot as plt
 import tree
 
-# RESULT_DIR = 'resultados var_comp/'
-# RESULT_DIR = 'resultados trust/'
-# RESULT_DIR = 'resultados new_var/'
-RESULT_DIR = 'resultados iris/'
+# RESULT_DIR = 'Resultados/resultados var_comp/'
+# RESULT_DIR = 'Resultados/resultados trust/'
+# RESULT_DIR = 'Resultados/resultados new_var/'
+RESULT_DIR = 'Resultados/resultados iris/'
 
 # Porcentaje a ocupar
 # porcentajes = [5,10,15,20,25,30,35,40,45,50,55,60,65,70]
@@ -73,7 +73,7 @@ for p in porcentajes:
 		plt.xlabel( 'Minimum Probability Considered')
 		plt.ylabel( 'F-Score' )
 
-		plt.savefig('resultados iris/graficos/Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')
+		plt.savefig('Resultados/resultados iris/graficos/Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')
 		# plt.show()
 		plt.close()
 
