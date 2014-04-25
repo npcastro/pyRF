@@ -147,17 +147,17 @@ class UNode(Node):
 
 		return pd.DataFrame(mayores)
 
-	"""
-	Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
-	mean: media de la gaussiana
-	std: desviacion standard
-	l: limite izquierdo
-	r: limite derecho
-	pivote: valor de corte
-	how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
-	"""
+	
 	def get_weight_old(self, w, mean, std, l, r, pivote, how='menor'):
-		
+		"""
+		Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
+		mean: media de la gaussiana
+		std: desviacion standard
+		l: limite izquierdo
+		r: limite derecho
+		pivote: valor de corte
+		how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
+		"""
 		if how == 'menor' and pivote <= l or how == 'mayor' and pivote >= r:
 			return 0
 
