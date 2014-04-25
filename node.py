@@ -1,6 +1,7 @@
 from __future__ import division
 from collections import Counter
 
+from pathos.multiprocessing import ProcessingPool
 import numpy as np
 
 
@@ -63,6 +64,9 @@ class Node:
 
         print filterfeatures
 
+        pivot_gain = self.pivot_gain
+        get_pivotes = self.get_pivotes
+
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 
@@ -96,7 +100,6 @@ class Node:
                     self.feat_value = pivote
                     self.feat_name = f
 
-    
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
 
