@@ -219,7 +219,8 @@ class UNode(Node):
 				# pivot_mass = scipy.stats.norm(mean, std).cdf(pivote) - scipy.stats.norm(mean, std).cdf(l)
 				# return min([w * (pivot_mass / total_mass), 1])
 				tupla['weight'] = min(w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound), 1)
-				tupla[feature_name+'.l'] = min(pivote, tupla[feature_name + '.r'])
+				# tupla[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
+				tupla[feature_name+'.r'] = pivote
 				lista.append(tupla)
 				return
 
@@ -227,7 +228,8 @@ class UNode(Node):
 			# 	pivot_mass = scipy.stats.norm(mean, std).cdf(r) - scipy.stats.norm(mean, std).cdf(pivote)
 			#	return min([w * (pivot_mass / total_mass), 1])
 			 	tupla['weight'] = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)), 1)
-			 	tupla[feature_name+'.r'] = max(pivote, tupla[feature_name + '.l'])
+			 	# tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
+			 	tupla[feature_name+'.l'] = pivote
 			 	lista.append(tupla)
 				return
 
