@@ -15,12 +15,7 @@ if __name__ == '__main__':
 
     for p in porcentajes:
 
-        # path = "/Users/npcastro/workspace/Features/Entrenamiento var_comp/Entrenamiento " + str(p) + ".txt"
-        # path = "/Users/npcastro/workspace/Features/Entrenamiento comp/Entrenamiento " + str(p) + ".txt"
-        # path = "/Users/npcastro/workspace/Features/Entrenamiento trust/Entrenamiento " + str(p) + ".txt"
-        # path = "/Users/npcastro/workspace/Features/Entrenamiento new_var/Entrenamiento " + str(p) + ".txt"
-
-        path = "sets/u_iris 10.csv"
+        path = "sets/macho 10.csv"
 
         # Obtengo los nombres de las variables
         with open(path, 'r') as f:
