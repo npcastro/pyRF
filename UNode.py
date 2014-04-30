@@ -38,27 +38,37 @@ class UNode(Node):
 		print filterfeatures
 
 		for f in filterfeatures:
+
+			# Limpio el nombre de la feature
+			feature_name = f.rstrip('.mean')
 			print 'Evaluando feature: ' + f
 
-			# # Ordeno el frame segun la feature indicada
-			# self.data.sort(f, inplace=True)
+			# Hago tres copias del frame ordenadas por mean, l y r
+			data_por_media = self.data.sort(f + '.mean', inplace=False)
+			data_por_l = self.data.sort(f + '.l', inplace=False)
+			data_por_r = self.data.sort(f + '.r', inplace=False)
 
-			# for i in xrange(1,self.n_rows):
+			menores_index = 0
+			mayores_index = 0
+			# Me muevo a traves de los posibles pivotes
+			for i in xrange(1,self.n_rows):
 
-				# menores = self.data[0:i]
-				# mayores = self.data[i:]
-				# pivote = self.data.at[i,f]
+				pivote = self.data.at[i,f]
+
+				# Actualizo los indices
+				# Falta un metodo que actualice los indices con pocas operaciones
+
+				# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
+				menores = self.data[0:menores_index]
+				mayores = self.data[mayores_index:]
+
+				# Separo las tuplas cortadas por el pivote
+				tuplas_afectadas_por_pivote = self.data[menores_index:mayores_index]
 				
-			pivotes = self.get_pivotes(self.data[f], 'exact')
-			# pivotes = self.get_pivotes(self.data[f], 'aprox')
+				# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores y el pivote
+				# y les agregue los pedazos de las tuplas cortadas
 
-			for pivote in pivotes:                
-
-				# Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-				menores = self.get_menores(f, pivote)
-				mayores = self.get_mayores(f, pivote)
-
-				# No considero caso en que todos los datos se vayan a una sola rama
+				# No se si es necesario
 				if menores.empty or mayores.empty:
 					continue
 
