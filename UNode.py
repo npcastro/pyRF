@@ -9,7 +9,7 @@ class UNode(Node):
 	def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
 
 		Node.__init__(self, data, level, max_depth, min_samples_split)
-		self.n_rows = self.data['weight'].sum()
+		self.mass = int(self.data['weight'].sum())			
 
 	# Creo que no es necesario que reciba el frame
 	def total_samples_mass(data, clase):
@@ -44,19 +44,24 @@ class UNode(Node):
 			print 'Evaluando feature: ' + f
 
 			# Hago tres copias del frame ordenadas por mean, l y r
-			data_por_media = self.data.sort(f + '.mean', inplace=False)
-			data_por_l = self.data.sort(f + '.l', inplace=False)
-			data_por_r = self.data.sort(f + '.r', inplace=False)
+			data_por_media = self.data.sort(f, inplace=False)
+			
+			# En este caso es lo mismo ordenar de las tres maneras. De todas formas parece que 
+			# tendriamos que asumir simetria (gaussiana), para usar el approach que tenemos. 
+			# data_por_l = self.data.sort(feature_name + '.l', inplace=False)
+			# data_por_r = self.data.sort(feature_name + '.r', inplace=False)
 
 			menores_index = 0
 			mayores_index = 0
 			# Me muevo a traves de los posibles pivotes
 			for i in xrange(1,self.n_rows):
 
-				pivote = self.data.at[i,f]
+				pivote = data_por_media.at[i,f]
 
-				# Actualizo los indices
-				# Falta un metodo que actualice los indices con pocas operaciones
+				# Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
+				menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name)
+
+				print mayores_index - menores_index
 
 				# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
 				menores = self.data[0:menores_index]
@@ -65,8 +70,9 @@ class UNode(Node):
 				# Separo las tuplas cortadas por el pivote
 				tuplas_afectadas_por_pivote = self.data[menores_index:mayores_index]
 				
-				# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores y el pivote
-				# y les agregue los pedazos de las tuplas cortadas
+				# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
+				# y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
+				menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
 
 				# No se si es necesario
 				if menores.empty or mayores.empty:
@@ -81,6 +87,73 @@ class UNode(Node):
 					self.feat_name = f
 
 			break #para probar cuanto demora una sola feature
+	
+	# Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
+	def update_indexes(self, menores_index, mayores_index, pivote, feature_name):
+		
+		# Actualizo menores
+		tupla = self.data.iloc[menores_index]
+
+		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
+		while( tupla[feature_name + '.r'] <= pivote):
+			menores_index += 1
+			tupla = self.data.iloc[menores_index] 
+
+		# Actualizo mayores
+		tupla = self.data.loc[mayores_index]
+
+		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
+		while( tupla[feature_name + '.l'] <= pivote):
+			mayores_index += 1
+			tupla = self.data.iloc[mayores_index]
+
+		return menores_index, mayores_index
+
+
+	def split_tuples_by_pivot(self, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
+
+		# Manejo distintos los menores y los mayores porque es necesario mantener el orden de las tuplas.
+		# Los pedazos menores los voy agregando al final de menores, lo que mantiene el orden.
+		# En cambio mayores los voy agregando de a poco a un dict, para luego hacer concat al principio 
+		# de los mayores.
+		# Por ahora no se me ocurre como hacer lo de mayores con pandas.
+		aux = {}
+
+		for index, row in tuplas_afectadas_por_pivote.iterrows():
+			row_menor, row_mayor = self.split_tuple(row, pivote, feature_name)
+
+			menores.loc[row_menor.name] = row_menor
+			aux[row_mayor.name] = row_mayor
+
+		mayores = pd.concat([pd.DataFrame(aux), mayores])
+
+		return menores, mayores
+
+	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
+	def split_tuple(self, tupla, pivote, feature_name):
+		
+		# Sera mejor pedir los parametros ya arreglados? onda peso, l, r etc.. O hacerlo como lo estamos haciendo ahora	
+		w = tupla['weight']
+		mean = tupla[feature_name + '.mean']
+		std = tupla[feature_name + '.std']
+		left_bound = tupla[feature_name + '.l']
+		right_bound = tupla[feature_name + '.r']
+		
+		tupla_menor = tupla
+		tupla_mayor = tupla
+
+		# Corto la parte de la tupla menor que el pivote
+		tupla_menor['weight'] = min(w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound), 1)
+		# tupla_menor[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
+		tupla_menor[feature_name+'.r'] = pivote
+
+		# Corte la parte de la tupla mayor que el pivote
+	 	tupla_mayor['weight'] = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)), 1)
+	 	# tupla_menor[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
+	 	tupla_mayor[feature_name+'.l'] = pivote
+
+	 	return tupla_menor, tupla_mayor
+		
 
 
 	def get_menores_old(self, feature_name, pivote):
@@ -252,7 +325,7 @@ class UNode(Node):
 		# total = self.data['weight'].sum()
 
 		# gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
-		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / self.n_rows
+		gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / self.mass
 
 		return gain
 
