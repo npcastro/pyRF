@@ -45,7 +45,7 @@ class UNode(Node):
 
 			# Hago tres copias del frame ordenadas por mean, l y r
 			data_por_media = self.data.sort(f, inplace=False)
-			
+
 			# En este caso es lo mismo ordenar de las tres maneras. De todas formas parece que 
 			# tendriamos que asumir simetria (gaussiana), para usar el approach que tenemos. 
 			# data_por_l = self.data.sort(feature_name + '.l', inplace=False)
@@ -58,54 +58,89 @@ class UNode(Node):
 
 				pivote = data_por_media.at[i,f]
 
-				# Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
-				menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name)
+				# print pivote, menores_index, mayores_index, feature_name, max_gain
+				self.bad_method(pivote, menores_index, mayores_index, feature_name, max_gain, data_por_media)
 
-				print mayores_index - menores_index
+				# # Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
+				# menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name)
 
-				# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
-				menores = self.data[0:menores_index]
-				mayores = self.data[mayores_index:]
+				# print mayores_index - menores_index
 
-				# Separo las tuplas cortadas por el pivote
-				tuplas_afectadas_por_pivote = self.data[menores_index:mayores_index]
+				# # Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
+				# menores = data_por_media[0:menores_index]
+				# mayores = data_por_media[mayores_index:]
+
+				# # Separo las tuplas cortadas por el pivote
+				# tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
 				
-				# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
-				# y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
-				menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+				# # Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
+				# # y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
+				# menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
 
-				# No se si es necesario
-				if menores.empty or mayores.empty:
-					continue
+				# # No se si es necesario
+				# if menores.empty or mayores.empty:
+				# 	continue
 
-				# Calculo la ganancia de informacion para esta variable
-				pivot_gain = self.gain(menores, mayores, f)
+				# # Calculo la ganancia de informacion para esta variable
+				# pivot_gain = self.gain(menores, mayores, f)
 
-				if pivot_gain > max_gain:
-					max_gain = pivot_gain
-					self.feat_value = pivote
-					self.feat_name = f
+				# if pivot_gain > max_gain:
+				# 	max_gain = pivot_gain
+				# 	self.feat_value = pivote
+				# 	self.feat_name = f
 
 			break #para probar cuanto demora una sola feature
+
+	def bad_method(self, pivote, menores_index, mayores_index, feature_name, max_gain, data_por_media):
+		# Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
+		menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name, data_por_media)
+
+		# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
+		menores = data_por_media[0:menores_index]
+		mayores = data_por_media[mayores_index:]
+
+		# Separo las tuplas cortadas por el pivote
+		tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
+		
+		# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
+		# y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
+		menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+
+		# No se si es necesario
+		if menores.empty or mayores.empty:
+			return
+
+		# Calculo la ganancia de informacion para esta variable
+		pivot_gain = self.gain(menores, mayores, feature_name + '.mean')
+
+		if pivot_gain > max_gain:
+			max_gain = pivot_gain
+			self.feat_value = pivote
+			self.feat_name = feature_name + '.mean'
+
+		return
 	
 	# Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
-	def update_indexes(self, menores_index, mayores_index, pivote, feature_name):
+	def update_indexes(self, menores_index, mayores_index, pivote, feature_name, data):
 		
 		# Actualizo menores
-		tupla = self.data.iloc[menores_index]
+		tupla = data.iloc[menores_index]
 
 		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
 		while( tupla[feature_name + '.r'] <= pivote):
 			menores_index += 1
-			tupla = self.data.iloc[menores_index] 
+			tupla = data.iloc[menores_index] 
 
+		
 		# Actualizo mayores
-		tupla = self.data.loc[mayores_index]
+		tupla = data.iloc[mayores_index]
 
+		
 		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
 		while( tupla[feature_name + '.l'] <= pivote):
 			mayores_index += 1
-			tupla = self.data.iloc[mayores_index]
+			tupla = data.iloc[mayores_index]
+			
 
 		return menores_index, mayores_index
 
