@@ -91,17 +91,24 @@ class UNode(Node):
 		print mayores_index
 
 		# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
-		menores = data_por_media[0:menores_index]
-		mayores = data_por_media[mayores_index:]
+		menores = menores.groupby('class')['weight'].sum().to_dict()
+		mayores = mayores.groupby('class')['weight'].sum().to_dict()
 
 		# Diccionarios con las sumas
 
 		# Separo las tuplas cortadas por el pivote
 		tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
+
+		#Transformo la información a diccionarios
+		w_list = tuplas_afectadas_por_pivote['weight'].tolist()
+		mean_list = tuplas_afectadas_por_pivote[feature_name + '.mean'].tolist()
+		std_list = tuplas_afectadas_por_pivote[feature_name + '.std'].tolist()
+		left_bound_list = tuplas_afectadas_por_pivote[feature_name + '.l'].tolist()
+		right_bound_list = tuplas_afectadas_por_pivote[feature_name + '.r'].tolist()
 		
-		# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
-		# y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
-		self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+		# Split_tuple_by_pivot: Toma por referencia menores, mayores, el pivote junto a los diccionarios
+		# y las tuplas afectadas por el pivote y les agrega los pesos a menores y mayores
+		self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
 
 		# No se si es necesario
 		if menores.empty or mayores.empty:
@@ -142,54 +149,29 @@ class UNode(Node):
 			
 		return menores_index, mayores_index
 
-	def split_tuples_by_pivot(self, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
-		aux_menores = []
-		aux_mayores = []
 
-		w_list = tuplas_afectadas_por_pivote['weight'].tolist()
-		mean_list = tuplas_afectadas_por_pivote[feature_name + '.mean'].tolist()
-		std_list =  tuplas_afectadas_por_pivote[feature_name + '.std'].tolist()
-		left_bound_list = tuplas_afectadas_por_pivote[feature_name + '.l'].tolist()
-		right_bound_list = tuplas_afectadas_por_pivote[feature_name + '.r'].tolist()
+	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
+		for i in xrange(len(tuplas_afectadas_por_pivote))
+			row_menor, row_mayor = self.split_tuple(tuplas_afectadas_por_pivote.iloc[i], w_list.iloc[i], mean_list.iloc[i], std_list.iloc[i], left_bound_list.iloc[i], right_bound_list.iloc[i], pivote, feature_name)
 
-		for i in xrange(len(tuplas_afectadas_por_pivote.index)):
-			self.split_tuple(tupla, pivote, feature_name)
-
-		for index, row in tuplas_afectadas_por_pivote.iterrows():
-			row_menor, row_mayor = self.split_tuple(row, pivote, feature_name)
-
-			aux_menores.append(row_menor)
-			aux_mayores.append(row_mayor)
-
-		menores.append(aux_menores, ignore_index=False)
-		mayores.append(aux_mayores, ignore_index=False)
-
+			menores[tuplas_afectadas_por_pivote['class']] += row_menor
+			mayores[tuplas_afectadas_por_pivote['class']] += row_mayor
 		return 
 
 	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
-	def split_tuple(self, tupla, pivote, feature_name):
-		
-		# Sera mejor pedir los parametros ya arreglados? onda peso, l, r etc.. O hacerlo como lo estamos haciendo ahora	
-		w = tupla['weight']
-		mean = tupla[feature_name + '.mean']
-		std = tupla[feature_name + '.std']
-		left_bound = tupla[feature_name + '.l']
-		right_bound = tupla[feature_name + '.r']
+	def split_tuple(self, tupla, w, mean, std, left_bound, right_bound, pivote, feature_name):
 		
 		tupla_menor = tupla
 		tupla_mayor = tupla
 
 		# Corto la parte de la tupla menor que el pivote
-		tupla_menor['weight'] = min(w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound), 1)
-		# tupla_menor[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
-		tupla_menor[feature_name+'.r'] = pivote
+		tupla_menor = w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
 
 		# Corte la parte de la tupla mayor que el pivote
-	 	tupla_mayor['weight'] = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)), 1)
-	 	# tupla_menor[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
-	 	tupla_mayor[feature_name+'.l'] = pivote
+	 	tupla_mayor = w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound))
 
 	 	return tupla_menor, tupla_mayor
+
 
 	def get_menores(self, feature_name, pivote):
 		menores = []
