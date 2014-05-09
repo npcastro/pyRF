@@ -53,6 +53,7 @@ class UNode(Node):
 
 			menores_index = 0
 			mayores_index = 0
+
 			# Me muevo a traves de los posibles pivotes
 			for i in xrange(1,self.n_rows):
 
@@ -99,12 +100,15 @@ class UNode(Node):
 		menores = data_por_media[0:menores_index]
 		mayores = data_por_media[mayores_index:]
 
+		print menores_index
+		print mayores_index
+
 		# Separo las tuplas cortadas por el pivote
 		tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
 		
 		# Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
 		# y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
-		menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+		self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
 
 		# No se si es necesario
 		if menores.empty or mayores.empty:
@@ -144,25 +148,20 @@ class UNode(Node):
 
 		return menores_index, mayores_index
 
-
 	def split_tuples_by_pivot(self, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
-
-		# Manejo distintos los menores y los mayores porque es necesario mantener el orden de las tuplas.
-		# Los pedazos menores los voy agregando al final de menores, lo que mantiene el orden.
-		# En cambio mayores los voy agregando de a poco a un dict, para luego hacer concat al principio 
-		# de los mayores.
-		# Por ahora no se me ocurre como hacer lo de mayores con pandas.
-		aux = {}
+		aux_menores = []
+		aux_mayores = []
 
 		for index, row in tuplas_afectadas_por_pivote.iterrows():
 			row_menor, row_mayor = self.split_tuple(row, pivote, feature_name)
 
-			menores.loc[row_menor.name] = row_menor
-			aux[row_mayor.name] = row_mayor
+			aux_menores.append(row_menor)
+			aux_mayores.append(row_mayor)
 
-		mayores = pd.concat([pd.DataFrame(aux), mayores])
+		menores.append(aux_menores, ignore_index=False)
+		mayores.append(aux_mayores, ignore_index=False)
 
-		return menores, mayores
+		return 
 
 	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
 	def split_tuple(self, tupla, pivote, feature_name):
