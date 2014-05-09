@@ -126,26 +126,27 @@ class UNode(Node):
 	
 	# Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
 	def update_indexes(self, menores_index, mayores_index, pivote, feature_name, data):
+
+		limites_r = data[feature_name + '.r'].tolist()
+		limites_l = data[feature_name + '.l'].tolist()
 		
 		# Actualizo menores
-		tupla = data.iloc[menores_index]
+		ultimo_r_menor = limites_r[menores_index]
 
 		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
-		while( tupla[feature_name + '.r'] <= pivote):
+		while( ultimo_r_menor <= pivote):
 			menores_index += 1
-			tupla = data.iloc[menores_index] 
+			ultimo_r_menor = limites_r[menores_index]
 
 		
 		# Actualizo mayores
-		tupla = data.iloc[mayores_index]
+		ultimo_l_mayor = limites_l[mayores_index]
 
-		
 		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-		while( tupla[feature_name + '.l'] <= pivote):
+		while( ultimo_l_mayor <= pivote):
 			mayores_index += 1
-			tupla = data.iloc[mayores_index]
+			ultimo_l_mayor = limites_l[mayores_index]
 			
-
 		return menores_index, mayores_index
 
 	def split_tuples_by_pivot(self, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
