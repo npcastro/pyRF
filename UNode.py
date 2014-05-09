@@ -11,13 +11,10 @@ class UNode(Node):
 		Node.__init__(self, data, level, max_depth, min_samples_split)
 		self.mass = int(self.data['weight'].sum())			
 
-	# Creo que no es necesario que reciba el frame
-	def total_samples_mass(data, clase):
-		return data[data['class'] == clase]['weight'].sum()
-
-	# retorna todos los limites derechos e izquierdos distintos de una feature
 	def get_pivotes(self, feature, calidad = 'exact'):
-
+		"""
+		Retorna todos los valores segun los que se debe intentar cortar una feature
+		"""
 		name = feature.name.rstrip('.mean')
 		bounds = self.data[name + '.l'].tolist() + self.data[name + '.r'].tolist()
 
@@ -287,7 +284,7 @@ class UNode(Node):
 		entropia = 0
 		
 		for clase in data.keys():
-			entropia -= (data[clase] / total) * log(data[clase] / total)
+			entropia -= (data[clase] / total) * np.log(data[clase] / total)
 
 		return entropia
 
@@ -304,10 +301,6 @@ class UNode(Node):
 			entropia -= (suma / total) * log(suma / total)
 
 		return entropia
-
-
-
-
 
 	def predict(self, tupla, prediction={}, w=1):
 		# Si es que es el nodo raiz
