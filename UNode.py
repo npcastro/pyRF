@@ -87,8 +87,10 @@ class UNode(Node):
 	def bad_method(self, pivote, menores_index, mayores_index, feature_name, max_gain, data_por_media):
 		# Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
 		menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name, data_por_media)
-		print menores_index
-		print mayores_index
+		print menores_index, mayores_index
+
+		menores = data_por_media[0:menores_index]
+		mayores = data_por_media[mayores_index:]
 
 		# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
 		menores = menores.groupby('class')['weight'].sum().to_dict()
@@ -99,19 +101,20 @@ class UNode(Node):
 		# Separo las tuplas cortadas por el pivote
 		tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
 
-		#Transformo la información a diccionarios
+		#Transformo la informacion a diccionarios
 		w_list = tuplas_afectadas_por_pivote['weight'].tolist()
 		mean_list = tuplas_afectadas_por_pivote[feature_name + '.mean'].tolist()
 		std_list = tuplas_afectadas_por_pivote[feature_name + '.std'].tolist()
 		left_bound_list = tuplas_afectadas_por_pivote[feature_name + '.l'].tolist()
 		right_bound_list = tuplas_afectadas_por_pivote[feature_name + '.r'].tolist()
+		class_list = tuplas_afectadas_por_pivote['class'].tolist()
 		
 		# Split_tuple_by_pivot: Toma por referencia menores, mayores, el pivote junto a los diccionarios
 		# y las tuplas afectadas por el pivote y les agrega los pesos a menores y mayores
-		self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+		self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, menores, mayores, pivote, feature_name)
 
 		# No se si es necesario
-		if menores.empty or mayores.empty:
+		if not any(menores) or not any(mayores):
 			return
 
 		# Calculo la ganancia de informacion para esta variable
@@ -131,6 +134,7 @@ class UNode(Node):
 		limites_l = data[feature_name + '.l'].tolist()
 		
 		# Actualizo menores
+		
 		ultimo_r_menor = limites_r[menores_index]
 
 		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
@@ -143,34 +147,40 @@ class UNode(Node):
 		ultimo_l_mayor = limites_l[mayores_index]
 
 		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-		while( ultimo_l_mayor <= pivote):
-			mayores_index += 1
+		while( ultimo_l_mayor <= pivote and mayores_index < len(limites_l)):
 			ultimo_l_mayor = limites_l[mayores_index]
+			mayores_index += 1
 			
 		return menores_index, mayores_index
 
 
-	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name):
-		for i in xrange(len(tuplas_afectadas_por_pivote))
-			row_menor, row_mayor = self.split_tuple(tuplas_afectadas_por_pivote.iloc[i], w_list.iloc[i], mean_list.iloc[i], std_list.iloc[i], left_bound_list.iloc[i], right_bound_list.iloc[i], pivote, feature_name)
+	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, menores, mayores, pivote, feature_name):
+		for i in xrange(len(class_list)):
+			mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote, feature_name)
 
-			menores[tuplas_afectadas_por_pivote['class']] += row_menor
-			mayores[tuplas_afectadas_por_pivote['class']] += row_mayor
+			if class_list[i] in menores.keys():
+				menores[class_list[i]] += mass_menor
+			else:	
+				menores[class_list[i]] = mass_menor
+
+
+			if class_list[i] in mayores.keys():
+				mayores[class_list[i]] += mass_mayor	
+			else:	
+				mayores[class_list[i]] = mass_mayor			
+			
 		return 
 
 	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
-	def split_tuple(self, tupla, w, mean, std, left_bound, right_bound, pivote, feature_name):
-		
-		tupla_menor = tupla
-		tupla_mayor = tupla
+	def split_tuple(self, w, mean, std, left_bound, right_bound, pivote, feature_name):
 
 		# Corto la parte de la tupla menor que el pivote
-		tupla_menor = w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
+		masa_menor = w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
 
 		# Corte la parte de la tupla mayor que el pivote
-	 	tupla_mayor = w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound))
+	 	masa_mayor = w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound))
 
-	 	return tupla_menor, tupla_mayor
+	 	return masa_menor, masa_mayor
 
 
 	def get_menores(self, feature_name, pivote):

@@ -21,7 +21,7 @@ class Node:
         self.feat_value = None
         self.left = None
         self.right = None
-        self.entropia = self.entropy(data)
+        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
         self.is_left = False
         self.is_right = False
         self.level = level
@@ -196,26 +196,40 @@ class Node:
 
         return gain
 
-    # Retorna la entropia de un grupo de datos
+    # # Retorna la entropia de un grupo de datos
+    # def entropy(self, data):
+        
+    #     total = len(data.index)
+    #     entropia = 0
+    #     log = np.log2
+
+    #     # clases = data['class'].unique()
+        
+    #     # for c in clases:
+    #     #     p_c = len(data[data['class'] == c].index) / total
+    #     #     entropia -= p_c * log(p_c)
+
+    #     g = data.groupby('class')
+    #     for count in g.size():
+    #         entropia -= (count / total) * log(count / total)
+
+    #     # Enfoque para UNode tbn
+    #     # pesos = data.groupby('class')['weight']
+    #     # for suma in pesos.sum():
+    #     #     entropia -= (suma / total) * log(suma / total)
+
+    #     return entropia
+
     def entropy(self, data):
-        
-        total = len(data.index)
+        """
+        Retorna la entropia de un grupo de datos.
+        data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos de valores)
+        """
+
+        total = sum(data.values())
         entropia = 0
-        log = np.log2
-
-        # clases = data['class'].unique()
         
-        # for c in clases:
-        #     p_c = len(data[data['class'] == c].index) / total
-        #     entropia -= p_c * log(p_c)
-
-        g = data.groupby('class')
-        for count in g.size():
-            entropia -= (count / total) * log(count / total)
-
-        # Enfoque para UNode tbn
-        # pesos = data.groupby('class')['weight']
-        # for suma in pesos.sum():
-        #     entropia -= (suma / total) * log(suma / total)
+        for clase in data.keys():
+            entropia -= (data[clase] / total) * np.log(data[clase] / total)
 
         return entropia
