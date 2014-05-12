@@ -87,7 +87,6 @@ class UNode(node.Node):
 
 				old_menores_index, old_mayores_index = menores_index, mayores_index
 
-				# menores, mayores = self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote)
 				w_list_afectada = w_list[menores_index:mayores_index]
 				mean_list_afectada = mean_list[menores_index:mayores_index]
 				std_list_afectada = std_list[menores_index:mayores_index]
@@ -96,6 +95,7 @@ class UNode(node.Node):
 				class_list_afectada = class_list[menores_index:mayores_index]
 
 				split_tuples_by_pivot = self.split_tuples_by_pivot
+				pivote = [pivote for i in xrange(len(w_list_afectada))] ###### idea rara
 				menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
 
 				# No se si es necesario
@@ -133,80 +133,18 @@ class UNode(node.Node):
 
 		return menores_index, mayores_index
 
-
 	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote, menores, mayores):
 		"""
 		Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
 		separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
 		"""
-		split_tuple = self.split_tuple
+
 		for i in xrange(len(class_list)):
 			cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
 			menores[class_list[i]] += w_list[i] * cum_prob
 			mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
-			
+
 		return menores, mayores	
-
-	def get_menores(self, feature_name, pivote):
-		menores = []
-
-		# limpio el nombre de la feature
-		feature_name = feature_name.rstrip('.mean')
-
-		# menores = self.data[self.data[feature_name + '.l'] < pivote]
-		self.data.apply(func=self.get_weight, axis=1, args=[menores, pivote, feature_name, "menor"])
-
-		return pd.DataFrame(menores)
-
-
-	def get_mayores(self, feature_name, pivote):
-		mayores = []
-
-		# limpio el nombre de la feature
-		feature_name = feature_name.rstrip('.mean')
-
-		# mayores = self.data[self.data[feature_name + '.r'] >= pivote]
-		self.data.apply(func=self.get_weight, axis=1, args=[mayores, pivote, feature_name, "mayor"])
-
-		return pd.DataFrame(mayores)
-
-
-	def get_weight(self, tupla, lista, pivote, feature_name, how):
-		"""
-		Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
-		
-		pivote: valor de corte
-		how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
-		"""
-
-		left_bound = tupla[feature_name+'.l']
-		right_bound = tupla[feature_name+'.r']
-
-		if how == 'menor' and pivote <= left_bound or how == 'mayor' and pivote >= right_bound:
-		 	return
-
-		elif left_bound >= pivote and how == 'mayor' or right_bound <= pivote and how == 'menor':
-			lista.append(tupla)
-			return
-
-		else:
-			w = tupla['weight']
-			mean = tupla[feature_name+'.mean']
-			std = tupla[feature_name+'.std']
-			
-			if how == 'menor':
-				tupla['weight'] = min(w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound), 1)
-				# tupla[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
-				tupla[feature_name+'.r'] = pivote
-				lista.append(tupla)
-				return
-
-			elif how == 'mayor':
-			 	tupla['weight'] = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)), 1)
-			 	# tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
-			 	tupla[feature_name+'.l'] = pivote
-			 	lista.append(tupla)
-				return
 
 
 	def gain(self, menores, mayores):
