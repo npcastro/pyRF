@@ -1,14 +1,16 @@
-from node import *
+# from node import *
 #import scipy.stats
+import node
+import numpy as np
 import pandas as pd
 from copy import deepcopy
 import pyRF_prob
 
 
-class UNode(Node):
+class UNode(node.Node):
 	def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
 
-		Node.__init__(self, data, level, max_depth, min_samples_split)
+		node.Node.__init__(self, data, level, max_depth, min_samples_split)
 		self.mass = int(self.data['weight'].sum())			
 
 	def get_pivotes(self, feature, calidad = 'exact'):
@@ -65,8 +67,10 @@ class UNode(Node):
 			menores_estrictos_mass = { c: 0 for c in clases}
 			mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
-			# Me muevo a traves de los posibles pivotes
-			for i in xrange(1,self.n_rows):
+			# Me muevo a traves de los posibles pivotes. Podria hacerlo con self.data.index i at, asi podria saber
+			# la fila en la que estoy trabajando
+			# for i in xrange(1,self.n_rows):
+			for i in data_por_media.index:
 
 				pivote = data_por_media.at[i,f]
 
@@ -91,7 +95,8 @@ class UNode(Node):
 				right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
 				class_list_afectada = class_list[menores_index:mayores_index]
 
-				menores, mayores = self.split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
+				split_tuples_by_pivot = self.split_tuples_by_pivot
+				menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
 
 				# No se si es necesario
 				if not any(menores) or not any(mayores):
@@ -134,46 +139,13 @@ class UNode(Node):
 		Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
 		separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
 		"""
-
-		# Obtengo las clases existentes
-		# clases = list(set(class_list))
-
-		# # Creo diccionarios para guardar
-		# menores = { c: 0 for c in clases}
-		# mayores = { c: 0 for c in clases}
-
+		split_tuple = self.split_tuple
 		for i in xrange(len(class_list)):
-
-			# if right_bound_list[i] <= pivote:
-			# 	menores[class_list[i]] += w_list[i]
-
-			# elif left_bound_list[i] >= pivote:
-			# 	mayores[class_list[i]] += w_list[i]
-
-			# else:
-				# mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
-
-				# menores[class_list[i]] += mass_menor
-				# mayores[class_list[i]] += mass_mayor	
-			mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
-			menores[class_list[i]] += mass_menor
-			mayores[class_list[i]] += mass_mayor
+			cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
+			menores[class_list[i]] += w_list[i] * cum_prob
+			mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 			
-		return menores, mayores
-
-	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
-	def split_tuple(self, w, mean, std, left_bound, right_bound, pivote):
-
-		#Estamos seguros que esto esta bien?? 
-
-		# Corto la parte de la tupla menor que el pivote
-		masa_menor = w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
-
-		# Corte la parte de la tupla mayor que el pivote
-	 	masa_mayor = w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound))
-
-	 	return masa_menor, masa_mayor
-
+		return menores, mayores	
 
 	def get_menores(self, feature_name, pivote):
 		menores = []

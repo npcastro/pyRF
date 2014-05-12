@@ -26,6 +26,7 @@ class Node:
         self.is_right = False
         self.level = level
         self.n_rows = len(data.index)
+        self.mass = float(len(data.index))
 
         # Atributos generales del arbol
         self.max_depth = max_depth
