@@ -40,8 +40,16 @@ class UNode(Node):
 			feature_name = f.rstrip('.mean')
 			print 'Evaluando feature: ' + f
 
-			# Hago tres copias del frame ordenadas por mean, l y r
+			# Ordeno el frame segun la media de la variable
 			data_por_media = self.data.sort(f, inplace=False)
+
+			#Transformo la informacion relevante de esta feature a listas
+			w_list = data_por_media['weight'].tolist()
+			mean_list = data_por_media[feature_name + '.mean'].tolist()
+			std_list = data_por_media[feature_name + '.std'].tolist()
+			left_bound_list = data_por_media[feature_name + '.l'].tolist()
+			right_bound_list = data_por_media[feature_name + '.r'].tolist()
+			class_list = data_por_media['class'].tolist()
 
 			menores_index = 0
 			mayores_index = 0
@@ -51,90 +59,36 @@ class UNode(Node):
 
 				pivote = data_por_media.at[i,f]
 
-				# print pivote, menores_index, mayores_index, feature_name, max_gain
-				self.bad_method(pivote, menores_index, mayores_index, feature_name, max_gain, data_por_media)
+				# Actualizo los indices
+				menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
+				print menores_index, mayores_index
 
-				# # Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
-				# menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name)
-
-				# print mayores_index - menores_index
-
-				# # Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
 				# menores = data_por_media[0:menores_index]
 				# mayores = data_por_media[mayores_index:]
-
-				# # Separo las tuplas cortadas por el pivote
+				# menores = menores.groupby('class')['weight'].sum().to_dict()
+				# mayores = mayores.groupby('class')['weight'].sum().to_dict()
 				# tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
+
+				menores, mayores = self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote)
+
+				# No se si es necesario
+				if not any(menores) or not any(mayores):
+					return
+
+				# Calculo la ganancia de informacion para esta variable
+				pivot_gain = self.gain(menores, mayores)
 				
-				# # Faltan un metodo split_tuple_by_pivot. Que tome por referencia menores, mayores, el pivote
-				# # y las tuplas afectadas por el pivote y les agregue los pedazos de las tuplas cortadas.
-				# menores, mayores = self.split_tuples_by_pivot(tuplas_afectadas_por_pivote, menores, mayores, pivote, feature_name)
+				if pivot_gain > max_gain:
+					max_gain = pivot_gain
+					self.feat_value = pivote
+					self.feat_name = feature_name + '.mean'				
 
-				# # No se si es necesario
-				# if menores.empty or mayores.empty:
-				# 	continue
+			break # Para testear cuanto se demora una sola feature
 
-				# # Calculo la ganancia de informacion para esta variable
-				# pivot_gain = self.gain(menores, mayores, f)
-
-				# if pivot_gain > max_gain:
-				# 	max_gain = pivot_gain
-				# 	self.feat_value = pivote
-				# 	self.feat_name = f
-
-			break #para probar cuanto demora una sola feature
-
-	def bad_method(self, pivote, menores_index, mayores_index, feature_name, max_gain, data_por_media):
-		# Actualizo los indices. Tal vez se podria hacer por referencia. No creo que haga mucha diferencia
-		menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, feature_name, data_por_media)
-		print menores_index, mayores_index
-
-		menores = data_por_media[0:menores_index]
-		mayores = data_por_media[mayores_index:]
-
-		# Separo las tuplas completamente mayores o menores que los indices (no afectadas por pivote)
-		menores = menores.groupby('class')['weight'].sum().to_dict()
-		mayores = mayores.groupby('class')['weight'].sum().to_dict()
-
-		# Diccionarios con las sumas
-
-		# Separo las tuplas cortadas por el pivote
-		tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
-
-		#Transformo la informacion a diccionarios
-		w_list = tuplas_afectadas_por_pivote['weight'].tolist()
-		mean_list = tuplas_afectadas_por_pivote[feature_name + '.mean'].tolist()
-		std_list = tuplas_afectadas_por_pivote[feature_name + '.std'].tolist()
-		left_bound_list = tuplas_afectadas_por_pivote[feature_name + '.l'].tolist()
-		right_bound_list = tuplas_afectadas_por_pivote[feature_name + '.r'].tolist()
-		class_list = tuplas_afectadas_por_pivote['class'].tolist()
-		
-		# Split_tuple_by_pivot: Toma por referencia menores, mayores, el pivote junto a los diccionarios
-		# y las tuplas afectadas por el pivote y les agrega los pesos a menores y mayores
-		self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, menores, mayores, pivote, feature_name)
-
-		# No se si es necesario
-		if not any(menores) or not any(mayores):
-			return
-
-		# Calculo la ganancia de informacion para esta variable
-		pivot_gain = self.gain(menores, mayores)
-		
-		if pivot_gain > max_gain:
-			max_gain = pivot_gain
-			self.feat_value = pivote
-			self.feat_name = feature_name + '.mean'
-
-		return
-	
 	# Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
-	def update_indexes(self, menores_index, mayores_index, pivote, feature_name, data):
+	def update_indexes(self, menores_index, mayores_index, pivote, limites_l, limites_r):
 
-		limites_r = data[feature_name + '.r'].tolist()
-		limites_l = data[feature_name + '.l'].tolist()
-		
 		# Actualizo menores
-		
 		ultimo_r_menor = limites_r[menores_index]
 
 		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
@@ -142,37 +96,50 @@ class UNode(Node):
 			menores_index += 1
 			ultimo_r_menor = limites_r[menores_index]
 
-		
 		# Actualizo mayores
 		ultimo_l_mayor = limites_l[mayores_index]
 
 		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-		while( ultimo_l_mayor <= pivote and mayores_index < len(limites_l)):
+		while( ultimo_l_mayor <= pivote and mayores_index < len(limites_l) - 1):
 			ultimo_l_mayor = limites_l[mayores_index]
 			mayores_index += 1
-			
+
 		return menores_index, mayores_index
 
 
-	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, menores, mayores, pivote, feature_name):
+	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote):
+		"""
+		Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
+		separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
+		"""
+
+		# Obtengo las clases existentes
+		clases = list(set(class_list))
+
+		# Creo diccionarios para guardar
+		menores = { c: 0 for c in clases}
+		mayores = { c: 0 for c in clases}
+
 		for i in xrange(len(class_list)):
-			mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote, feature_name)
 
-			if class_list[i] in menores.keys():
+			if right_bound_list[i] <= pivote:
+				menores[class_list[i]] += w_list[i]
+
+			elif left_bound_list[i] >= pivote:
+				mayores[class_list[i]] += w_list[i]
+
+			else:
+				mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
+
 				menores[class_list[i]] += mass_menor
-			else:	
-				menores[class_list[i]] = mass_menor
-
-
-			if class_list[i] in mayores.keys():
 				mayores[class_list[i]] += mass_mayor	
-			else:	
-				mayores[class_list[i]] = mass_mayor			
 			
-		return 
+		return menores, mayores
 
 	# Toma una sola tupla y la corta segun pivote retornando el pedazo mayor y el menor
-	def split_tuple(self, w, mean, std, left_bound, right_bound, pivote, feature_name):
+	def split_tuple(self, w, mean, std, left_bound, right_bound, pivote):
+
+		#Estamos seguros que esto esta bien?? 
 
 		# Corto la parte de la tupla menor que el pivote
 		masa_menor = w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
