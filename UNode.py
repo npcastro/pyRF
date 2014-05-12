@@ -54,6 +54,17 @@ class UNode(Node):
 			menores_index = 0
 			mayores_index = 0
 
+			old_menores_index = 0
+			old_mayores_index = 0
+
+			# Obtengo las clases existentes
+			clases = list(set(class_list))
+
+			# Creo diccionarios para guardar la masa de los estrictos menores y estrictos mayores, y asi no calcularla continuamente.
+			# Los menores parten vacios y los mayores parten con toda la masa
+			menores_estrictos_mass = { c: 0 for c in clases}
+			mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
+
 			# Me muevo a traves de los posibles pivotes
 			for i in xrange(1,self.n_rows):
 
@@ -63,13 +74,24 @@ class UNode(Node):
 				menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
 				print menores_index, mayores_index
 
-				# menores = data_por_media[0:menores_index]
-				# mayores = data_por_media[mayores_index:]
-				# menores = menores.groupby('class')['weight'].sum().to_dict()
-				# mayores = mayores.groupby('class')['weight'].sum().to_dict()
-				# tuplas_afectadas_por_pivote = data_por_media[menores_index:mayores_index]
+				# Actualizo la masa estrictamente menor y mayor
+				for i in xrange(old_menores_index, menores_index):
+					menores_estrictos_mass[class_list[i]] += w_list[i]
 
-				menores, mayores = self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote)
+				for i in xrange(old_mayores_index, mayores_index):
+					mayores_estrictos_mass[class_list[i]] -= w_list[i]
+
+				old_menores_index, old_mayores_index = menores_index, mayores_index
+
+				# menores, mayores = self.split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote)
+				w_list_afectada = w_list[menores_index:mayores_index]
+				mean_list_afectada = mean_list[menores_index:mayores_index]
+				std_list_afectada = std_list[menores_index:mayores_index]
+				left_bound_list_afectada = left_bound_list[menores_index:mayores_index]
+				right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
+				class_list_afectada = class_list[menores_index:mayores_index]
+
+				menores, mayores = self.split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
 
 				# No se si es necesario
 				if not any(menores) or not any(mayores):
@@ -107,32 +129,35 @@ class UNode(Node):
 		return menores_index, mayores_index
 
 
-	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote):
+	def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list, pivote, menores, mayores):
 		"""
 		Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
 		separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
 		"""
 
 		# Obtengo las clases existentes
-		clases = list(set(class_list))
+		# clases = list(set(class_list))
 
-		# Creo diccionarios para guardar
-		menores = { c: 0 for c in clases}
-		mayores = { c: 0 for c in clases}
+		# # Creo diccionarios para guardar
+		# menores = { c: 0 for c in clases}
+		# mayores = { c: 0 for c in clases}
 
 		for i in xrange(len(class_list)):
 
-			if right_bound_list[i] <= pivote:
-				menores[class_list[i]] += w_list[i]
+			# if right_bound_list[i] <= pivote:
+			# 	menores[class_list[i]] += w_list[i]
 
-			elif left_bound_list[i] >= pivote:
-				mayores[class_list[i]] += w_list[i]
+			# elif left_bound_list[i] >= pivote:
+			# 	mayores[class_list[i]] += w_list[i]
 
-			else:
-				mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
+			# else:
+				# mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
 
-				menores[class_list[i]] += mass_menor
-				mayores[class_list[i]] += mass_mayor	
+				# menores[class_list[i]] += mass_menor
+				# mayores[class_list[i]] += mass_mayor	
+			mass_menor, mass_mayor = self.split_tuple( w_list[i], mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i], pivote)
+			menores[class_list[i]] += mass_menor
+			mayores[class_list[i]] += mass_mayor
 			
 		return menores, mayores
 
