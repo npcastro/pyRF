@@ -1,16 +1,13 @@
-# from node import *
-#import scipy.stats
-import node
-import numpy as np
+from node import *
 import pandas as pd
 from copy import deepcopy
 import pyRF_prob
 
 
-class UNode(node.Node):
+class UNode(Node):
 	def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
 
-		node.Node.__init__(self, data, level, max_depth, min_samples_split)
+		Node.__init__(self, data, level, max_depth, min_samples_split)
 		self.mass = int(self.data['weight'].sum())			
 
 	def get_pivotes(self, feature, calidad = 'exact'):
@@ -31,9 +28,7 @@ class UNode(node.Node):
 		# Inicializo la ganancia de info en el peor nivel posible
 		max_gain = -float('inf')
 
-		# Para cada feature (no considero la clase ni la completitud)
 		filterfeatures = self.filterfeatures()
-
 		print filterfeatures
 
 		for f in filterfeatures:
@@ -75,7 +70,7 @@ class UNode(node.Node):
 
 				# Actualizo los indices
 				menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
-				print menores_index, mayores_index
+				# print menores_index, mayores_index
 
 				# Actualizo la masa estrictamente menor y mayor
 				for i in xrange(old_menores_index, menores_index):
@@ -96,9 +91,11 @@ class UNode(node.Node):
 
 				menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
 
-				# No se si es necesario
 				if not any(menores) or not any(mayores):
-					return
+					continue
+
+				elif sum(menores.values()) == 0 or sum(mayores.values()) == 0:
+					continue
 
 				# Calculo la ganancia de informacion para esta variable
 				pivot_gain = self.gain(menores, mayores)
@@ -108,7 +105,7 @@ class UNode(node.Node):
 					self.feat_value = pivote
 					self.feat_name = feature_name + '.mean'				
 
-			break # Para testear cuanto se demora una sola feature
+			# break # Para testear cuanto se demora una sola feature
 
 	# Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
 	def update_indexes(self, menores_index, mayores_index, pivote, limites_l, limites_r):
@@ -117,15 +114,17 @@ class UNode(node.Node):
 		ultimo_r_menor = limites_r[menores_index]
 
 		# Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
-		while( ultimo_r_menor <= pivote):
+		while( ultimo_r_menor < pivote and menores_index < len(limites_r) - 1):
 			menores_index += 1
 			ultimo_r_menor = limites_r[menores_index]
-
+			
+				
+			
 		# Actualizo mayores
 		ultimo_l_mayor = limites_l[mayores_index]
 
 		# Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-		while( ultimo_l_mayor <= pivote and mayores_index < len(limites_l) - 1):
+		while( ultimo_l_mayor < pivote and mayores_index < len(limites_l) - 1):
 			ultimo_l_mayor = limites_l[mayores_index]
 			mayores_index += 1
 
@@ -178,7 +177,10 @@ class UNode(node.Node):
 		entropia = 0
 		
 		for clase in data.keys():
-			entropia -= (data[clase] / total) * np.log(data[clase] / total)
+			try:
+				entropia -= (data[clase] / total) * np.log(data[clase] / total)
+			except ZeroDivisionError:
+				print data
 
 		return entropia
 
@@ -215,11 +217,70 @@ class UNode(node.Node):
 			r = tupla[feature_name + '.r']
 			pivote = self.feat_value
 
-			w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
-			w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
+			# w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
+			# w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
 			
+			w_left = min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
+			w_right = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+
 			a = self.right.predict(tupla, prediction, w_right)
 			b = self.left.predict(tupla, prediction, w_left)
 
 			# Tengo que retornar la suma elementwise de los diccionarios a y b
 			return {key: a[key] + b[key] for key in a}
+
+	def get_menores(self, feature_name, pivote):
+			menores = []
+
+			# limpio el nombre de la feature
+			feature_name = feature_name.rstrip('.mean')
+
+			menores = self.data[self.data[feature_name + '.l'] < pivote]
+			# self.data.apply(func=self.get_weight, axis=1, args=[menores, pivote, feature_name, "menor"])
+
+			menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
+			return pd.DataFrame(menores, index = menores.index)
+
+
+	def get_mayores(self, feature_name, pivote):
+		mayores = []
+
+		# limpio el nombre de la feature
+		feature_name = feature_name.rstrip('.mean')
+
+		mayores = self.data[self.data[feature_name + '.r'] >= pivote]
+		# self.data.apply(func=self.get_weight, axis=1, args=[mayores, pivote, feature_name, "mayor"])
+		mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
+		return pd.DataFrame(mayores, index = mayores.index)
+
+
+	def get_weight(self, tupla, pivote, feature_name, how):
+		"""
+		Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
+		
+		pivote: valor de corte
+		how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
+		"""
+
+		left_bound = tupla[feature_name+'.l']
+		right_bound = tupla[feature_name+'.r']
+
+		if left_bound >= pivote and how == 'mayor' or right_bound <= pivote and how == 'menor':
+			return tupla
+
+		else:
+			w = tupla['weight']
+			mean = tupla[feature_name+'.mean']
+			std = tupla[feature_name+'.std']
+
+			if how == 'menor':
+				tupla['weight'] = min(w * pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound), 1)
+				# tupla[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
+				tupla[feature_name+'.r'] = pivote
+				return tupla
+
+			elif how == 'mayor':
+				tupla['weight'] = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)), 1)
+				# tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
+				tupla[feature_name+'.l'] = pivote
+				return tupla

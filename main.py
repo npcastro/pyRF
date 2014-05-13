@@ -15,7 +15,8 @@ if __name__ == '__main__':
 
     for p in porcentajes:
 
-        path = "sets/macho " + str(p) + ".csv"
+        # path = "sets/macho " + str(p) + ".csv"
+        path = "sets/macho random.csv"
 
         # Obtengo los nombres de las variables
         with open(path, 'r') as f:
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        # data = data.iloc[0:300]
+        data = data.iloc[0:1000]
 
         # X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.3, random_state=0)
         
@@ -59,11 +60,19 @@ if __name__ == '__main__':
         matrix = clf.confusion_matrix(result)
 
         # # Serializo los resultados con pickle
-        
-        output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
+        output = open( 'output/macho/arbol random.pkl', 'w')
         pickle.dump(clf, output)
         output.close()
 
-        output = open( 'output/macho/result '+ str(p) + '.pkl', 'w')
+        output = open( 'output/macho/result random.pkl', 'w')
         pickle.dump(result, output)
         output.close()
+
+
+        # output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
+        # pickle.dump(clf, output)
+        # output.close()
+
+        # output = open( 'output/macho/result '+ str(p) + '.pkl', 'w')
+        # pickle.dump(result, output)
+        # output.close()

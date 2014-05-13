@@ -40,7 +40,7 @@ class Node:
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
                 menores = self.get_menores(self.feat_name, self.feat_value)
-                mayores = self.get_mayores(self.feat_name, self.feat_value)                
+                mayores = self.get_mayores(self.feat_name, self.feat_value)         
 
                 if not menores.empty:
                     self.add_left(menores)
