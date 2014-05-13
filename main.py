@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     # porcentajes = [20,40,60,80]
     porcentajes = [20]
-    folds = 2
+    folds = 4
 
     for p in porcentajes:
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        data = data.iloc[0:1000]
+        # data = data.iloc[0:1000]
 
         # X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.3, random_state=0)
         
@@ -55,6 +55,8 @@ if __name__ == '__main__':
             clf.fit(train)
 
             results.append(clf.predict_table(test))
+
+            break
 
         result = pd.concat(results)
         matrix = clf.confusion_matrix(result)
