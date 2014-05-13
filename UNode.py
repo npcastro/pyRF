@@ -67,9 +67,8 @@ class UNode(node.Node):
 			menores_estrictos_mass = { c: 0 for c in clases}
 			mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
-			# Me muevo a traves de los posibles pivotes. Podria hacerlo con self.data.index i at, asi podria saber
-			# la fila en la que estoy trabajando
-			# for i in xrange(1,self.n_rows):
+			split_tuples_by_pivot = self.split_tuples_by_pivot
+			# Me muevo a traves de los posibles pivotes.
 			for i in data_por_media.index:
 
 				pivote = data_por_media.at[i,f]
@@ -85,6 +84,7 @@ class UNode(node.Node):
 				for i in xrange(old_mayores_index, mayores_index):
 					mayores_estrictos_mass[class_list[i]] -= w_list[i]
 
+				# Actualizo los indidces anteriores
 				old_menores_index, old_mayores_index = menores_index, mayores_index
 
 				w_list_afectada = w_list[menores_index:mayores_index]
@@ -94,8 +94,6 @@ class UNode(node.Node):
 				right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
 				class_list_afectada = class_list[menores_index:mayores_index]
 
-				split_tuples_by_pivot = self.split_tuples_by_pivot
-				pivote = [pivote for i in xrange(len(w_list_afectada))] ###### idea rara
 				menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
 
 				# No se si es necesario
@@ -138,9 +136,10 @@ class UNode(node.Node):
 		Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
 		separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
 		"""
-
+		# aux = pyRF_prob.cdf
 		for i in xrange(len(class_list)):
 			cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
+			# cum_prob = aux(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
 			menores[class_list[i]] += w_list[i] * cum_prob
 			mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
@@ -150,7 +149,8 @@ class UNode(node.Node):
 	def gain(self, menores, mayores):
 		"""
 			Retorna la ganancia de dividir los datos en menores y mayores
-			Menores y mayores son diccionarios donde la llave es el nombre de la clase y los valores son la suma de masa para ella.
+			Menores y mayores son diccionarios donde la llave es el nombre 
+			de la clase y los valores son la suma de masa para ella.
 		"""
 		gain = self.entropia - ( sum(menores.values()) * self.entropy(menores) + sum(mayores.values()) * self.entropy(mayores) ) / self.mass
 
