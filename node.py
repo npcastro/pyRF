@@ -33,7 +33,7 @@ class Node:
         self.min_samples_split = min_samples_split
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
-        if self.check_data():
+        if self.check_leaf_condition():
             self.split()
 
             # Ojo con esto. No entiendo pq a veces el split deja el feat_name como vacio
@@ -116,7 +116,7 @@ class Node:
         return filter_arr
 
     # determina se es necesario hacer un split de los datos
-    def check_data(self):
+    def check_leaf_condition(self):
         featuresfaltantes = self.filterfeatures()
 
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
