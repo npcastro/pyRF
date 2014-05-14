@@ -1,7 +1,7 @@
 from __future__ import division
 from collections import Counter
 
-from pathos.multiprocessing import ProcessingPool
+
 import numpy as np
 
 
@@ -10,7 +10,7 @@ import numpy as np
 
 
 class Node:
-    def __init__(self, data, level = 1, max_depth = 8, min_samples_split=10):
+    def __init__(self, data, level = 1, max_depth = 8, min_samples_split=10, mass=None):
 
         # Atributos particulares del nodo
 
@@ -26,7 +26,10 @@ class Node:
         self.is_right = False
         self.level = level
         self.n_rows = len(data.index)
-        self.mass = float(len(data.index))
+        if mass is None:
+            self.mass = float(len(data.index))
+        else:
+            self.mass = mass
 
         # Atributos generales del arbol
         self.max_depth = max_depth
@@ -39,8 +42,9 @@ class Node:
             # Ojo con esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
+
                 menores = self.get_menores(self.feat_name, self.feat_value)
-                mayores = self.get_mayores(self.feat_name, self.feat_value)         
+                mayores = self.get_mayores(self.feat_name, self.feat_value)
 
                 if not menores.empty:
                     self.add_left(menores)
@@ -53,6 +57,7 @@ class Node:
         # De lo contrario llamo a set_leaf para transformarlo en hoja
         else:
             self.set_leaf()
+
 
     # Busca el mejor corte posible para el nodo
     def split(self):

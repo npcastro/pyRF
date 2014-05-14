@@ -5,10 +5,12 @@ import pyRF_prob
 
 
 class UNode(Node):
-	def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
+	def __init__(self, data, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9):
 
-		Node.__init__(self, data, level, max_depth, min_samples_split)
-		self.mass = int(self.data['weight'].sum())			
+		self.most_mass_threshold = most_mass_threshold
+		mass = float(data['weight'].sum())
+		Node.__init__(self, data, level, max_depth, min_samples_split, mass)
+		
 
 	def get_pivotes(self, feature, calidad = 'exact'):
 		"""
@@ -198,6 +200,15 @@ class UNode(Node):
 
 		return entropia
 
+
+	def add_left(self, left_data):
+		self.left = self.__class__(left_data, self.level+1, self.max_depth, self.min_samples_split, self.most_mass_threshold)
+		self.left.is_left = True
+
+	def add_right(self, right_data):
+		self.right = self.__class__(right_data, self.level+1, self.max_depth, self.min_samples_split, self.most_mass_threshold)
+		self.right.is_right = True
+	
 	def predict(self, tupla, prediction={}, w=1):
 		# Si es que es el nodo raiz
 		if len(prediction.keys()) == 0:
@@ -284,3 +295,34 @@ class UNode(Node):
 				# tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
 				tupla[feature_name+'.l'] = pivote
 				return tupla
+
+
+	# determina se es necesario hacer un split de los datos
+	def check_leaf_condition(self):
+		featuresfaltantes = self.filterfeatures()
+
+		if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
+			return False
+		elif self.level >= self.max_depth:
+			return False
+		elif self.n_rows < self.min_samples_split:
+			return False
+		elif self.check_most_mass():
+			return False
+		else:
+			return True
+
+    #Determina si el nodo tiene masa asociada a un clase lo suficientemente representativa segun un threshold
+	def check_most_mass(self):
+
+		mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
+		
+		for clase in mass_sum.keys():
+			print clase
+
+			mass_sum_percentage = mass_sum[clase]/self.mass
+			
+			if mass_sum_percentage  >= self.most_mass_threshold:
+				return True
+
+		return False
