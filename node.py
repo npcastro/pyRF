@@ -77,22 +77,12 @@ class Node:
             # Ordeno el frame segun la feature indicada
             self.data.sort(f, inplace=True)
 
-            # separo el dominio en todas las posibles divisiones para obtener la division optima
-            # pivotes = self.get_pivotes(self.data[f], 'exact')
-            # pivotes = self.get_pivotes(self.data[f], 'aprox')
-
-            # for pivote in pivotes:                
-            #     # Separo las tuplas segun si su valor de esa variable es menor o mayor que el pivote
-            #     menores = self.get_menores(f, pivote)
-            #     mayores = self.get_mayores(f, pivote)
-
             for i in xrange(1,self.n_rows):
 
                 menores = self.data[0:i]
                 mayores = self.data[i:]
                 pivote = self.data.at[i,f]
 
-                # No considero caso en que todos los datos se vayan a una sola rama
                 # if menores.empty or mayores.empty:
                 #     continue
 

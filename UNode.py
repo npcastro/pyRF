@@ -80,11 +80,6 @@ class UNode(Node):
                 menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
                 # print menores_index, mayores_index
 
-
-            # Me muevo a traves de los posibles pivotes.
-            split_tuples_by_pivot = self.split_tuples_by_pivot
-            for i in data_por_media.index:
-
                 # Actualizo la masa estrictamente menor y mayor
                 for i in xrange(old_menores_index, menores_index):
                     menores_estrictos_mass[class_list[i]] += w_list[i]
@@ -92,7 +87,7 @@ class UNode(Node):
                 for i in xrange(old_mayores_index, mayores_index):
                     mayores_estrictos_mass[class_list[i]] -= w_list[i]
 
-                # Actualizo los indidces anteriores
+                # Actualizo los indices anteriores
                 old_menores_index, old_mayores_index = menores_index, mayores_index
 
                 w_list_afectada = w_list[menores_index:mayores_index]
