@@ -16,7 +16,7 @@ if __name__ == '__main__':
     for p in porcentajes:
 
         # path = "sets/macho " + str(p) + ".csv"
-        path = "sets/macho random.csv"
+        path = "sets/macho 20.csv"
 
         # Obtengo los nombres de las variables
         with open(path, 'r') as f:
@@ -50,7 +50,7 @@ if __name__ == '__main__':
             clf = None
             # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty')
+            clf = tree.Tree('uncertainty', most_mass_threshold=0.71, min_mass_threshold=0.10)
 
             clf.fit(train)
 
@@ -62,13 +62,13 @@ if __name__ == '__main__':
         matrix = clf.confusion_matrix(result)
 
         # # Serializo los resultados con pickle
-        output = open( 'output/macho/arbol random.pkl', 'w')
-        pickle.dump(clf, output)
-        output.close()
+        # output = open( 'output/macho/arbol random.pkl', 'w')
+        # pickle.dump(clf, output)
+        # output.close()
 
-        output = open( 'output/macho/result random.pkl', 'w')
-        pickle.dump(result, output)
-        output.close()
+        # output = open( 'output/macho/result random.pkl', 'w')
+        # pickle.dump(result, output)
+        # output.close()
 
 
         # output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
