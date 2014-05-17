@@ -29,7 +29,13 @@ class UNode(Node):
 		max_gain = -float('inf')
 
 		filterfeatures = self.filterfeatures()
-		print filterfeatures
+		# print filterfeatures
+
+		print '\n ################ \n'
+		print 'Profundidad del nodo: ' + str(self.level)
+		print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+		print '\n ################ \n'
+
 
 		for f in filterfeatures:
 
@@ -62,8 +68,8 @@ class UNode(Node):
 			menores_estrictos_mass = { c: 0 for c in clases}
 			mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
-			split_tuples_by_pivot = self.split_tuples_by_pivot
 			# Me muevo a traves de los posibles pivotes.
+			split_tuples_by_pivot = self.split_tuples_by_pivot
 			for i in data_por_media.index:
 
 				pivote = data_por_media.at[i,f]
@@ -79,7 +85,7 @@ class UNode(Node):
 				for i in xrange(old_mayores_index, mayores_index):
 					mayores_estrictos_mass[class_list[i]] -= w_list[i]
 
-				# Actualizo los indidces anteriores
+				# Actualizo los indices anteriores
 				old_menores_index, old_mayores_index = menores_index, mayores_index
 
 				w_list_afectada = w_list[menores_index:mayores_index]
