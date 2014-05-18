@@ -324,7 +324,9 @@ class UNode(Node):
             return False
         elif self.level >= self.max_depth:
             return False
-        elif self.n_rows < self.min_samples_split:
+        elif self.n_rows < self.min_samples_split:  #Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
+            return False
+        elif self.mass < self.min_samples_split:    
             return False
         elif self.check_most_mass():
             return False
@@ -337,10 +339,7 @@ class UNode(Node):
         mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
         
         for clase in mass_sum.keys():
-
-            mass_sum_percentage = mass_sum[clase]/self.mass
-            
-            if mass_sum_percentage  >= self.most_mass_threshold:
+            if mass_sum[clase]/self.mass  >= self.most_mass_threshold:
                 return True
 
         return False

@@ -34,7 +34,7 @@ if __name__ == '__main__':
         data = data.dropna(axis = 0, how='any')
 
         # Para testing rapido
-        # data = data.iloc[0:1000]
+        data = data.iloc[0:1000]
 
         # X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.3, random_state=0)
         
