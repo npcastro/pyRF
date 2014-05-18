@@ -50,7 +50,7 @@ if __name__ == '__main__':
             clf = None
             # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty', most_mass_threshold=0.71, min_mass_threshold=0.10)
+            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.71, min_mass_threshold=0.10)
 
             clf.fit(train)
 

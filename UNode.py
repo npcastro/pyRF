@@ -3,6 +3,9 @@ import pandas as pd
 from copy import deepcopy
 import pyRF_prob
 
+import sys
+import time
+
 
 class UNode(Node):
     def __init__(self, data, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127):
@@ -37,13 +40,19 @@ class UNode(Node):
         print '\n ################ \n'
         print 'Profundidad del nodo: ' + str(self.level)
         print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+        print 'Masa total del nodo: ' + str(self.mass)
         print '\n ################ \n'
 
         for f in filterfeatures:
 
             # Limpio el nombre de la feature
             feature_name = f.rstrip('.mean')
-            print 'Evaluando feature: ' + f
+            
+            # output que se sobreescribe
+            sys.stdout.write('Evaluando feature: ' + f)
+            sys.stdout.flush()
+            sys.stdout.write('\r')
+            sys.stdout.flush()
 
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
