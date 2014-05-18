@@ -5,6 +5,7 @@ import pyRF_prob
 
 import sys
 import time
+import datetime
 
 
 class UNode(Node):
@@ -43,6 +44,7 @@ class UNode(Node):
         print 'Masa total del nodo: ' + str(self.mass)
         print '\n ################ \n'
 
+        start_time = time.time()
         for f in filterfeatures:
 
             # Limpio el nombre de la feature
@@ -122,6 +124,8 @@ class UNode(Node):
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'                
 
+        end_time = time.time()
+        print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
 
     # Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
