@@ -6,13 +6,14 @@ from CompNode import *
 from UNode import *
 
 class Tree:
-    def __init__(self, criterium, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127):
+    def __init__(self, criterium, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127, min_weight_threshold=0.0):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
+        self.min_weight_threshold = min_weight_threshold
 
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data):

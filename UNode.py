@@ -7,12 +7,15 @@ import sys
 import time
 import datetime
 
+import math
+
 
 class UNode(Node):
-    def __init__(self, data, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127):
+    def __init__(self, data, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127, min_weight_threshold=0.0):
 
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
+        self.min_weight_threshold = min_weight_threshold
         mass = float(data['weight'].sum())
         Node.__init__(self, data, level, max_depth, min_samples_split, mass)
         
@@ -33,7 +36,7 @@ class UNode(Node):
     def split(self):
 
         # Inicializo la ganancia de info en el peor nivel posible
-        max_gain = -float('inf')
+        max_gain = 0
 
         filterfeatures = self.filterfeatures()
         # print filterfeatures
@@ -78,7 +81,7 @@ class UNode(Node):
 
             # Creo diccionarios para guardar la masa de los estrictos menores y estrictos mayores, y asi no calcularla continuamente.
             # Los menores parten vacios y los mayores parten con toda la masa
-            menores_estrictos_mass = { c: 0 for c in clases}
+            menores_estrictos_mass = { c: 0.0 for c in clases}
             mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
             split_tuples_by_pivot = self.split_tuples_by_pivot
@@ -101,6 +104,7 @@ class UNode(Node):
                 # Actualizo los indices anteriores
                 old_menores_index, old_mayores_index = menores_index, mayores_index
 
+                # Guardo las listas de elementos afectados por el pivote actual
                 w_list_afectada = w_list[menores_index:mayores_index]
                 mean_list_afectada = mean_list[menores_index:mayores_index]
                 std_list_afectada = std_list[menores_index:mayores_index]
@@ -118,8 +122,16 @@ class UNode(Node):
 
                 # Calculo la ganancia de informacion para esta variable
                 pivot_gain = self.gain(menores, mayores)
-                
+
+                if math.isnan(pivot_gain):
+                    print menores
+                    print mayores
+                    sys.exit("Ganancia de informacion indefinida")
+
                 if pivot_gain > max_gain:
+                    print 'gain elegido: ' + str(pivot_gain)
+                    print 'pivote elegido: ' + str(pivote)
+
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'                
@@ -159,7 +171,7 @@ class UNode(Node):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
             # cum_prob = aux(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
             menores[class_list[i]] += w_list[i] * cum_prob
-            mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
+            mayores[class_list[i]] += w_list[i] * max((1 - cum_prob), 0)
 
         return menores, mayores    
 
@@ -196,10 +208,8 @@ class UNode(Node):
         entropia = 0
         
         for clase in data.keys():
-            try:
+            if data[clase] != 0:
                 entropia -= (data[clase] / total) * np.log(data[clase] / total)
-            except ZeroDivisionError:
-                print data
 
         return entropia
 
@@ -267,7 +277,8 @@ class UNode(Node):
         # self.data.apply(func=self.get_weight, axis=1, args=[menores, pivote, feature_name, "menor"])
 
         menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
-        menores = menores[menores["weight"] != 0]
+        # menores = menores[menores["weight"] != 0]
+        menores = menores[menores["weight"] > self.min_weight_threshold]
                  
         return pd.DataFrame(menores, index = menores.index)
 
@@ -282,7 +293,8 @@ class UNode(Node):
         # self.data.apply(func=self.get_weight, axis=1, args=[mayores, pivote, feature_name, "mayor"])
   
         mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
-        mayores = mayores[mayores["weight"] != 0]  
+        # mayores = mayores[mayores["weight"] != 0]  
+        mayores = mayores[mayores["weight"] > self.min_weight_threshold]  
   
         return pd.DataFrame(mayores, index = mayores.index)
 

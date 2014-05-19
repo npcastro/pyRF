@@ -40,6 +40,7 @@ class Node:
             # Ojo con esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
+                print 'Pivote elegido: ' + str(self.feat_value)
 
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
@@ -61,7 +62,7 @@ class Node:
     def split(self):
 
         # Inicializo la ganancia de info en el peor nivel posible
-        max_gain = -float('inf')
+        max_gain = 0
 
         # Para cada feature (no considero la clase ni la completitud)
         filterfeatures = self.filterfeatures()

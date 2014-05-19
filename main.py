@@ -16,7 +16,8 @@ if __name__ == '__main__':
     for p in porcentajes:
 
         # path = "sets/macho " + str(p) + ".csv"
-        path = "sets/macho 20.csv"
+        # path = "sets/macho 20.csv"
+        path = "sets/macho random.csv"
 
         # Obtengo los nombres de las variables
         with open(path, 'r') as f:
@@ -50,7 +51,7 @@ if __name__ == '__main__':
             clf = None
             # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.71, min_mass_threshold=0.10)
+            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.71, min_mass_threshold=0.10, min_weight_threshold=0.1)
 
             clf.fit(train)
 
