@@ -170,8 +170,11 @@ class UNode(Node):
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
             # cum_prob = aux(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
+
+            cum_prob = max(cum_prob, 0)
+            cum_prob = min(cum_prob, 1)
             menores[class_list[i]] += w_list[i] * cum_prob
-            mayores[class_list[i]] += w_list[i] * max((1 - cum_prob), 0)
+            mayores[class_list[i]] += w_list[i] * 1 - cum_prob
 
         return menores, mayores    
 
