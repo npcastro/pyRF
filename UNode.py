@@ -38,8 +38,8 @@ class UNode(Node):
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = 0
 
+        #Obtengo los nombres de las features a probar
         filterfeatures = self.filterfeatures()
-        # print filterfeatures
 
         print '\n ################ \n'
         print 'Profundidad del nodo: ' + str(self.level)
@@ -47,13 +47,14 @@ class UNode(Node):
         print 'Masa total del nodo: ' + str(self.mass)
         print '\n ################ \n'
 
+
         start_time = time.time()
         for f in filterfeatures:
 
             # Limpio el nombre de la feature
             feature_name = f.rstrip('.mean')
             
-            # output que se sobreescribe
+            # Output que se sobreescribe
             sys.stdout.write('Evaluando feature: ' + f)
             sys.stdout.flush()
             sys.stdout.write('\r')
@@ -85,10 +86,13 @@ class UNode(Node):
             mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
             split_tuples_by_pivot = self.split_tuples_by_pivot
+            
             # Me muevo a traves de los posibles pivotes.
-            for i in data_por_media.index:
+            # for i in data_por_media.index:
+            for i in xrange(self.n_rows):
 
-                pivote = data_por_media.at[i,f]
+                # pivote = data_por_media.at[i,f]
+                pivote = mean_list[i]
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
@@ -101,6 +105,8 @@ class UNode(Node):
                 for i in xrange(old_mayores_index, mayores_index):
                     mayores_estrictos_mass[class_list[i]] -= w_list[i]
 
+                # print old_mayores_index, mayores_index, mayores_estrictos_mass['MicroLensing']
+
                 # Actualizo los indices anteriores
                 old_menores_index, old_mayores_index = menores_index, mayores_index
 
@@ -112,7 +118,7 @@ class UNode(Node):
                 right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
                 class_list_afectada = class_list[menores_index:mayores_index]
 
-                menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, menores_estrictos_mass, mayores_estrictos_mass)
+                menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, deepcopy(menores_estrictos_mass), deepcopy(mayores_estrictos_mass))
 
                 if not any(menores) or not any(mayores):
                     continue
@@ -121,16 +127,23 @@ class UNode(Node):
                     continue
 
                 # Calculo la ganancia de informacion para esta variable
+                menores, mayores = self.fix_numeric_errors(menores, mayores)
                 pivot_gain = self.gain(menores, mayores)
 
-                if math.isnan(pivot_gain):
-                    print menores
-                    print mayores
-                    sys.exit("Ganancia de informacion indefinida")
+                # En caso de error
+                # if math.isnan(pivot_gain):
+                #     print 'Total: ' + str(data_por_media.groupby('class')['weight'].sum().to_dict())
+                #     print 'Menores: ' + str(menores)
+                #     print 'Mayores: ' + str(mayores)
+                #     print 'Menores_estrictos_mass: ' + str(menores_estrictos_mass)
+                #     print 'Mayores_estrictos_mass: ' + str(mayores_estrictos_mass)
+                #     print 'Menores_index: ' + str(menores_index)
+                #     print 'Mayores_index: ' + str(mayores_index)
+                #     sys.exit("Ganancia de informacion indefinida")
 
                 if pivot_gain > max_gain:
-                    print 'gain elegido: ' + str(pivot_gain)
-                    print 'pivote elegido: ' + str(pivote)
+                    # print 'gain elegido: ' + str(pivot_gain)
+                    # print 'pivote elegido: ' + str(pivote)
 
                     max_gain = pivot_gain
                     self.feat_value = pivote
@@ -139,6 +152,28 @@ class UNode(Node):
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
+
+    def fix_numeric_errors(self, menores, mayores):
+        for key in menores.keys():
+            if abs(menores[key]) < 1e-10 and menores[key] < 0:
+                menores[key] = 0
+
+        for key in mayores.keys():
+            if abs(mayores[key]) < 1e-10 and mayores[key] < 0:
+                mayores[key] = 0
+
+        return menores, mayores
+
+
+    def get_relevant_columns (data, feature_name, menores_index=0, mayores_index=0):
+        w_list = data['weight'].tolist()
+        mean_list = data[feature_name + '.mean'].tolist()
+        std_list = data[feature_name + '.std'].tolist()
+        left_bound_list = data[feature_name + '.l'].tolist()
+        right_bound_list = data[feature_name + '.r'].tolist()
+        class_list = data['class'].tolist() 
+
+        return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
     # Toma los indices de los estrictamente menores y mayores, mas el nuevo pivote y los actualiza
     def update_indexes(self, menores_index, mayores_index, pivote, limites_l, limites_r):
@@ -173,8 +208,11 @@ class UNode(Node):
 
             cum_prob = max(cum_prob, 0)
             cum_prob = min(cum_prob, 1)
+            if cum_prob > 1 or cum_prob < 0:
+                sys.exit("Acumulada fuera de rango")
+
             menores[class_list[i]] += w_list[i] * cum_prob
-            mayores[class_list[i]] += w_list[i] * 1 - cum_prob
+            mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
         return menores, mayores    
 
