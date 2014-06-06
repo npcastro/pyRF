@@ -5,7 +5,8 @@ import tree
 # RESULT_DIR = 'Resultados/resultados var_comp/'
 # RESULT_DIR = 'Resultados/resultados trust/'
 # RESULT_DIR = 'Resultados/resultados new_var/'
-RESULT_DIR = 'Resultados/resultados iris/'
+# RESULT_DIR = 'Resultados/resultados iris/'
+RESULT_DIR = 'Resultados/output/macho/'
 
 # Porcentaje a ocupar
 # porcentajes = [5,10,15,20,25,30,35,40,45,50,55,60,65,70]

@@ -208,8 +208,6 @@ class UNode(Node):
 
             cum_prob = max(cum_prob, 0)
             cum_prob = min(cum_prob, 1)
-            if cum_prob > 1 or cum_prob < 0:
-                sys.exit("Acumulada fuera de rango")
 
             menores[class_list[i]] += w_list[i] * cum_prob
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)

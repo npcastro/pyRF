@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     # porcentajes = [20,40,60,80]
     porcentajes = [20]
-    folds = 4
+    folds = 5
 
     for p in porcentajes:
 
@@ -51,25 +51,23 @@ if __name__ == '__main__':
             clf = None
             # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.71, min_mass_threshold=0.10, min_weight_threshold=0.1)
+            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
 
             clf.fit(train)
 
             results.append(clf.predict_table(test))
 
-            break
-
         result = pd.concat(results)
         matrix = clf.confusion_matrix(result)
 
         # # Serializo los resultados con pickle
-        # output = open( 'output/macho/arbol random.pkl', 'w')
-        # pickle.dump(clf, output)
-        # output.close()
+        output = open( 'output/macho/arbol random.pkl', 'w')
+        pickle.dump(clf, output)
+        output.close()
 
-        # output = open( 'output/macho/result random.pkl', 'w')
-        # pickle.dump(result, output)
-        # output.close()
+        output = open( 'output/macho/result random.pkl', 'w')
+        pickle.dump(result, output)
+        output.close()
 
 
         # output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
