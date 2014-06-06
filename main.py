@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     # porcentajes = [20,40,60,80]
     porcentajes = [20]
-    folds = 5
+    folds = 10
 
     for p in porcentajes:
 

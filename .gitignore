@@ -9,6 +9,8 @@
 
 .idea
 
+*.lprof
+
 /resultados trust
 /resultados var_comp
 /resultados comp
