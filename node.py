@@ -4,6 +4,7 @@ from collections import Counter
 import sys
 
 import numpy as np
+import math
 
 
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
@@ -46,9 +47,10 @@ class Node:
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
 
-                if not menores.empty:
+                if menores.empty or mayores.empty:
+                    self.set_leaf()
+                else:
                     self.add_left(menores)
-                if not mayores.empty:
                     self.add_right(mayores)
 
             else:
@@ -99,16 +101,23 @@ class Node:
             menores = { c: 0.0 for c in clases}
             mayores = dict(Counter(class_list))
 
+            index = 0
+            old_index = 0
+
             # Me muevo a traves de los posibles pivotes.
-            for i in xrange(1, self.n_rows):
+            for pivote in mean_list:
                 # ARREGLAR EL FILTRO POR CLASES
-                pivote = mean_list[i]
                 
-                menores[class_list[i - 1]] += 1
-                mayores[class_list[i -1 ]] -= 1
+                index = self.update_index(pivote, index, mean_list)
+
+                for i in xrange(old_index, index):
+                    menores[class_list[i]] += 1
+                    mayores[class_list[i]] -= 1
+
+                old_index = index
                 
-                # if menores.empty or mayores.empty:
-                #     continue
+                # if sum(menores.values()) == 0 or sum(mayores.values()) == 0:
+                #     continue                
 
                 # Calculo la ganancia de informacion para esta variable
                 pivot_gain = self.gain(menores, mayores)
@@ -117,7 +126,21 @@ class Node:
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'
-                                        
+
+            aux_menores = self.get_menores(f, pivote)
+            aux_mayores = self.get_mayores(f, pivote)
+            
+            if aux_menores.empty or aux_mayores.empty:
+                print aux_menores['class'].value_counts()
+                print aux_mayores['class'].value_counts()
+                print menores
+                print mayores                                
+    
+    def update_index(self, pivote, index, mean_list):
+        while mean_list[index] < pivote:
+            index += 1
+        return index
+
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
 
@@ -212,16 +235,15 @@ class Node:
         return gain
 
     def entropy(self, data):
-        """
-        Retorna la entropia de un grupo de datos.
+        """Retorna la entropia de un grupo de datos.
         data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos) de valores.
         """
         
-        total = len(data)
+        total = sum(data.values())
         entropia = 0
         
         for clase in data.keys():
             if data[clase] != 0:
-                entropia -= (data[clase] / total) * np.log(data[clase] / total)
+                entropia -= (float(data[clase]) / total) * np.log(float(data[clase]) / total)
 
         return entropia
