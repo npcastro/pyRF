@@ -245,5 +245,4 @@ class Node:
         for clase in data.keys():
             if data[clase] != 0:
                 entropia -= (float(data[clase]) / total) * np.log(float(data[clase]) / total)
-
         return entropia
