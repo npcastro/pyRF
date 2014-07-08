@@ -69,9 +69,6 @@ class Node:
 
         print filterfeatures
 
-        pivot_gain = self.pivot_gain
-        get_pivotes = self.get_pivotes
-
         for f in filterfeatures:
             print 'Evaluando feature: ' + f
 

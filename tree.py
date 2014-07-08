@@ -83,7 +83,6 @@ class Tree:
         return matrix
 
     # Matriz de confusion hard a partir de la tabla de prediccion
-    @profile
     def hard_matrix(self, table):
         unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values)))        
 
