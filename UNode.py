@@ -225,18 +225,6 @@ class UNode(Node):
 
         return gain
 
-    # Retorna la ganancia de dividir los datos en menores y mayores.
-    # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
-    # Eso debe poder arreglarse
-    def gain_old(self, menores, mayores, feature):
-
-        # total = self.data['weight'].sum()
-
-        # gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / total
-        gain = self.entropia - (menores['weight'].sum() * self.entropy(menores) + mayores['weight'].sum() * self.entropy(mayores)) / self.mass
-
-        return gain
-
     def entropy(self, data):
         """
         Retorna la entropia de un grupo de datos.
@@ -251,21 +239,6 @@ class UNode(Node):
                 entropia -= (data[clase] / total) * np.log(data[clase] / total)
 
         return entropia
-
-    # Retorna la entropia de un grupo de datos
-    def entropy_old(self, data):
-
-        # El total es la masa de probabilidad total del grupo de datos
-        total = data['weight'].sum()
-        log = np.log2
-        entropia = 0
-
-        pesos = data.groupby('class')['weight']
-        for suma in pesos.sum():
-            entropia -= (suma / total) * log(suma / total)
-
-        return entropia
-
 
     def add_left(self, left_data):
         self.left = self.__class__(left_data, self.level+1, self.max_depth, self.min_samples_split, self.most_mass_threshold)
