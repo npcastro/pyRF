@@ -153,6 +153,9 @@ class UNode(Node):
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
 
+    """
+    Se rendondean a cero las masas extremadamente chicas.
+    """
     def fix_numeric_errors(self, menores, mayores):
         for key in menores.keys():
             if abs(menores[key]) < 1e-10 and menores[key] < 0:

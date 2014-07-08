@@ -214,7 +214,7 @@ class Node:
     def entropy(self, data):
         """
         Retorna la entropia de un grupo de datos.
-        data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos de valores)
+        data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos) de valores.
         """
         
         total = len(data)
