@@ -217,11 +217,10 @@ class Node:
         data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos) de valores.
         """
         
-        total = len(data)
+        total = sum(data.values())
         entropia = 0
         
         for clase in data.keys():
             if data[clase] != 0:
                 entropia -= (data[clase] / total) * np.log(data[clase] / total)
-
         return entropia
