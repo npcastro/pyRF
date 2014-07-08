@@ -1,6 +1,7 @@
 from __future__ import division
 from collections import Counter
 
+import sys
 
 import numpy as np
 
@@ -57,47 +58,72 @@ class Node:
         else:
             self.set_leaf()
 
-
+    
     # Busca el mejor corte posible para el nodo
     def split(self):
 
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = 0
 
-        # Para cada feature (no considero la clase ni la completitud)
+        #Obtengo los nombres de las features a probar
         filterfeatures = self.filterfeatures()
 
-        print filterfeatures
+        print '\n ################ \n'
+        print 'Profundidad del nodo: ' + str(self.level)
+        print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+        print '\n ################ \n'
 
         for f in filterfeatures:
-            print 'Evaluando feature: ' + f
+
+            # Limpio el nombre de la feature
+            feature_name = f.rstrip('.mean')
+            
+            # Output que se sobreescribe
+            sys.stdout.write('Evaluando feature: ' + f)
+            sys.stdout.flush()
+            sys.stdout.write('\r')
+            sys.stdout.flush()
 
             # Ordeno el frame segun la feature indicada
-            self.data.sort(f, inplace=True)
+            data_por_media = self.data.sort(f, inplace=False)
 
-            for i in xrange(1,self.n_rows):
+            #Transformo la informacion relevante de esta feature a listas
+            mean_list = data_por_media[feature_name + '.mean'].tolist()
+            class_list = data_por_media['class'].tolist()
+            
+            # Obtengo las clases existentes
+            clases = list(set(class_list))
 
-                menores = self.data[0:i]
-                mayores = self.data[i:]
-                pivote = self.data.at[i,f]
+            # Creo diccionarios para guardar la masa de los estrictos menores y estrictos mayores, y asi no calcularla continuamente.
+            # Los menores parten vacios y los mayores parten con toda la masa
+            menores = { c: 0.0 for c in clases}
+            mayores = dict(Counter(class_list))
 
+            # Me muevo a traves de los posibles pivotes.
+            for i in xrange(1, self.n_rows):
+                # ARREGLAR EL FILTRO POR CLASES
+                pivote = mean_list[i]
+                
+                menores[class_list[i - 1]] += 1
+                mayores[class_list[i -1 ]] -= 1
+                
                 # if menores.empty or mayores.empty:
                 #     continue
 
                 # Calculo la ganancia de informacion para esta variable
-                pivot_gain = self.gain(menores, mayores, f)
+                pivot_gain = self.gain(menores, mayores)
 
                 if pivot_gain > max_gain:
                     max_gain = pivot_gain
                     self.feat_value = pivote
-                    self.feat_name = f
-
+                    self.feat_name = feature_name + '.mean'
+                                        
     def get_menores(self, feature, pivote):
         return self.data[self.data[feature] < pivote]
 
     def get_mayores(self, feature, pivote):
         return self.data[self.data[feature] >= pivote]
-
+        
     # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):
         filter_arr = []
@@ -181,47 +207,21 @@ class Node:
 
     
     # Retorna la ganancia de dividir los datos en menores y mayores.
-    # Deje la variable feature que no me sirve en la clase base, solo para ahorrarme repetir el metodo split. 
-    # Eso debe poder arreglarse
-    def gain(self, menores, mayores, feature):
-        gain = self.entropia - (len(menores.index) * self.entropy(menores) + len(mayores.index) * self.entropy(mayores)) / self.n_rows
-
+    def gain(self, menores, mayores):
+        gain = self.entropia - ( sum(menores.values()) * self.entropy(menores) + sum(mayores.values()) * self.entropy(mayores) ) / self.n_rows
         return gain
-
-    # # Retorna la entropia de un grupo de datos
-    # def entropy(self, data):
-        
-    #     total = len(data.index)
-    #     entropia = 0
-    #     log = np.log2
-
-    #     # clases = data['class'].unique()
-        
-    #     # for c in clases:
-    #     #     p_c = len(data[data['class'] == c].index) / total
-    #     #     entropia -= p_c * log(p_c)
-
-    #     g = data.groupby('class')
-    #     for count in g.size():
-    #         entropia -= (count / total) * log(count / total)
-
-    #     # Enfoque para UNode tbn
-    #     # pesos = data.groupby('class')['weight']
-    #     # for suma in pesos.sum():
-    #     #     entropia -= (suma / total) * log(suma / total)
-
-    #     return entropia
 
     def entropy(self, data):
         """
         Retorna la entropia de un grupo de datos.
         data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos) de valores.
         """
-
-        total = sum(data.values())
+        
+        total = len(data)
         entropia = 0
         
         for clase in data.keys():
-            entropia -= (data[clase] / total) * np.log(data[clase] / total)
+            if data[clase] != 0:
+                entropia -= (data[clase] / total) * np.log(data[clase] / total)
 
         return entropia
