@@ -16,4 +16,4 @@ def sampling_data(path, fold=10):
     break
 
   name = path.split('/')[-1].split('.')[0]
-  data.to_csv(SETS_PATH + "/" + name + " sampled " + str(percent) + " folds.csv", index=False)
+  data.to_csv(SETS_PATH + "/" + name + " sampled " + str(fold) + " folds.csv", index=False)
