@@ -47,11 +47,8 @@ class Node:
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
 
-                if menores.empty or mayores.empty:
-                    self.set_leaf()
-                else:
-                    self.add_left(menores)
-                    self.add_right(mayores)
+                self.add_left(menores)
+                self.add_right(mayores)
 
             else:
                 self.set_leaf()
@@ -92,49 +89,36 @@ class Node:
             #Transformo la informacion relevante de esta feature a listas
             mean_list = data_por_media[feature_name + '.mean'].tolist()
             class_list = data_por_media['class'].tolist()
-            
-            # Obtengo las clases existentes
-            clases = list(set(class_list))
 
+            unique_means = list(set(mean_list))
+            unique_means.sort()
+            
             # Creo diccionarios para guardar la masa de los estrictos menores y estrictos mayores, y asi no calcularla continuamente.
             # Los menores parten vacios y los mayores parten con toda la masa
+            clases = list(set(class_list))
             menores = { c: 0.0 for c in clases}
             mayores = dict(Counter(class_list))
-
+            
             index = 0
             old_index = 0
 
             # Me muevo a traves de los posibles pivotes.
-            for pivote in mean_list:
-                # ARREGLAR EL FILTRO POR CLASES
-                
-                index = self.update_index(pivote, index, mean_list)
+            if len(unique_means) > 1:
+                for pivote in unique_means:
+                    index = self.update_index(pivote, index, mean_list)
 
-                for i in xrange(old_index, index):
-                    menores[class_list[i]] += 1
-                    mayores[class_list[i]] -= 1
+                    for i in xrange(old_index, index):
+                        menores[class_list[i]] += 1
+                        mayores[class_list[i]] -= 1
+                    old_index = index           
 
-                old_index = index
-                
-                # if sum(menores.values()) == 0 or sum(mayores.values()) == 0:
-                #     continue                
+                    # Calculo la ganancia de informacion para esta variable
+                    pivot_gain = self.gain(menores, mayores)
 
-                # Calculo la ganancia de informacion para esta variable
-                pivot_gain = self.gain(menores, mayores)
-
-                if pivot_gain > max_gain:
-                    max_gain = pivot_gain
-                    self.feat_value = pivote
-                    self.feat_name = feature_name + '.mean'
-
-            aux_menores = self.get_menores(f, pivote)
-            aux_mayores = self.get_mayores(f, pivote)
-            
-            if aux_menores.empty or aux_mayores.empty:
-                print aux_menores['class'].value_counts()
-                print aux_mayores['class'].value_counts()
-                print menores
-                print mayores                                
+                    if pivot_gain > max_gain:
+                        max_gain = pivot_gain
+                        self.feat_value = pivote
+                        self.feat_name = feature_name + '.mean'
     
     def update_index(self, pivote, index, mean_list):
         while mean_list[index] < pivote:
