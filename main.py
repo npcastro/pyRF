@@ -19,15 +19,6 @@ if __name__ == '__main__':
         # path = "sets/macho 20.csv"
         path = "sets/macho random.csv"
 
-        # Obtengo los nombres de las variables
-        with open(path, 'r') as f:
-            nombres = f.readline().strip().split(' ')
-        f.close()
-        nombres = nombres[0:-1]
-        nombres.append('class')
-
-
-        # data = pd.read_csv(path, sep=' ', header=None, names=nombres, skiprows=1, index_col=0)
         data = pd.read_csv(path)
 
         data['weight'] = data['weight'].astype(float)
