@@ -9,7 +9,8 @@ def filterfeatures(df):
 	filter_arr = []
 	for f in df.columns:
 		if not '.l' in f and not '.r' in f and not '.std' in f and f != 'weight' and f != 'class':
-			filter_arr.append(f.rstrip('.mean'))
+			# filter_arr.append(f.rstrip('.mean'))
+			filter_arr.append(f)
 	return filter_arr
 
 def sample_row(row, columns):
@@ -19,7 +20,8 @@ def sample_row(row, columns):
 
 	# Sampleo cada feature segun la distribucion de la fila
 	for c in columns:
-		sampled_row[c] = random.normal(row[c + '.mean'], row[c + '.std'])
+		c = c.rstrip('.mean')
+		sampled_row[c + '.mean'] = random.normal(row[c + '.mean'], row[c + '.std'])
 
 	# Agrego la columna clase
 	sampled_row['class'] = row['class']
@@ -38,6 +40,4 @@ if __name__ == '__main__':
 		columns = filterfeatures(data)
 		sampled_frame = data.apply(sample_row, axis=1, args=[columns])
 
-		sampled_frame.to_csv('sets/sampling/sampled macho ' + str(i) + '.csv')
-
-
+		sampled_frame.to_csv('sets/sampling/sampled macho ' + str(i) + '.csv', index=False) 
