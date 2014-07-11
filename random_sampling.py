@@ -2,6 +2,7 @@
 
 import pandas as pd
 from numpy import random
+import os
 
 def filterfeatures(df):
 	"""Toma un dataframe y retorna el nombre de las features.
@@ -28,16 +29,46 @@ def sample_row(row, columns):
 
 	return sampled_row
 
+def save(df, path):
+    """Save a figure from pyplot.
+ 
+    Parameters
+    ----------
+    path : string
+        The path (and filename) to save the
+        figure to.
+    """
+    
+    # Extract the directory and filename from the given path
+    directory = os.path.split(path)[0]
+    filename = os.path.split(path)[1]
+    if directory == '':
+        directory = '.'
+ 
+    # If the directory does not exist, create it
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+ 
+    # The final path to save to
+    savepath = os.path.join(directory, filename)
+ 
+    # Save the dataset
+    sampled_frame.to_csv(savepath, index=False) 
+
 
 if __name__ == '__main__':
+	aux = [2, 6, 11, 16, 21, 26, 31, 36, 41]
+	for u in aux:
 	
-	path = 'sets/macho random sampled 10 folds.csv'
-	data = pd.read_csv(path)
-	
-	n = 15
-	for i in xrange(n):
-
+		# path = 'sets/macho random sampled 10 folds.csv'
+		path = 'sets/macho %/macho random ' + str(u) +'.csv'
+		data = pd.read_csv(path)
+		
 		columns = filterfeatures(data)
-		sampled_frame = data.apply(sample_row, axis=1, args=[columns])
 
-		sampled_frame.to_csv('sets/sampling/sampled macho ' + str(i) + '.csv', index=False) 
+		n = 15
+		for i in xrange(n):
+
+			sampled_frame = data.apply(sample_row, axis=1, args=[columns])
+			save(sampled_frame, 'sets/sampling/' + str(u - 1) + ' %/sampled macho ' + str(u - 1) + '% ' + str(i) + '.csv')
+			# sampled_frame.to_csv('sets/sampling/sampled macho ' + str(i) + '.csv', index=False) 
