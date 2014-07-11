@@ -34,6 +34,10 @@ def graf(path, clases, x, y, x_value, y_value, how='points', show=True):
 		valor donde se grafica una linea vertical
 	y_value: float
 		valor donde se grafica una linea horizontal
+	how: string
+		El tipo de grafico que se tiene que mostrar
+	show: boolean
+		Si es True, el grafico se muestra pero no se guarda, si es False el grafico se guarda pero no se muestra
 	"""
 	data = pd.read_csv(path)
 
