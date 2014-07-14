@@ -6,7 +6,6 @@ import sys
 import numpy as np
 import math
 
-
 # data es un dataframe que tiene que contener una columna class. La cual el arbol intenta predecir.
 # podria pensar en relajar esto y simplemente indicar cual es la variable a predecir.
 class Node:
@@ -40,7 +39,6 @@ class Node:
         if self.check_leaf_condition():
             self.split()
 
-            # Ojo con esto. No entiendo pq a veces el split deja el feat_name como vacio
             if self.feat_name != '':
                 print 'Feature elegida: ' + self.feat_name
                 print 'Pivote elegido: ' + str(self.feat_value)
@@ -48,8 +46,8 @@ class Node:
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
 
-                self.add_left(menores)
                 self.add_right(mayores)
+                self.add_left(menores)
 
             else:
                 self.set_leaf()
@@ -173,6 +171,7 @@ class Node:
         self.is_leaf = True
         # self.clase = stats.mode(self.data['class'])[0].item()
         # self.clase = Counter(self.data['class']).most_common(1)[0][0]
+        print self.data['class'].value_counts()
         self.clase = self.data['class'].value_counts().idxmax()
         
 

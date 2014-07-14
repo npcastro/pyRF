@@ -6,7 +6,7 @@ import random
 
 import matplotlib.pyplot as plt
 
-from graf import draw_points
+import graf
 
 import numpy as np
 
@@ -35,6 +35,8 @@ import numpy as np
 
 
 def random_circle_point(x, y, radius):
+	"""Genera un punto aleatorio dentro de un circulo centrado en x,y
+	"""
 	a = 2 * np.pi * random.random()
 	r = np.sqrt(random.random())
 	x = (radius * r ) * np.cos(a) + x + random.uniform(-radius/15, radius/15)
@@ -50,32 +52,28 @@ if __name__ == '__main__':
 	n_samples_per_class = 500
 
 	for i in xrange(n_samples_per_class):
-		x, y = random_circle_point(2,2, 1)
+		x, y = random_circle_point(2,2.5, 1)
 		data['Feature 1'].append(x)
 		data['Feature 2'].append(y)
 		data['class'].append('blue')
 
 	for i in xrange(n_samples_per_class):
-		x, y = random_circle_point(4.5,3.5, 1)
+		x, y = random_circle_point(4,4.5, 1)
 		data['Feature 1'].append(x)
 		data['Feature 2'].append(y)
 		data['class'].append('red')
 
 	data = pd.DataFrame(data)
 
-	colors = {'blue': 'b', 'red': 'r'}
-
 	fig = plt.figure(1)
 	ax = fig.add_subplot(111)
+	colors = {'blue': 'b', 'red': 'r'}
 
-	for c in ['blue', 'red']:
-		x = data[data['class'] == c]['Feature 1'].tolist()
-		y = data[data['class'] == c]['Feature 2'].tolist()
+	graf.draw_points(ax, data, 'Feature 1', 'Feature 2', colors)
+	graf.add_names('F1 vs F2', 'Feature 1', 'Feature 2')
 
-		ax.scatter( x, y, c = colors[c] )	
-
-	# plt.xlim(0, 6)
-	# plt.ylim(0, 6)
+	plt.xlim(0, 6)
+	plt.ylim(0, 6)
 	# plt.show()
 
 	data.to_csv('sets/artificial.csv', index=False)

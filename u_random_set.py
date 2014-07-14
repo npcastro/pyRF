@@ -4,8 +4,7 @@ import pandas as pd
 import random
 
 def add_uncertainty(data, level):
-	"""
-	Toma un dataframe normal (cada columna es una feature y la ultima es class), y le agrega incertidumbre
+	"""Toma un dataframe normal (cada columna es una feature y la ultima es class), y le agrega incertidumbre
 
 	data: dataframe
 	level: porcentaje del rango. Se usa como el valor maximo de incertidumbre que se le da a un punto
@@ -58,8 +57,9 @@ if __name__ == '__main__':
 	# aux = [labels[a] for a in data['class']]
 	# data['class'] = pd.Series(aux, index=data.index)
 
-	# uncertainty_levels = [2, 6, 11, 16, 21, 26, 31, 36, 41]
-
 	data = pd.read_csv('sets/artificial.csv')
-	u_data = add_uncertainty(data, 10)
-	u_data.to_csv('sets/artificial random 10.csv', index=False)
+	uncertainty_levels = [2, 6, 11, 16, 21, 26, 31, 36, 41]
+
+	for u in uncertainty_levels:	
+		u_data = add_uncertainty(data, u)
+		u_data.to_csv('sets/artificial %/artificial random' + str(u) +'.csv', index=False)

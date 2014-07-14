@@ -148,7 +148,11 @@ class UNode(Node):
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'                
+                    a = menores
+                    b = mayores
 
+        print a
+        print b
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
@@ -312,6 +316,11 @@ class UNode(Node):
         mayores = mayores[mayores["weight"] > self.min_weight_threshold]  
   
         return pd.DataFrame(mayores, index = mayores.index)
+
+    # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
+    def set_leaf(self):
+        self.is_leaf = True
+        self.clase = self.data.groupby('class')['weight'].sum().idxmax()
 
 
     def get_weight(self, tupla, pivote, feature_name, how):
