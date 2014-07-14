@@ -3,6 +3,7 @@
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 import pandas as pd
+import tree
 
 def draw_points( ax, df, x_name, y_name, colors):
 	"""Toma un dataframe y grafica dos variables como puntos con distintos colores
@@ -77,42 +78,67 @@ def add_names( title, x_name, y_name):
 	
 
 if __name__ == '__main__':
-	path = 'sets/artificial random 10.csv'
-	data = pd.read_csv(path)
+	# path = 'sets/artificial %/artificial random 11.csv'
+	# data = pd.read_csv(path)
 
 	colors = {'blue': 'b', 'red': 'r'}
 
-	fig = plt.figure(1, figsize=(6*3.13,9))
-	ax = fig.add_subplot(111)
+	###### Entreno arbol clasico ######
+	# clf_clasico = tree.Tree('gain', max_depth=3)
+	# clf_clasico.fit(data)
 
-	draw_points(ax, data, 'Feature 1', 'Feature 2', colors)
-	draw_splits(ax, 2.65, 1.95, 'r')
-	add_names('Feature 1 v/s 2', 'Feature 1', 'Feature 2')
+	# root_split_name = clf_clasico.root.feat_name.rstrip('.mean')
+	# root_split_value = clf_clasico.root.feat_value
+
+	# right_split_name = clf_clasico.root.right.feat_name.rstrip('.mean')
+	# right_split_value = clf_clasico.root.right.feat_value
+
+	# ###### Grafico cortes #######
+	# fig = plt.figure(1, figsize=(6*3.13,9))
+	# ax = fig.add_subplot(111)
+
+	# draw_points(ax, data, root_split_name, right_split_name, colors)
+
+	# draw_splits(ax, root_split_value, right_split_value, 'r')
+	# add_names('Feature 1 v/s 2', root_split_name, right_split_name)
 
 	# plt.show()
-	# plt.savefig('Resultados/F1 vs F2')
-	plt.close()
+	# # plt.savefig('Resultados/F1 vs F2')
+	# plt.close()
 
 	###### Con incertidumbre en una variable ######
 
-	fig = plt.figure(1, figsize=(6*3.13,9))
-	ax = fig.add_subplot(111)
-	
-	# Elimino incertidumbre de una dimension
-	# data['Feature 2.std'] = 0.0000001
-	data['Feature 2.std'] = 0.005
+	for u in [2, 6, 11, 16, 21, 26, 31, 36, 41]:
+		path = 'sets/artificial %/artificial random ' + str(u) + '.csv'
+		data = pd.read_csv(path)
 
-	# Entreno arbol incierto
-	# import tree
-	# clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.99999, min_mass_threshold=0.00001, min_weight_threshold=0.00001, max_depth=3)
-	# clf.fit(data)
+		fig = plt.figure(1, figsize=(6*3.13,9))
+		ax = fig.add_subplot(111)
+		
+		# Elimino incertidumbre de una dimension
+		data['Feature 2.std'] = 0.0000001
 
-	# draw_error_bars(ax, data, 'Feature 1', 'Feature 2', colors)
+		# Entreno arbol incierto
+		clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.99999, min_mass_threshold=0.00001, min_weight_threshold=0.00001, max_depth=3)
+		clf.fit(data)
 
-	draw_ellipses(ax, data, 'Feature 1', 'Feature 2', colors)
-	set_ellipses_graph_lims(data,'Feature 1', 'Feature 2')
-	draw_splits(ax, 2.65, 1.95, 'k')
-	add_names('Feature 1 v/s 2', 'Feature 1', 'Feature 2')
+		# Pongo un nivel de icnertidumbre arbitrario para que se vea bien el grafico
+		data['Feature 2.std'] = 0.01
 
-	plt.show()
+		root_split_name = clf.root.feat_name.rstrip('.mean')
+		root_split_value = clf.root.feat_value
+		right_split_name = clf.root.right.feat_name.rstrip('.mean')
+		right_split_value = clf.root.right.feat_value
+
+		draw_ellipses(ax, data, root_split_name, right_split_name, colors)
+		# set_ellipses_graph_lims(data,root_split_name, right_split_name)
+		plt.xlim(-0.5,6)
+		plt.ylim(-0.5,6)
+		draw_splits(ax, root_split_value, right_split_value, 'g')
+		title = root_split_name + ' vs ' + right_split_name + ' ' + str(u - 1) + '%'
+		add_names(title, root_split_name, right_split_name)
+
+		# plt.show()
+		plt.savefig('Resultados/' + title)
+		plt.close()
 

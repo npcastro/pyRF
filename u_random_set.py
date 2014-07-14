@@ -62,4 +62,4 @@ if __name__ == '__main__':
 
 	for u in uncertainty_levels:	
 		u_data = add_uncertainty(data, u)
-		u_data.to_csv('sets/artificial %/artificial random' + str(u) +'.csv', index=False)
+		u_data.to_csv('sets/artificial %/artificial random ' + str(u) +'.csv', index=False)

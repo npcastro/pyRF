@@ -171,7 +171,6 @@ class Node:
         self.is_leaf = True
         # self.clase = stats.mode(self.data['class'])[0].item()
         # self.clase = Counter(self.data['class']).most_common(1)[0][0]
-        print self.data['class'].value_counts()
         self.clase = self.data['class'].value_counts().idxmax()
         
 

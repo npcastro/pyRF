@@ -148,11 +148,7 @@ class UNode(Node):
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'                
-                    a = menores
-                    b = mayores
 
-        print a
-        print b
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
