@@ -4,6 +4,8 @@
 # Hay que pasar solo dos posibles features, para que siempre se elijan 
 # y asi poder evaluar como cambian los cortes que elige el arbol
 
+# Despues crea los graficos con los splits inciertos
+
 import pandas as pd
 import tree
 import os
@@ -19,13 +21,33 @@ def get_split_margin( splits ):
 
 	for split in splits:
 		split_aux.append(split[1])
-		
-	return np.mean(split_aux), min(split_aux), max(split_aux),
-
-
-def graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right):
 	
-	# Elijo solo algunas clases
+	media = np.mean(split_aux)
+	std = np.std(split_aux)
+
+	return media, media - std, media + std
+
+
+def graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right, title):
+	"""
+	Grafica puntos y splits con incerteza.
+
+	Parameters
+	----------
+	data: Dataframe con los datos a graficar
+	clases: list(int) - Clases de los datos que se consideran.
+	x: string - nombre de la feature del eje x
+	y: string - nombre de la feature del eje y
+	x_split: float - valor del split del eje x
+	x_left: float - valor del margen izquierdo del split del eje x
+	x_right: float - valor del margen derecho del split del eje x
+	y_split: float - valor del split del eje y
+	y_left: float - valor del margen izquierdo del split del eje y
+	y_right: float - valor del margen derecho del split del eje y
+	title: titulo del grafico
+	"""
+	
+	# Filtro las clases
 	criterion = data['class'].map(lambda x: x in clases)
 	data = data[criterion]
 
@@ -37,12 +59,11 @@ def graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right)
 	# plt.xlim(min(x_mean) - max(x_margin), max(x_mean) + max(x_margin))
 	# plt.ylim(min(y_mean) - max(y_margin), max(y_mean) + max(y_margin))
 
-	fig = plt.figure(1)
+	fig = plt.figure(figsize=(6*3.13,9))
 	ax = fig.add_subplot(111)
 
 	# Graficar
 	for c in clases:
-
 		x_mean = data[data['class'] == c][x + '.mean'].tolist()
 		y_mean = data[data['class'] == c][y + '.mean'].tolist()
 		ax.scatter( x_mean, y_mean, c = colors[c] )	
@@ -65,13 +86,17 @@ def graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right)
 	plt.xlim(-0.2, 0.6)
 	plt.ylim(-0.4, 1.0)
 
-	plt.title('tree ' + x + ' vs ' + y + '.png')
+	plt.title(title)
+	
+
 	plt.show()
-	# plt.savefig('Resultados/tree ' + x + ' vs ' + y + '.png')
+	# plt.savefig('Resultados/' + title)
 	plt.close()
 
 if __name__ == '__main__':
-	for n in [1,5,10,15,20,25,30,35,40]:
+	# aux = [1,5,10,15,20,25,30,35,40]
+	aux = [5]
+	for n in aux:
 
 		# directory = 'sets/sampling/1 %'
 		directory = 'sets/sampling/' + str(n) +' %'
@@ -110,4 +135,4 @@ if __name__ == '__main__':
 		y_split, y_left, y_right = get_split_margin(root_cuts)
 
 		# Grafico
-		graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right)
+		graf(data, clases, x, y, x_split, x_left, x_right, y_split, y_left, y_right, 'Tree ' + x + ' vs ' + y + ' ' +str(n) + '%.png')
