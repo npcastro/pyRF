@@ -39,12 +39,24 @@ if __name__ == '__main__':
 
 	colors = {'blue': 'b', 'red': 'r'}
 
-	fig = plt.figure(1)
+	fig = plt.figure(1, figsize=(6*3.13,9))
 	ax = fig.add_subplot(111)
 
 	draw_points(ax, data, 'Feature 1', 'Feature 2', colors)
 	draw_splits(ax, 2.65, 1.95, 'r')
 	add_names('Feature 1 v/s 2', 'Feature 1', 'Feature 2')
 
-	plt.show()
+	# plt.show()
+	# plt.savefig('Resultados/F1 vs F2')
+	plt.close()
+
+	fig = plt.figure(1, figsize=(6*3.13,9))
+	
+	# Elimino incertidumbre de una dimension
+	data['Feature 2.std'] = 0.0000001
+
+	# Entreno arbol incierto
+	import tree
+	clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.99999, min_mass_threshold=0.00001, min_weight_threshold=0.00001, max_depth=3)
+	clf.fit(data)
 

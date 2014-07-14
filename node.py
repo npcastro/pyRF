@@ -21,7 +21,8 @@ class Node:
         self.feat_value = None
         self.left = None
         self.right = None
-        self.entropia = self.entropy(data.groupby('class').count().ix[:,0].to_dict())
+        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        # self.entropia = self.entropy(data.groupby('class').count().ix[:,0].to_dict())
         self.is_left = False
         self.is_right = False
         self.level = level
