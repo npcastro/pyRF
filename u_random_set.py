@@ -61,4 +61,4 @@ if __name__ == '__main__':
 
 	data = pd.read_csv('sets/artificial.csv')
 	u_data = add_uncertainty(data, 10)
-	u_data.to_csv('sets/artificial random 10.csv')
+	u_data.to_csv('sets/artificial random 10.csv', index=False)
