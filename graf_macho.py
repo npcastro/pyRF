@@ -2,7 +2,6 @@ import pickle
 import matplotlib.pyplot as plt
 import tree
 
-@profile
 def graf(clase, x_values, y_values, y_label):
 
 	# Grafico los valores obtenidos
@@ -33,7 +32,7 @@ if __name__ == '__main__':
 
 	# Para cada clase
 
-	for clase in set(result['original'].values.tolist()):
+	for clase in result['original'].unique().tolist():
 
 		valores_accuracy = []
 		valores_recall = []
@@ -42,7 +41,7 @@ if __name__ == '__main__':
 		x_values_fscore = []
 
 		# Para cada porcentaje de confianza
-		for i in range(100):
+		for i in xrange(100):
 
 			# Obtengo las predicciones con una confianza mayor a cierto umbral
 			porcentaje = float(i)/100
