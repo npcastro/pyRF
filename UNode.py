@@ -204,13 +204,13 @@ class UNode(Node):
         Toma un grupo de datos lo recorre entero y retorna dos diccionarios con las sumas de masa 
         separadas por clase. Un diccionario es para los datos menores que el pivote y el otro para los mayores
         """
-        # aux = pyRF_prob.cdf
+        clip = lambda x, l, r: l if x < l else r if x > r else x
+
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
-            # cum_prob = aux(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
 
-            cum_prob = max(cum_prob, 0)
-            cum_prob = min(cum_prob, 1)
+            cum_prob = clip(cum_prob, 0, 1)
+            # cum_prob = max(0, min(cum_prob, 1))
 
             menores[class_list[i]] += w_list[i] * cum_prob
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
@@ -219,8 +219,7 @@ class UNode(Node):
 
 
     def gain(self, menores, mayores):
-        """
-            Retorna la ganancia de dividir los datos en menores y mayores
+        """ Retorna la ganancia de dividir los datos en menores y mayores
             Menores y mayores son diccionarios donde la llave es el nombre 
             de la clase y los valores son la suma de masa para ella.
         """
@@ -229,8 +228,7 @@ class UNode(Node):
         return gain
 
     def entropy(self, data):
-        """
-        Retorna la entropia de un grupo de datos.
+        """ Retorna la entropia de un grupo de datos.
         data: diccionario donde las llaves son nombres de clases y los valores sumas (o conteos de valores)
         """
 
