@@ -20,26 +20,18 @@ class UNode(Node):
         Node.__init__(self, data, level, max_depth, min_samples_split, mass)
         
 
-    def get_pivotes(self, feature, calidad = 'exact'):
-        """
-        Retorna todos los valores segun los que se debe intentar cortar una feature
+    def get_split_candidates(self, feature):
+        """ Retorna todos los valores segun los que se debe intentar cortar una feature
         """
         name = feature.name.rstrip('.mean')
         bounds = self.data[name + '.l'].tolist() + self.data[name + '.r'].tolist()
 
-
         ret = list(set(bounds)) # Para eliminar valores repetidos
-        ret.sort()    # Elimino los bordes, aunque talvez sea mejor poner un if mas adelante noma
+        ret.sort()    # Elimino los bordes, aunque tal vez sea mejor poner un if mas adelante noma
         return ret[1:-1]
 
     # Busca el mejor corte posible para el nodo
     def split(self):
-
-        # Inicializo la ganancia de info en el peor nivel posible
-        max_gain = 0
-
-        #Obtengo los nombres de las features a probar
-        filterfeatures = self.filterfeatures()
 
         print '\n ################ \n'
         print 'Profundidad del nodo: ' + str(self.level)
@@ -47,18 +39,23 @@ class UNode(Node):
         print 'Masa total del nodo: ' + str(self.mass)
         print '\n ################ \n'
 
+        # Inicializo la ganancia de info en el peor nivel posible
+        max_gain = 0
+
+        # Obtengo los nombres de las features a probar
+        filterfeatures = self.filterfeatures()
 
         start_time = time.time()
         for f in filterfeatures:
 
-            # Limpio el nombre de la feature
-            feature_name = f.rstrip('.mean')
-            
             # Output que se sobreescribe
             sys.stdout.write('Evaluando feature: ' + f)
             sys.stdout.flush()
             sys.stdout.write('\r')
             sys.stdout.flush()
+
+            # Limpio el nombre de la feature
+            feature_name = f.rstrip('.mean')
 
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
@@ -84,14 +81,10 @@ class UNode(Node):
             # Los menores parten vacios y los mayores parten con toda la masa
             menores_estrictos_mass = { c: 0.0 for c in clases}
             mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
-
-            split_tuples_by_pivot = self.split_tuples_by_pivot
             
-            # Me muevo a traves de los posibles pivotes.
-            # for i in data_por_media.index:
+            # Me muevo a traves de los posibles pivotes
             for i in xrange(self.n_rows):
 
-                # pivote = data_por_media.at[i,f]
                 pivote = mean_list[i]
 
                 # Actualizo los indices
@@ -99,11 +92,11 @@ class UNode(Node):
                 # print menores_index, mayores_index
 
                 # Actualizo la masa estrictamente menor y mayor
-                for i in xrange(old_menores_index, menores_index):
-                    menores_estrictos_mass[class_list[i]] += w_list[i]
+                for j in xrange(old_menores_index, menores_index):
+                    menores_estrictos_mass[class_list[j]] += w_list[j]
 
-                for i in xrange(old_mayores_index, mayores_index):
-                    mayores_estrictos_mass[class_list[i]] -= w_list[i]
+                for j in xrange(old_mayores_index, mayores_index):
+                    mayores_estrictos_mass[class_list[j]] -= w_list[j]
 
                 # print old_mayores_index, mayores_index, mayores_estrictos_mass['MicroLensing']
 
@@ -118,7 +111,7 @@ class UNode(Node):
                 right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
                 class_list_afectada = class_list[menores_index:mayores_index]
 
-                menores, mayores = split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, deepcopy(menores_estrictos_mass), deepcopy(mayores_estrictos_mass))
+                menores, mayores = self.split_tuples_by_pivot(w_list_afectada, mean_list_afectada, std_list_afectada, left_bound_list_afectada, right_bound_list_afectada, class_list_afectada, pivote, deepcopy(menores_estrictos_mass), deepcopy(mayores_estrictos_mass))
 
                 if not any(menores) or not any(mayores):
                     continue
@@ -153,10 +146,10 @@ class UNode(Node):
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0,end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
 
-    """
-    Se rendondean a cero las masas extremadamente chicas.
-    """
+    
     def fix_numeric_errors(self, menores, mayores):
+        """Se rendondean a cero las masas extremadamente chicas.
+        """
         for key in menores.keys():
             if abs(menores[key]) < 1e-10 and menores[key] < 0:
                 menores[key] = 0
@@ -318,8 +311,7 @@ class UNode(Node):
 
 
     def get_weight(self, tupla, pivote, feature_name, how):
-        """
-        Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
+        """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
         
         pivote: valor de corte
         how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
@@ -357,10 +349,10 @@ class UNode(Node):
                 # tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
                 tupla[feature_name+'.l'] = pivote
                 return tupla
-
-
-    # determina se es necesario hacer un split de los datos
+ 
     def check_leaf_condition(self):
+        """ Determina se es necesario hacer un split de los datos
+        """
         featuresfaltantes = self.filterfeatures()
 
         if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
@@ -376,8 +368,9 @@ class UNode(Node):
         else:
             return True
 
-    #Determina si el nodo tiene masa asociada a un clase lo suficientemente representativa segun un threshold
     def check_most_mass(self):
+        """ Determina si el nodo tiene masa asociada a un clase lo suficientemente representativa segun un threshold
+        """
 
         mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
         

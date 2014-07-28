@@ -48,17 +48,19 @@ if __name__ == '__main__':
 
             results.append(clf.predict_table(test))
 
-        result = pd.concat(results)
-        matrix = clf.confusion_matrix(result)
+            break
+
+        # result = pd.concat(results)
+        # matrix = clf.confusion_matrix(result)
 
         # # Serializo los resultados con pickle
-        output = open( 'output/macho/arbol random.pkl', 'w')
-        pickle.dump(clf, output)
-        output.close()
+        # output = open( 'output/macho/arbol random.pkl', 'w')
+        # pickle.dump(clf, output)
+        # output.close()
 
-        output = open( 'output/macho/result random.pkl', 'w')
-        pickle.dump(result, output)
-        output.close()
+        # output = open( 'output/macho/result random.pkl', 'w')
+        # pickle.dump(result, output)
+        # output.close()
 
 
         # output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
