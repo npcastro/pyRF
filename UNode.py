@@ -20,15 +20,46 @@ class UNode(Node):
         Node.__init__(self, data, level, max_depth, min_samples_split, mass)
         
 
-    def get_split_candidates(self, feature):
+    def get_split_candidates(self, feature_name):
         """ Retorna todos los valores segun los que se debe intentar cortar una feature
         """
-        name = feature.name.rstrip('.mean')
-        bounds = self.data[name + '.l'].tolist() + self.data[name + '.r'].tolist()
+        bounds = self.data[feature_name + '.l'].unique().tolist() + self.data[feature_name + '.r'].unique().tolist()
 
-        ret = list(set(bounds)) # Para eliminar valores repetidos
-        ret.sort()    # Elimino los bordes, aunque tal vez sea mejor poner un if mas adelante noma
-        return ret[1:-1]
+        bounds.sort()
+        print 'Numero de candidatos: ' + str(len(bounds))
+        return bounds
+
+    # def prun_homogeneus_intervals(self, bounds, feature_name):
+    #     pruned = []
+
+    #     pruned.append(bounds[0])
+
+    #     for i in xrange(len(bounds)):
+
+    #         if self.is_homogeneus(pruned[-1], bounds[i]):
+    #             if self.is_homogeneus()
+    #             continue
+    #         else:
+    #             pruned.append(bounds[i + 1])
+
+    #     return pruned
+
+    # def is_homogeneus(self, left_bound, right_bound, feature_name):
+    #     filtered_data = self.data[(self.data[feature_name + '.l'] < right_bound) & (self.data[feature_name + '.r'] > left_bound)]
+
+    #     if filtered_data.groupby('class').ngroups == 1:
+    #         return True
+    #     else:
+    #         return False
+
+    # def is_empty(self, left_bound, right_bound, feature_name):
+    #     filtered_data = self.data[(self.data[feature_name + '.l'] > right_bound) & (self.data[feature_name + '.r'] > left_bound)]
+
+    #     if len(filter_data.index) == 0:
+    #         return True
+    #     else:
+    #         return False
+
 
     # Busca el mejor corte posible para el nodo
     def split(self):
@@ -83,9 +114,8 @@ class UNode(Node):
             mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
             
             # Me muevo a traves de los posibles pivotes
-            for i in xrange(self.n_rows):
-
-                pivote = mean_list[i]
+            for pivote in self.get_split_candidates(feature_name):
+            # for pivote in mean_list:
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(menores_index, mayores_index, pivote, left_bound_list, right_bound_list)
@@ -202,8 +232,10 @@ class UNode(Node):
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i], right_bound_list[i])
 
+            # if cum_prob > 1 or cum_prob < 0:
+            #     print cum_prob
+
             cum_prob = clip(cum_prob, 0, 1)
-            # cum_prob = max(0, min(cum_prob, 1))
 
             menores[class_list[i]] += w_list[i] * cum_prob
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
@@ -230,7 +262,7 @@ class UNode(Node):
         
         for clase in data.keys():
             if data[clase] != 0:
-                entropia -= (data[clase] / total) * np.log(data[clase] / total)
+                entropia -= (data[clase] / total) * np.log2(data[clase] / total)
 
         return entropia
 

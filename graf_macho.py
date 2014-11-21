@@ -5,19 +5,21 @@ import tree
 def graf(clase, x_values, y_values, y_label):
 
 	# Grafico los valores obtenidos
-	plt.figure(clase)
-	plt.plot( x_values, y_values, 'bo')
+	# plt.figure(clase)
+	plt.plot( x_values, y_values, 'o', label=clase)
 
-	plt.ylim(0.0, 1.0)
+	plt.ylim(0.5, 1.0)
 	plt.xlim(0.0, 1.0)
 
-	plt.title( 'Class ' + str(clase) + ' ' + y_label +  ' v/s Prediction Certainty')
+	# plt.title( y_label +  ' v/s Prediction Certainty')
 	plt.xlabel( 'Minimum Probability Considered')
 	plt.ylabel( y_label )
 
-	plt.savefig('Resultados/macho ' + str(clase) + ' ' + y_label + ' .png')
+	plt.legend(loc='lower left', prop={'size':10})
+
+	# plt.savefig('Resultados/macho ' + str(clase) + ' ' + y_label + ' .png')
 	# plt.show()
-	plt.close()
+	# plt.close()
 
 if __name__ == '__main__':
 
@@ -32,6 +34,8 @@ if __name__ == '__main__':
 
 	# Para cada clase
 
+	a = plt.figure()
+
 	for clase in result['original'].unique().tolist():
 
 		valores_accuracy = []
@@ -45,6 +49,7 @@ if __name__ == '__main__':
 
 			# Obtengo las predicciones con una confianza mayor a cierto umbral
 			porcentaje = float(i)/100
+
 			aux = result[result['trust'] > porcentaje]
 
 			# matrix = clf.confusion_matrix(aux)
@@ -63,6 +68,9 @@ if __name__ == '__main__':
 				valores_fscore.append(f_score)
 				x_values_fscore.append(porcentaje)			
 
-		graf(clase, x_values, valores_accuracy, 'Accuracy')
+		#graf(clase, x_values, valores_accuracy, 'Accuracy')
 		graf(clase, x_values, valores_recall, 'Recall')
-		graf(clase, x_values_fscore, valores_fscore, 'F-Score')
+		#graf(clase, x_values_fscore, valores_fscore, 'F-Score')
+		print 'a'
+
+	plt.show()

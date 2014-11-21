@@ -17,7 +17,8 @@ if __name__ == '__main__':
 
         # path = "sets/macho " + str(p) + ".csv"
         # path = "sets/macho 20.csv"
-        path = "sets/macho random.csv"
+        # path = "sets/macho random.csv"
+        path = "sets/gp_u_set.csv"
 
         data = pd.read_csv(path)
 
@@ -42,7 +43,7 @@ if __name__ == '__main__':
             clf = None
             # clf = tree.Tree('confianza')
             # clf = tree.Tree('gain')
-            clf = tree.Tree('uncertainty', min_samples_split = 100, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
+            clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
 
             clf.fit(train)
 
