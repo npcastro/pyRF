@@ -86,11 +86,12 @@ class UNode(Node):
             sys.stdout.flush()
 
             # Limpio el nombre de la feature
-            feature_name = f.rstrip('.mean')
+            feature_name = f.replace('.mean', '')
 
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
 
+            print '\n'
             #Transformo la informacion relevante de esta feature a listas
             w_list = data_por_media['weight'].tolist()
             mean_list = data_por_media[feature_name + '.mean'].tolist()
@@ -286,7 +287,7 @@ class UNode(Node):
 
         # Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
         else:
-            feature_name = self.feat_name.rstrip('.mean')
+            feature_name = self.feat_name.replace('.mean','')
             mean = tupla[feature_name + '.mean']
             std = tupla[feature_name + '.std']
             l = tupla[feature_name + '.l']
@@ -309,7 +310,7 @@ class UNode(Node):
         menores = []
 
         # limpio el nombre de la feature
-        feature_name = feature_name.rstrip('.mean')
+        feature_name = feature_name.replace('.mean', '')
 
         menores = self.data[self.data[feature_name + '.l'] < pivote]
         # self.data.apply(func=self.get_weight, axis=1, args=[menores, pivote, feature_name, "menor"])
@@ -325,7 +326,7 @@ class UNode(Node):
         mayores = []
 
         # limpio el nombre de la feature
-        feature_name = feature_name.rstrip('.mean')
+        feature_name = feature_name.replace('.mean', '')
 
         mayores = self.data[self.data[feature_name + '.r'] >= pivote]
         # self.data.apply(func=self.get_weight, axis=1, args=[mayores, pivote, feature_name, "mayor"])
@@ -339,7 +340,18 @@ class UNode(Node):
     # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
     def set_leaf(self):
         self.is_leaf = True
-        self.clase = self.data.groupby('class')['weight'].sum().idxmax()
+        try:
+            self.clase = self.data.groupby('class')['weight'].sum().idxmax()
+        except Exception as inst:
+            print self.data['class'].tolist()
+            print self.data['weight'].tolist()
+            print type(inst)     # the exception instance
+            print inst.args      # arguments stored in .args
+            print inst           # __str__ allows args to be printed directly
+            x, y = inst.args
+            print 'x =', x
+            print 'y =', y
+            raise
 
 
     def get_weight(self, tupla, pivote, feature_name, how):
