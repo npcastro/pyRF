@@ -5,8 +5,11 @@ from node import *
 from CompNode import *
 from UNode import *
 
+
 class Tree:
-    def __init__(self, criterium, max_depth=8, min_samples_split=10, most_mass_threshold=0.9, min_mass_threshold=0.0127, min_weight_threshold=0.0):
+    def __init__(self, criterium, max_depth=8, min_samples_split=10,
+                 most_mass_threshold=0.9, min_mass_threshold=0.0127,
+                 min_weight_threshold=0.0):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth
@@ -18,15 +21,20 @@ class Tree:
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data):
         if self.criterium == 'gain':
-            self.root = Node(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+            self.root = Node(data, level=1, max_depth=self.max_depth,
+                             min_samples_split=self.min_samples_split)
         elif self.criterium == 'confianza':
-            self.root = CompNode(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+            self.root = CompNode(data, level=1, max_depth=self.max_depth,
+                                 min_samples_split=self.min_samples_split)
         elif self.criterium == 'uncertainty':
-            self.root = UNode(data, level = 1, max_depth=self.max_depth, min_samples_split=self.min_samples_split, \
-                        most_mass_threshold=self.most_mass_threshold, min_mass_threshold=self.min_mass_threshold)
+            self.root = UNode(data, level=1, max_depth=self.max_depth,
+                              min_samples_split=self.min_samples_split,
+                              most_mass_threshold=self.most_mass_threshold,
+                              min_mass_threshold=self.min_mass_threshold)
 
-    # recibe un dato y retorna prediccion
     def predict(self, tupla):
+        """Returnes the predicted class of a tuple"""
+
         if self.criterium != 'uncertainty':
             return self.root.predict(tupla)
         else:
@@ -34,30 +42,28 @@ class Tree:
             prediction = self.root.predict(tupla)
 
             # Busco la clase con la mayor probabilidad y su probabilidad
-            maximo = max(prediction.values()) 
+            maximo = max(prediction.values())
             clase = None
             for key in prediction.keys():
-                if maximo ==prediction[key]:
+                if maximo == prediction[key]:
                     clase = key
 
             return clase, maximo
 
-    # Recibe un dato y retorna una prediccion probabilistica
-    def predict_soft(self, tupla):
-        if self.criterium != 'uncertainty':
-            return self.root.predict(tupla)
-        else:
-            # clases = self.root.data['class'].unique()
-            # prediction = {c: 0.0 for c in clases }
-            # return self.root.predict(tupla, prediction)
-            return self.root.predict(tupla)
-
-    # Imprime la estructura del arbol en la consola
     def show(self):
+        """Prints the tree structure"""
         self.root.show()
 
-    # recibe un frame completo y retorna otro frame con la clase original, la predicha y la confianza de la prediccion
     def predict_table(self, frame):
+        """Returnes the original class, the prediction and its probability
+
+        It serves as a testing mechanism of the performance of a classifier
+
+        Parameters
+        ----------
+        frame: Dataframe of the data that must be classified. Each row is an
+               object and each column is a feature
+        """
         # Creo el frame e inserto la clase
         tabla = []
         for index, row in frame.iterrows():
@@ -65,12 +71,14 @@ class Tree:
             predicted, confianza = self.predict(row)
             tabla.append([clase, predicted, confianza])
 
-        return pd.DataFrame(tabla, index=frame.index, columns=['original', 'predicted', 'trust'])
+        return pd.DataFrame(tabla, index=frame.index,
+                            columns=['original', 'predicted', 'trust'])
 
-    #Matriz de confusion a partir de tabla de prediccion
     def confusion_matrix(self, table):
+        """Generates a confusion matrix from the prediction table"""
 
-        unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values), axis=1))
+        unique = np.unique(np.concatenate((table['original'].values,
+                           table['predicted'].values), axis=1))
 
         matrix = np.zeros((len(unique), len(unique)))
         matrix = pd.DataFrame(matrix)
@@ -82,9 +90,11 @@ class Tree:
 
         return matrix
 
-    # Matriz de confusion hard a partir de la tabla de prediccion
     def hard_matrix(self, table):
-        unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values)))        
+        """Generates a hard_confusion matrix for probabilistic classifiers"""
+
+        unique = np.unique(np.concatenate((table['original'].values,
+                           table['predicted'].values)))
 
         matrix = np.zeros((len(unique), len(unique)))
         matrix = pd.DataFrame(matrix)
@@ -96,42 +106,45 @@ class Tree:
 
         return matrix
 
-    # Retorna el accuracy para una clase en particular
     def accuracy(self, matrix, clase):
-        
+        """Shows the accuracy of a given class, based on a confusion matrix"""
+
         if clase in matrix.columns:
             correctos = matrix[clase].loc[clase]
             total = matrix[clase].sum()
 
             return correctos / total
 
-        # Retorno un numero negativo para identificar que no hay predicciones de esa clase la matriz de confusion
+        # A negative number is returned to show that there are no predictions
+        # of the given class on the confusion matrix
         else:
             return -1
 
-
-    # Retorna el recall para una clase en particular
     def recall(self, matrix, clase):
-        
+        """Shows the recall of a given class, based on a confusion matrix"""
+
         if clase in matrix.columns:
             reconocidos = matrix[clase].loc[clase]
             total = matrix.loc[clase].sum()
 
             return reconocidos / total
 
-        # Retorno un numero negativo para identificar que no hay predicciones de esa clase la matriz de confusion
+        # A negative number is returned to show that there are no predictions
+        # of the given class on the confusion matrix
         else:
             return -1
 
     def f_score(self, matrix, clase):
+        """Shows the f_score of a given class, based on a confusion matrix"""
+
         acc = self.accuracy(matrix, clase)
         rec = self.recall(matrix, clase)
 
-        # Reviso esto, para evitar divisiones por cero
+        # Neccesary check, in order to avoid divisions by zero
         if acc == 0 or rec == 0:
             return 0
 
-        # Reviso que ambos sean validos
+        # Check that both are valid
         elif acc == -1 or rec == -1:
             return -1
 
