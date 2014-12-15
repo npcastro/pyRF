@@ -148,8 +148,8 @@ class Node:
     def filterfeatures(self):
         filter_arr = []
         for f in self.data.columns:
-            if not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
-            f != 'weight' and f != 'class':
+            if (not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
+               f != 'weight' and f != 'class'):
                 filter_arr.append(f)
         return filter_arr
 

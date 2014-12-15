@@ -317,7 +317,7 @@ class UNode(Node):
         menores = self.data[self.data[feature_name + '.l'] < pivote]
 
         menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
-        menores = menores[menores["weight"] > self.min_weight_threshold]
+        #menores = menores[menores["weight"] > self.min_weight_threshold]
 
         return pd.DataFrame(menores, index=menores.index)
 
@@ -329,7 +329,7 @@ class UNode(Node):
         mayores = self.data[self.data[feature_name + '.r'] >= pivote]
 
         mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
-        mayores = mayores[mayores["weight"] > self.min_weight_threshold]
+        #mayores = mayores[mayores["weight"] > self.min_weight_threshold]
 
         return pd.DataFrame(mayores, index=mayores.index)
 
@@ -341,8 +341,6 @@ class UNode(Node):
         except Exception as inst:
             print self.data['class'].tolist()
             print self.data['weight'].tolist()
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
             print inst           # __str__ allows args to be printed directly
             x, y = inst.args
             print 'x =', x

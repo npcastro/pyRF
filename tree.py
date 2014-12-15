@@ -106,7 +106,7 @@ class Tree:
 
         return matrix
 
-    def accuracy(self, matrix, clase):
+    def precision(self, matrix, clase):
         """Shows the accuracy of a given class, based on a confusion matrix"""
 
         if clase in matrix.columns:

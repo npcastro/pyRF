@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     data['weight'] = data['weight'].astype(float)
 
-    data = data.dropna(axis = 0, how='any')
+    data = data.dropna(axis=0, how='any')
 
     # Para testing rapido
     # data = data.iloc[0:1000]
