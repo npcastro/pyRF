@@ -137,7 +137,7 @@ class Tree:
     def f_score(self, matrix, clase):
         """Shows the f_score of a given class, based on a confusion matrix"""
 
-        acc = self.accuracy(matrix, clase)
+        acc = self.precision(matrix, clase)
         rec = self.recall(matrix, clase)
 
         # Neccesary check, in order to avoid divisions by zero

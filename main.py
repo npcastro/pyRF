@@ -10,13 +10,9 @@ from sklearn import cross_validation
 if __name__ == '__main__':
     
     folds = 10
-
     path = "sets/gp_u_set.csv"
-
     data = pd.read_csv(path)
-
     data['weight'] = data['weight'].astype(float)
-
     data = data.dropna(axis=0, how='any')
 
     # Para testing rapido
@@ -35,8 +31,8 @@ if __name__ == '__main__':
 
         clf = None
         # clf = tree.Tree('confianza')
-        # clf = tree.Tree('gain')
-        clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
+        clf = tree.Tree('gain')
+        # clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
 
         clf.fit(train)
 

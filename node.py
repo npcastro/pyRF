@@ -87,7 +87,7 @@ class Node:
         for f in filterfeatures:
 
             # Limpio el nombre de la feature
-            feature_name = f.rstrip('.mean')
+            feature_name = f.replace('.mean', '')
 
             # Output que se sobreescribe
             sys.stdout.write('Evaluando feature: ' + f)
