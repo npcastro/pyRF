@@ -8,7 +8,7 @@ from sklearn import cross_validation
 
 
 if __name__ == '__main__':
-    
+
     folds = 10
     path = "sets/gp_u_set.csv"
     data = pd.read_csv(path)
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # data = data.iloc[0:1000]
 
     # X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.3, random_state=0)
-    
+
     skf = cross_validation.StratifiedKFold(data['class'], n_folds=folds)
 
     results = []
@@ -31,8 +31,10 @@ if __name__ == '__main__':
 
         clf = None
         # clf = tree.Tree('confianza')
-        clf = tree.Tree('gain')
-        # clf = tree.Tree('uncertainty', min_samples_split = 50, most_mass_threshold=0.9, min_mass_threshold=0.10, min_weight_threshold=0.1)
+        # clf = tree.Tree('gain')
+        clf = tree.Tree('uncertainty', max_depth=10,
+                        min_samples_split=20, most_mass_threshold=0.9, min_mass_threshold=0.10,
+                        min_weight_threshold=0.1)
 
         clf.fit(train)
 
@@ -42,19 +44,15 @@ if __name__ == '__main__':
     matrix = clf.confusion_matrix(result)
 
     # Serializo los resultados con pickle
-    output = open( 'Resultados/GP/Fixed George/Arbol GP.pkl', 'w')
+    output = open('Resultados/GP/Fixed George/Arbol GP.pkl', 'w')
     pickle.dump(clf, output)
     output.close()
 
-    output = open( 'Resultados/GP/Fixed George/result.pkl', 'w')
+    output = open('Resultados/GP/Fixed George/result.pkl', 'w')
     pickle.dump(result, output)
     output.close()
 
-
-    # output = open( 'output/macho/arbol ' + str(p) + '.pkl', 'w')
-    # pickle.dump(clf, output)
-    # output.close()
-
-    # output = open( 'output/macho/result '+ str(p) + '.pkl', 'w')
-    # pickle.dump(result, output)
-    # output.close()
+    clases = matrix.columns.tolist()
+    p = [clf.precision(matrix, c) for c in clases]
+    r = [clf.recall(matrix, c) for c in clases]
+    f = [clf.f_score(matrix, c) for c in clases]
