@@ -11,7 +11,7 @@ import pyRF_prob
 
 
 class UNode(Node):
-    def __init__(self, data, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
+    def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
                  min_mass_threshold=0.0127, min_weight_threshold=0.0):
         """
         data (DataFrame): Each row represents an object, each column represents
@@ -28,19 +28,15 @@ class UNode(Node):
             may arise
         """
         # Atributos particulares del nodo
-        self.data = data
-        self.is_leaf = False
         self.clase = ''
         self.feat_name = ""
         self.feat_value = None
-        self.left = None
-        self.right = None
-        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        self.is_leaf = False
         self.is_left = False
         self.is_right = False
+        self.left = None
+        self.right = None
         self.level = level
-        self.n_rows = len(data.index)
-        self.mass = data['weight'].sum()
 
         # Atributos generales del arbol
         self.max_depth = max_depth
@@ -49,35 +45,16 @@ class UNode(Node):
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
 
-        # Si es necesario particionar el nodo, llamo a split para hacerlo
-        if self.check_leaf_condition():
-            self.split()
-
-            if self.feat_name != '':
-                print 'Feature elegida: ' + self.feat_name
-                print 'Pivote elegido: ' + str(self.feat_value)
-
-                menores = self.get_menores(self.feat_name, self.feat_value)
-                mayores = self.get_mayores(self.feat_name, self.feat_value)
-
-                self.add_right(mayores)
-                self.add_left(menores)
-
-            else:
-                self.set_leaf()
-
-        # De lo contrario llamo a set_leaf para transformarlo en hoja
-        else:
-            self.set_leaf()
-
     def add_left(self, left_data):
-        self.left = self.__class__(left_data, self.level + 1, self.max_depth,
+        self.left = self.__class__(self.level + 1, self.max_depth,
                                    self.min_samples_split, self.most_mass_threshold)
+        self.left.fit(left_data)
         self.left.is_left = True
 
     def add_right(self, right_data):
-        self.right = self.__class__(right_data, self.level + 1, self.max_depth,
+        self.right = self.__class__(self.level + 1, self.max_depth,
                                     self.min_samples_split, self.most_mass_threshold)
+        self.right.fit(right_data)
         self.right.is_right = True
 
     def check_leaf_condition(self):
@@ -125,8 +102,8 @@ class UNode(Node):
 
         return entropia
 
-    # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):
+        """Retorna las features a considerar en un nodo para hacer la particion"""
         filter_arr = []
         for f in self.data.columns:
             if (not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
@@ -135,7 +112,31 @@ class UNode(Node):
         return filter_arr
 
     def fit(self, data):
-        pass
+        self.data = data
+        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        self.mass = data['weight'].sum()
+        self.n_rows = len(data.index)
+
+        # Si es necesario particionar el nodo, llamo a split para hacerlo
+        if self.check_leaf_condition():
+            self.split()
+
+            if self.feat_name != '':
+                print 'Feature elegida: ' + self.feat_name
+                print 'Pivote elegido: ' + str(self.feat_value)
+
+                menores = self.get_menores(self.feat_name, self.feat_value)
+                mayores = self.get_mayores(self.feat_name, self.feat_value)
+
+                self.add_right(mayores)
+                self.add_left(menores)
+
+            else:
+                self.set_leaf()
+
+        # De lo contrario llamo a set_leaf para transformarlo en hoja
+        else:
+            self.set_leaf()
 
     def fix_numeric_errors(self, num_dict):
         """Masses that are extremely small are rounded to zero."""
@@ -379,7 +380,7 @@ class UNode(Node):
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
 
-            print '\n'
+            # print '\n'
             #Transformo la informacion relevante de esta feature a listas
             w_list = data_por_media['weight'].tolist()
             mean_list = data_por_media[feature_name + '.mean'].tolist()

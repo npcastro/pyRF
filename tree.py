@@ -21,7 +21,7 @@ class Tree:
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data):
         if self.criterium == 'gain':
-            self.root = Node(data, level=1, max_depth=self.max_depth,
+            self.root = Node(level=1, max_depth=self.max_depth,
                              min_samples_split=self.min_samples_split)
             self.root.fit(data)
         elif self.criterium == 'confianza':
@@ -29,7 +29,7 @@ class Tree:
                                  min_samples_split=self.min_samples_split)
             self.root.fit(data)
         elif self.criterium == 'uncertainty':
-            self.root = UNode(data, level=1, max_depth=self.max_depth,
+            self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold)

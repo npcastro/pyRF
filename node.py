@@ -14,7 +14,7 @@ import numpy as np
 class Node:
     """Represents the internal and final nodes of a decision tree"""
 
-    def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
+    def __init__(self, level=1, max_depth=8, min_samples_split=10):
         """
         data (DataFrame): Each row represents an object, each column represents
                           a feature. Must contain a column named 'class'
@@ -24,23 +24,24 @@ class Node:
         """
 
         # Atributos particulares del nodo
-        self.data = data
         self.is_leaf = False
         self.clase = ''
         self.feat_name = ""
         self.feat_value = None
         self.left = None
         self.right = None
-        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
-        # self.entropia = self.entropy(data.groupby('class').count().ix[:,0].to_dict())
         self.is_left = False
         self.is_right = False
         self.level = level
-        self.n_rows = len(data.index)
 
         # Atributos generales del arbol
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+
+    def fit(self, data):
+        self.data = data
+        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        self.n_rows = len(data.index)
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
@@ -62,9 +63,6 @@ class Node:
         # De lo contrario llamo a set_leaf para transformarlo en hoja
         else:
             self.set_leaf()
-
-    def fit(self, data):
-        pass
 
     # Busca el mejor corte posible para el nodo
     def split(self):
@@ -185,15 +183,15 @@ class Node:
         self.clase = self.data['class'].value_counts().idxmax()
 
     def add_left(self, left_data):
-        self.left = self.__class__(left_data, self.level + 1, self.max_depth,
+        self.left = self.__class__(self.level + 1, self.max_depth,
                                    self.min_samples_split)
-        #self.left.fit(left_data)
+        self.left.fit(left_data)
         self.left.is_left = True
 
     def add_right(self, right_data):
-        self.right = self.__class__(right_data, self.level + 1, self.max_depth,
+        self.right = self.__class__(self.level + 1, self.max_depth,
                                     self.min_samples_split)
-        #self.right.fit(right_data)
+        self.right.fit(right_data)
         self.right.is_right = True
 
     def predict(self, tupla, confianza=1):
