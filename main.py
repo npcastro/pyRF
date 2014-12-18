@@ -40,6 +40,8 @@ if __name__ == '__main__':
 
         results.append(clf.predict_table(test))
 
+        break
+
     result = pd.concat(results)
     matrix = clf.confusion_matrix(result)
 

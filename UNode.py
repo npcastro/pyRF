@@ -27,12 +27,185 @@ class UNode(Node):
             This value must be small or else, problem with probabilities
             may arise
         """
+        # Atributos particulares del nodo
+        self.data = data
+        self.is_leaf = False
+        self.clase = ''
+        self.feat_name = ""
+        self.feat_value = None
+        self.left = None
+        self.right = None
+        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        self.is_left = False
+        self.is_right = False
+        self.level = level
+        self.n_rows = len(data.index)
+        self.mass = data['weight'].sum()
 
+        # Atributos generales del arbol
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
-        mass = float(data['weight'].sum())
-        Node.__init__(self, data, level, max_depth, min_samples_split, mass)
+
+        # Si es necesario particionar el nodo, llamo a split para hacerlo
+        if self.check_leaf_condition():
+            self.split()
+
+            if self.feat_name != '':
+                print 'Feature elegida: ' + self.feat_name
+                print 'Pivote elegido: ' + str(self.feat_value)
+
+                menores = self.get_menores(self.feat_name, self.feat_value)
+                mayores = self.get_mayores(self.feat_name, self.feat_value)
+
+                self.add_right(mayores)
+                self.add_left(menores)
+
+            else:
+                self.set_leaf()
+
+        # De lo contrario llamo a set_leaf para transformarlo en hoja
+        else:
+            self.set_leaf()
+
+    def add_left(self, left_data):
+        self.left = self.__class__(left_data, self.level + 1, self.max_depth,
+                                   self.min_samples_split, self.most_mass_threshold)
+        self.left.is_left = True
+
+    def add_right(self, right_data):
+        self.right = self.__class__(right_data, self.level + 1, self.max_depth,
+                                    self.min_samples_split, self.most_mass_threshold)
+        self.right.is_right = True
+
+    def check_leaf_condition(self):
+        """ Determina se es necesario hacer un split de los datos
+        """
+        featuresfaltantes = self.filterfeatures()
+
+        if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
+            return False
+        elif self.level >= self.max_depth:
+            return False
+        #Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
+        elif self.n_rows < self.min_samples_split:
+            return False
+        elif self.mass < self.min_samples_split:
+            return False
+        elif self.check_most_mass():
+            return False
+        else:
+            return True
+
+    def check_most_mass(self):
+        """Check the most_mass_threshold condition"""
+
+        mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
+
+        for clase in mass_sum.keys():
+            if mass_sum[clase] / self.mass >= self.most_mass_threshold:
+                return True
+
+        return False
+
+    def entropy(self, data):
+        """ Retorna la entropia de un grupo de datos.
+        data: diccionario donde las llaves son nombres de clases y los valores sumas
+            (o conteos de valores)
+        """
+
+        total = sum(data.values())
+        entropia = 0
+
+        for clase in data.keys():
+            if data[clase] != 0:
+                entropia -= (data[clase] / total) * np.log2(data[clase] / total)
+
+        return entropia
+
+    # Retorna las features a considerar en un nodo para hacer la particion
+    def filterfeatures(self):
+        filter_arr = []
+        for f in self.data.columns:
+            if (not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
+               f != 'weight' and f != 'class'):
+                filter_arr.append(f)
+        return filter_arr
+
+    def fit(self, data):
+        pass
+
+    def fix_numeric_errors(self, num_dict):
+        """Masses that are extremely small are rounded to zero."""
+
+        for key in num_dict.keys():
+            if abs(num_dict[key]) < 1e-10 and num_dict[key] < 0:
+                num_dict[key] = 0
+
+        return num_dict
+
+    def gain(self, menores, mayores):
+        """Retorna la ganancia de dividir los datos en menores y mayores
+
+        Menores y mayores son diccionarios donde la llave es el nombre
+        de la clase y los valores son la suma de masa para ella.
+        """
+        gain = (self.entropia - (sum(menores.values()) * self.entropy(menores) +
+                sum(mayores.values()) * self.entropy(mayores)) / self.mass)
+
+        return gain
+
+    def get_menores(self, feature_name, pivote):
+        menores = []
+
+        # limpio el nombre de la feature
+        feature_name = feature_name.replace('.mean', '')
+        menores = self.data[self.data[feature_name + '.l'] < pivote]
+
+        menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
+        #menores = menores[menores["weight"] > self.min_weight_threshold]
+
+        return pd.DataFrame(menores, index=menores.index)
+
+    def get_mayores(self, feature_name, pivote):
+        mayores = []
+
+        # limpio el nombre de la feature
+        feature_name = feature_name.replace('.mean', '')
+        mayores = self.data[self.data[feature_name + '.r'] >= pivote]
+
+        mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
+        #mayores = mayores[mayores["weight"] > self.min_weight_threshold]
+
+        return pd.DataFrame(mayores, index=mayores.index)
+
+    # retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
+    def get_pivotes(self, feature, calidad='exact'):
+
+        if calidad == 'exact':
+            return feature[1:].unique()
+        elif calidad == 'aprox':
+            minimo = feature.min()
+            maximo = feature.max()
+            step = maximo - minimo / 100
+            pivotes = []
+            for i in xrange(100):
+                pivotes.append(minimo + step * i)
+
+            return pivotes
+
+    def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
+        """Returns the relevant information of a dataframe as lists"""
+        w_list = data['weight'].tolist()
+        mean_list = data[feature_name + '.mean'].tolist()
+        std_list = data[feature_name + '.std'].tolist()
+        left_bound_list = data[feature_name + '.l'].tolist()
+        right_bound_list = data[feature_name + '.r'].tolist()
+        class_list = data['class'].tolist()
+
+        return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
     def get_split_candidates(self, feature_name):
         """ Retorna todos los valores segun los que se debe intentar cortar una feature
@@ -41,8 +214,140 @@ class UNode(Node):
                   self.data[feature_name + '.r'].unique().tolist())
 
         bounds.sort()
-        print 'Numero de candidatos: ' + str(len(bounds))
+        #print 'Numero de candidatos: ' + str(len(bounds))
         return bounds
+
+    def get_weight(self, tupla, pivote, feature_name, how):
+        """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
+
+        pivote: valor de corte
+        how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
+        """
+
+        left_bound = tupla[feature_name + '.l']
+        right_bound = tupla[feature_name + '.r']
+
+        if left_bound >= pivote and how == 'mayor' or right_bound <= pivote and how == 'menor':
+            return tupla
+
+        else:
+            w = tupla['weight']
+            mean = tupla[feature_name + '.mean']
+            std = tupla[feature_name + '.std']
+
+            feature_mass = pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
+
+            if how == 'menor':
+                if (feature_mass >= self.min_mass_threshold):
+                    tupla['weight'] = min(w * feature_mass, 1)
+                else:
+                    tupla['weight'] = 0
+                # tupla[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
+                tupla[feature_name + '.r'] = pivote
+                return tupla
+
+            elif how == 'mayor':
+                feature_mass = 1 - feature_mass
+                if (feature_mass >= self.min_mass_threshold):
+                    tupla['weight'] = min(w * feature_mass, 1)
+                else:
+                    tupla['weight'] = 0
+                # tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
+                tupla[feature_name + '.l'] = pivote
+                return tupla
+
+    def predict(self, tupla, prediction={}, w=1):
+        # Si es que es el nodo raiz
+        if len(prediction.keys()) == 0:
+            prediction = {c: 0.0 for c in self.data['class'].unique()}
+
+        if self.is_leaf:
+            aux = deepcopy(prediction)
+            aux[self.clase] += w
+            return aux
+
+        # Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
+        else:
+            feature_name = self.feat_name.replace('.mean', '')
+            mean = tupla[feature_name + '.mean']
+            std = tupla[feature_name + '.std']
+            l = tupla[feature_name + '.l']
+            r = tupla[feature_name + '.r']
+            pivote = self.feat_value
+
+            # w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
+            # w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
+
+            w_left = min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
+            w_right = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+
+            a = self.right.predict(tupla, prediction, w_right)
+            b = self.left.predict(tupla, prediction, w_left)
+
+            # Tengo que retornar la suma elementwise de los diccionarios a y b
+            return {key: a[key] + b[key] for key in a}
+
+    def update_indexes(self, menores_index, mayores_index, pivote, limites_l, limites_r):
+        """Updates the strictly inferior and superior tuples and updates to the new pivot.
+
+        Parameters
+        ----------
+        menores_index: The index of the strictly inferior data to the last pivot
+        mayores_index: The index of the strictly superior data to the last pivot
+        pivote: The new pivot that splits the data in two
+        limites_l: The left margin of the distributions of the data
+        limites_r: The right margin of the distributions of the data
+        """
+
+        ultimo_r_menor = limites_r[menores_index]
+
+        # Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
+        while(ultimo_r_menor < pivote and menores_index < len(limites_r) - 1):
+            menores_index += 1
+            ultimo_r_menor = limites_r[menores_index]
+
+        ultimo_l_mayor = limites_l[mayores_index]
+
+        # Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
+        while(ultimo_l_mayor < pivote and mayores_index < len(limites_l) - 1):
+            ultimo_l_mayor = limites_l[mayores_index]
+            mayores_index += 1
+
+        return menores_index, mayores_index
+
+    # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
+    def set_leaf(self):
+        self.is_leaf = True
+        try:
+            self.clase = self.data.groupby('class')['weight'].sum().idxmax()
+        except Exception as inst:
+            print self.data['class'].tolist()
+            print self.data['weight'].tolist()
+            print inst           # __str__ allows args to be printed directly
+            x, y = inst.args
+            print 'x =', x
+            print 'y =', y
+            raise
+
+    def show(self, linea=""):
+        if self.is_leaf:
+            print linea + '|---- ' + str(self.clase)
+
+        elif self.is_left:
+            self.right.show(linea + '|     ')
+            print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '      ')
+
+        elif self.is_right:
+            self.right.show(linea + '      ')
+            print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '|     ')
+
+        # Es el nodo raiz
+        else:
+            self.right.show(linea + '      ')
+            print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
+            self.left.show(linea + '      ')
 
     # Busca el mejor corte posible para el nodo
     def split(self):
@@ -167,54 +472,6 @@ class UNode(Node):
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
             # break # Para testear cuanto se demora una sola feature
 
-    def fix_numeric_errors(self, num_dict):
-        """Masses that are extremely small are rounded to zero."""
-
-        for key in num_dict.keys():
-            if abs(num_dict[key]) < 1e-10 and num_dict[key] < 0:
-                num_dict[key] = 0
-
-        return num_dict
-
-    def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
-        """Returns the relevant information of a dataframe as lists"""
-        w_list = data['weight'].tolist()
-        mean_list = data[feature_name + '.mean'].tolist()
-        std_list = data[feature_name + '.std'].tolist()
-        left_bound_list = data[feature_name + '.l'].tolist()
-        right_bound_list = data[feature_name + '.r'].tolist()
-        class_list = data['class'].tolist()
-
-        return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
-
-    def update_indexes(self, menores_index, mayores_index, pivote, limites_l, limites_r):
-        """Updates the strictly inferior and superior tuples and updates to the new pivot.
-
-        Parameters
-        ----------
-        menores_index: The index of the strictly inferior data to the last pivot
-        mayores_index: The index of the strictly superior data to the last pivot
-        pivote: The new pivot that splits the data in two
-        limites_l: The left margin of the distributions of the data
-        limites_r: The right margin of the distributions of the data
-        """
-
-        ultimo_r_menor = limites_r[menores_index]
-
-        # Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
-        while(ultimo_r_menor < pivote and menores_index < len(limites_r) - 1):
-            menores_index += 1
-            ultimo_r_menor = limites_r[menores_index]
-
-        ultimo_l_mayor = limites_l[mayores_index]
-
-        # Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-        while(ultimo_l_mayor < pivote and mayores_index < len(limites_l) - 1):
-            ultimo_l_mayor = limites_l[mayores_index]
-            mayores_index += 1
-
-        return menores_index, mayores_index
-
     def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list,
                               class_list, pivote, menores, mayores):
         """Splits a group of data and divides it according to a pivot
@@ -241,177 +498,3 @@ class UNode(Node):
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
         return menores, mayores
-
-    def gain(self, menores, mayores):
-        """Retorna la ganancia de dividir los datos en menores y mayores
-
-        Menores y mayores son diccionarios donde la llave es el nombre
-        de la clase y los valores son la suma de masa para ella.
-        """
-        gain = (self.entropia - (sum(menores.values()) * self.entropy(menores) +
-                sum(mayores.values()) * self.entropy(mayores)) / self.mass)
-
-        return gain
-
-    def entropy(self, data):
-        """ Retorna la entropia de un grupo de datos.
-        data: diccionario donde las llaves son nombres de clases y los valores sumas
-            (o conteos de valores)
-        """
-
-        total = sum(data.values())
-        entropia = 0
-
-        for clase in data.keys():
-            if data[clase] != 0:
-                entropia -= (data[clase] / total) * np.log2(data[clase] / total)
-
-        return entropia
-
-    def add_left(self, left_data):
-        self.left = self.__class__(left_data, self.level + 1, self.max_depth,
-                                   self.min_samples_split, self.most_mass_threshold)
-        self.left.is_left = True
-
-    def add_right(self, right_data):
-        self.right = self.__class__(right_data, self.level + 1, self.max_depth,
-                                    self.min_samples_split, self.most_mass_threshold)
-        self.right.is_right = True
-
-    def predict(self, tupla, prediction={}, w=1):
-        # Si es que es el nodo raiz
-        if len(prediction.keys()) == 0:
-            prediction = {c: 0.0 for c in self.data['class'].unique()}
-
-        if self.is_leaf:
-            aux = deepcopy(prediction)
-            aux[self.clase] += w
-            return aux
-
-        # Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
-        else:
-            feature_name = self.feat_name.replace('.mean', '')
-            mean = tupla[feature_name + '.mean']
-            std = tupla[feature_name + '.std']
-            l = tupla[feature_name + '.l']
-            r = tupla[feature_name + '.r']
-            pivote = self.feat_value
-
-            # w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
-            # w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
-
-            w_left = min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
-            w_right = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
-
-            a = self.right.predict(tupla, prediction, w_right)
-            b = self.left.predict(tupla, prediction, w_left)
-
-            # Tengo que retornar la suma elementwise de los diccionarios a y b
-            return {key: a[key] + b[key] for key in a}
-
-    def get_menores(self, feature_name, pivote):
-        menores = []
-
-        # limpio el nombre de la feature
-        feature_name = feature_name.replace('.mean', '')
-        menores = self.data[self.data[feature_name + '.l'] < pivote]
-
-        menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
-        #menores = menores[menores["weight"] > self.min_weight_threshold]
-
-        return pd.DataFrame(menores, index=menores.index)
-
-    def get_mayores(self, feature_name, pivote):
-        mayores = []
-
-        # limpio el nombre de la feature
-        feature_name = feature_name.replace('.mean', '')
-        mayores = self.data[self.data[feature_name + '.r'] >= pivote]
-
-        mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
-        #mayores = mayores[mayores["weight"] > self.min_weight_threshold]
-
-        return pd.DataFrame(mayores, index=mayores.index)
-
-    # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
-    def set_leaf(self):
-        self.is_leaf = True
-        try:
-            self.clase = self.data.groupby('class')['weight'].sum().idxmax()
-        except Exception as inst:
-            print self.data['class'].tolist()
-            print self.data['weight'].tolist()
-            print inst           # __str__ allows args to be printed directly
-            x, y = inst.args
-            print 'x =', x
-            print 'y =', y
-            raise
-
-    def get_weight(self, tupla, pivote, feature_name, how):
-        """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
-
-        pivote: valor de corte
-        how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
-        """
-
-        left_bound = tupla[feature_name + '.l']
-        right_bound = tupla[feature_name + '.r']
-
-        if left_bound >= pivote and how == 'mayor' or right_bound <= pivote and how == 'menor':
-            return tupla
-
-        else:
-            w = tupla['weight']
-            mean = tupla[feature_name + '.mean']
-            std = tupla[feature_name + '.std']
-
-            feature_mass = pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
-
-            if how == 'menor':
-                if (feature_mass >= self.min_mass_threshold):
-                    tupla['weight'] = min(w * feature_mass, 1)
-                else:
-                    tupla['weight'] = 0
-                # tupla[feature_name+'.r'] = min(pivote, tupla[feature_name + '.r'])
-                tupla[feature_name + '.r'] = pivote
-                return tupla
-
-            elif how == 'mayor':
-                feature_mass = 1 - feature_mass
-                if (feature_mass >= self.min_mass_threshold):
-                    tupla['weight'] = min(w * feature_mass, 1)
-                else:
-                    tupla['weight'] = 0
-                # tupla[feature_name+'.l'] = max(pivote, tupla[feature_name + '.l'])
-                tupla[feature_name + '.l'] = pivote
-                return tupla
-
-    def check_leaf_condition(self):
-        """ Determina se es necesario hacer un split de los datos
-        """
-        featuresfaltantes = self.filterfeatures()
-
-        if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
-            return False
-        elif self.level >= self.max_depth:
-            return False
-        #Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
-        elif self.n_rows < self.min_samples_split:
-            return False
-        elif self.mass < self.min_samples_split:
-            return False
-        elif self.check_most_mass():
-            return False
-        else:
-            return True
-
-    def check_most_mass(self):
-        """Check the most_mass_threshold condition"""
-
-        mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
-
-        for clase in mass_sum.keys():
-            if mass_sum[clase] / self.mass >= self.most_mass_threshold:
-                return True
-
-        return False

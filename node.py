@@ -14,16 +14,13 @@ import numpy as np
 class Node:
     """Represents the internal and final nodes of a decision tree"""
 
-    def __init__(self, data, level=1, max_depth=8,
-                 min_samples_split=10, mass=None):
+    def __init__(self, data, level=1, max_depth=8, min_samples_split=10):
         """
         data (DataFrame): Each row represents an object, each column represents
                           a feature. Must contain a column named 'class'
         level (int): The deepness level of the node
         max_depth (int): Max depth that the nodes can be splitted
         min_samples_split (int): Minimum number of tuples necesary for splitting
-        mass (float): Sum of the total probability mass in this nodes data.
-                      None for normal decision trees.
         """
 
         # Atributos particulares del nodo
@@ -40,10 +37,6 @@ class Node:
         self.is_right = False
         self.level = level
         self.n_rows = len(data.index)
-        if mass is None:
-            self.mass = float(len(data.index))
-        else:
-            self.mass = mass
 
         # Atributos generales del arbol
         self.max_depth = max_depth
@@ -69,6 +62,9 @@ class Node:
         # De lo contrario llamo a set_leaf para transformarlo en hoja
         else:
             self.set_leaf()
+
+    def fit(self, data):
+        pass
 
     # Busca el mejor corte posible para el nodo
     def split(self):
@@ -191,11 +187,13 @@ class Node:
     def add_left(self, left_data):
         self.left = self.__class__(left_data, self.level + 1, self.max_depth,
                                    self.min_samples_split)
+        #self.left.fit(left_data)
         self.left.is_left = True
 
     def add_right(self, right_data):
         self.right = self.__class__(right_data, self.level + 1, self.max_depth,
                                     self.min_samples_split)
+        #self.right.fit(right_data)
         self.right.is_right = True
 
     def predict(self, tupla, confianza=1):

@@ -23,14 +23,17 @@ class Tree:
         if self.criterium == 'gain':
             self.root = Node(data, level=1, max_depth=self.max_depth,
                              min_samples_split=self.min_samples_split)
+            self.root.fit(data)
         elif self.criterium == 'confianza':
             self.root = CompNode(data, level=1, max_depth=self.max_depth,
                                  min_samples_split=self.min_samples_split)
+            self.root.fit(data)
         elif self.criterium == 'uncertainty':
             self.root = UNode(data, level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold)
+            self.root.fit(data)
 
     def predict(self, tupla):
         """Returnes the predicted class of a tuple"""
