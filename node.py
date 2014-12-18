@@ -83,10 +83,7 @@ class Node:
             # Limpio el nombre de la feature
             feature_name = f.replace('.mean', '')
 
-            # Output que se sobreescribe
-            sys.stdout.write('Evaluando feature: ' + f)
-            sys.stdout.flush()
-            sys.stdout.write('\r')
+            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
             sys.stdout.flush()
 
             # Ordeno el frame segun la feature indicada

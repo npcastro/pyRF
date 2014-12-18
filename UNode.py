@@ -88,12 +88,11 @@ class UNode(Node):
         return False
 
     def entropy(self, data):
-        """ Retorna la entropia de un grupo de datos.
-        data: diccionario donde las llaves son nombres de clases y los valores sumas
-            (o conteos de valores)
+        """Calculates the entropy of a group of data
+        data: dicctionary where the keys are class names, and the values are counts or sums of mass
         """
 
-        total = sum(data.values())
+        total = float(sum(data.values()))
         entropia = 0
 
         for clase in data.keys():
@@ -368,10 +367,7 @@ class UNode(Node):
         start_time = time.time()
         for f in filterfeatures:
 
-            # Output que se sobreescribe
-            sys.stdout.write('Evaluando feature: ' + f)
-            sys.stdout.flush()
-            sys.stdout.write('\r')
+            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
             sys.stdout.flush()
 
             # Limpio el nombre de la feature
