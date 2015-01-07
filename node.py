@@ -113,7 +113,7 @@ class Node:
             # class_list = data_por_media['class'].tolist()
 
             # Ordeno los datos segun la feature que se esta probando
-            sort_index = np.argsort(self.data[feature])
+            sort_index = np.argsort(self.data[feature].tolist())
             mean_list = self.data[feature].iloc[sort_index].tolist()
             class_list = self.y[sort_index]
 
@@ -207,8 +207,7 @@ class Node:
     # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
     def set_leaf(self):
         self.is_leaf = True
-        self.clase = stats.mode(self.y)
-        # self.clase = Counter(self.data['class']).most_common(1)[0][0]
+        self.clase = stats.mode(self.y)[0][0]
         # self.clase = self.data['class'].value_counts().idxmax()
 
     def add_left(self, left_data, y):
