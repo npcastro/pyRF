@@ -1,5 +1,22 @@
 import unittest
 from UNode import UNode
+from node import Node
+
+
+# testear que el argsort esta funcionando correctamente?
+
+class TestClassDistribution(unittest.TestCase):
+
+    def setUp(self):
+        self.node = Node(None)
+
+    def test_normal_case(self):
+        classes = ['a', 'a', 'b', 'a', 'c', 'c']
+        test = self.node.get_class_distribution(classes)
+
+        self.assertEqual(test['a'], 3)
+        self.assertEqual(test['b'], 1)
+        self.assertEqual(test['c'], 2)
 
 
 class TestSplittingMeasures(unittest.TestCase):
@@ -29,5 +46,9 @@ class TestSplittingMeasures(unittest.TestCase):
     # Testear valores negativos?
 
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSplittingMeasures)
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    suite.addTests(loader.loadTestsFromTestCase(TestSplittingMeasures))
+    suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
+
     unittest.TextTestRunner(verbosity=2).run(suite)

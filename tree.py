@@ -19,11 +19,11 @@ class Tree:
         self.min_weight_threshold = min_weight_threshold
 
     # recibe un set de entrenamiento y ajusta el arbol
-    def fit(self, data):
+    def fit(self, data, y):
         if self.criterium == 'gain':
             self.root = Node(level=1, max_depth=self.max_depth,
                              min_samples_split=self.min_samples_split)
-            self.root.fit(data)
+            self.root.fit(data, y)
         elif self.criterium == 'confianza':
             self.root = CompNode(data, level=1, max_depth=self.max_depth,
                                  min_samples_split=self.min_samples_split)
@@ -57,7 +57,27 @@ class Tree:
         """Prints the tree structure"""
         self.root.show()
 
-    def predict_table(self, frame):
+    # def predict_table(self, frame):
+    #     """Returnes the original class, the prediction and its probability
+
+    #     It serves as a testing mechanism of the performance of a classifier
+
+    #     Parameters
+    #     ----------
+    #     frame: Dataframe of the data that must be classified. Each row is an
+    #            object and each column is a feature
+    #     """
+    #     # Creo el frame e inserto la clase
+    #     tabla = []
+    #     for index, row in frame.iterrows():
+    #         clase = row['class']
+    #         predicted, confianza = self.predict(row)
+    #         tabla.append([clase, predicted, confianza])
+
+    #     return pd.DataFrame(tabla, index=frame.index,
+    #                         columns=['original', 'predicted', 'trust'])
+
+    def predict_table(self, frame, y):
         """Returnes the original class, the prediction and its probability
 
         It serves as a testing mechanism of the performance of a classifier
@@ -70,7 +90,7 @@ class Tree:
         # Creo el frame e inserto la clase
         tabla = []
         for index, row in frame.iterrows():
-            clase = row['class']
+            clase = y[index]
             predicted, confianza = self.predict(row)
             tabla.append([clase, predicted, confianza])
 

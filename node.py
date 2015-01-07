@@ -4,6 +4,7 @@ import math
 import sys
 
 import numpy as np
+from scipy import stats
 
 # Data es un dataframe que tiene que contener una columna class.
 # La cual el arbol intenta predecir.
@@ -38,10 +39,25 @@ class Node:
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
 
-    def fit(self, data):
+    def get_class_distribution(self, y):
+        """Produces a dictionary with the amount of tuples of each class
+        """
+        dist = {}
+
+        for label in y:
+            if label in dist.keys():
+                dist[label] += 1
+            else:
+                dist[label] = 1
+
+        return dist
+
+    def fit(self, data, y):
         self.data = data
-        self.entropia = self.entropy(data.groupby('class').size().to_dict())
-        self.n_rows = len(data.index)
+        self.y = np.array(y)
+        # self.entropia = self.entropy(data.groupby('class').size().to_dict())
+        self.entropia = self.entropy(self.get_class_distribution(y))
+        self.n_rows = len(y)
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
@@ -51,11 +67,17 @@ class Node:
                 print 'Feature elegida: ' + self.feat_name
                 print 'Pivote elegido: ' + str(self.feat_value)
 
-                menores = self.get_menores(self.feat_name, self.feat_value)
-                mayores = self.get_mayores(self.feat_name, self.feat_value)
+                # menores = self.get_menores(self.feat_name, self.feat_value)
+                # mayores = self.get_mayores(self.feat_name, self.feat_value)
 
-                self.add_right(mayores)
-                self.add_left(menores)
+                # self.add_right(mayores)
+                # self.add_left(menores)
+
+                menores_X, menores_y = self.get_menores(self.feat_name, self.feat_value)
+                mayores_X, mayores_y = self.get_mayores(self.feat_name, self.feat_value)
+
+                self.add_left(menores_X, menores_y)
+                self.add_right(mayores_X, mayores_y)
 
             else:
                 self.set_leaf()
@@ -78,20 +100,22 @@ class Node:
         print 'Numero de tuplas en nodo: ' + str(self.n_rows)
         print '\n ################ \n'
 
-        for f in filterfeatures:
+        for feature in filterfeatures:
 
-            # Limpio el nombre de la feature
-            feature_name = f
-
-            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
+            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
             sys.stdout.flush()
 
-            # Ordeno el frame segun la feature indicada
-            data_por_media = self.data.sort(f, inplace=False)
+            # # Ordeno el frame segun la feature indicada
+            # data_por_media = self.data.sort(feature, inplace=False)
 
-            #Transformo la informacion relevante de esta feature a listas
-            mean_list = data_por_media[feature_name].tolist()
-            class_list = data_por_media['class'].tolist()
+            # #Transformo la informacion relevante de esta feature a listas
+            # mean_list = data_por_media[feature].tolist()
+            # class_list = data_por_media['class'].tolist()
+
+            # Ordeno los datos segun la feature que se esta probando
+            sort_index = np.argsort(self.data[feature])
+            mean_list = self.data[feature].iloc[sort_index].tolist()
+            class_list = self.y[sort_index]
 
             unique_means = list(set(mean_list))
             unique_means.sort()
@@ -122,18 +146,26 @@ class Node:
                     if pivot_gain > max_gain:
                         max_gain = pivot_gain
                         self.feat_value = pivote
-                        self.feat_name = feature_name
+                        self.feat_name = feature
 
     def update_index(self, pivote, index, mean_list):
         while mean_list[index] < pivote:
             index += 1
         return index
 
+    # def get_menores(self, feature, pivote):
+    #     return self.data[self.data[feature] < pivote]
+
+    # def get_mayores(self, feature, pivote):
+    #     return self.data[self.data[feature] >= pivote]
+
     def get_menores(self, feature, pivote):
-        return self.data[self.data[feature] < pivote]
+        aux = np.array(self.data[feature] < pivote)
+        return self.data[aux], self.y[aux]
 
     def get_mayores(self, feature, pivote):
-        return self.data[self.data[feature] >= pivote]
+        aux = np.array(self.data[feature] >= pivote)
+        return self.data[aux], self.y[aux]
 
     # Retorna las features a considerar en un nodo para hacer la particion
     def filterfeatures(self):
@@ -148,7 +180,7 @@ class Node:
     def check_leaf_condition(self):
         featuresfaltantes = self.filterfeatures()
 
-        if self.data['class'].nunique() == 1 or len(featuresfaltantes) == 0:
+        if len(np.unique(self.y)) == 1 or len(featuresfaltantes) == 0:
             return False
         elif self.level >= self.max_depth:
             return False
@@ -175,20 +207,20 @@ class Node:
     # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
     def set_leaf(self):
         self.is_leaf = True
-        # self.clase = stats.mode(self.data['class'])[0].item()
+        self.clase = stats.mode(self.y)
         # self.clase = Counter(self.data['class']).most_common(1)[0][0]
-        self.clase = self.data['class'].value_counts().idxmax()
+        # self.clase = self.data['class'].value_counts().idxmax()
 
-    def add_left(self, left_data):
+    def add_left(self, left_data, y):
         self.left = self.__class__(self.level + 1, self.max_depth,
                                    self.min_samples_split)
-        self.left.fit(left_data)
+        self.left.fit(left_data, y)
         self.left.is_left = True
 
-    def add_right(self, right_data):
+    def add_right(self, right_data, y):
         self.right = self.__class__(self.level + 1, self.max_depth,
                                     self.min_samples_split)
-        self.right.fit(right_data)
+        self.right.fit(right_data, y)
         self.right.is_right = True
 
     def predict(self, tupla, confianza=1):
