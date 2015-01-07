@@ -1,4 +1,5 @@
-# Toma un set de entrenamiento, entrena un arbol y luego guarda el arbol aprendido y su performance resultados.
+# Toma un set de entrenamiento, entrena un arbol y luego guarda el arbol aprendido y su performance
+# resultados.
 
 import tree
 import pandas as pd
@@ -10,15 +11,14 @@ from sklearn import cross_validation
 if __name__ == '__main__':
 
     folds = 10
-    path = "sets/gp_u_set.csv"
+    path = "sets/gp_u_set_60.csv"
     data = pd.read_csv(path)
     data['weight'] = data['weight'].astype(float)
+
+    # path = "sets/macho_60.csv"
+    data = pd.read_csv(path)
+
     data = data.dropna(axis=0, how='any')
-
-    # Para testing rapido
-    # data = data.iloc[0:1000]
-
-    # X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.3, random_state=0)
 
     skf = cross_validation.StratifiedKFold(data['class'], n_folds=folds)
 

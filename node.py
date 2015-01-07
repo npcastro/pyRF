@@ -40,7 +40,7 @@ class Node:
 
     def fit(self, data):
         self.data = data
-        self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
+        self.entropia = self.entropy(data.groupby('class').size().to_dict())
         self.n_rows = len(data.index)
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
@@ -81,7 +81,7 @@ class Node:
         for f in filterfeatures:
 
             # Limpio el nombre de la feature
-            feature_name = f.replace('.mean', '')
+            feature_name = f
 
             sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
             sys.stdout.flush()
@@ -90,7 +90,7 @@ class Node:
             data_por_media = self.data.sort(f, inplace=False)
 
             #Transformo la informacion relevante de esta feature a listas
-            mean_list = data_por_media[feature_name + '.mean'].tolist()
+            mean_list = data_por_media[feature_name].tolist()
             class_list = data_por_media['class'].tolist()
 
             unique_means = list(set(mean_list))
@@ -122,7 +122,7 @@ class Node:
                     if pivot_gain > max_gain:
                         max_gain = pivot_gain
                         self.feat_value = pivote
-                        self.feat_name = feature_name + '.mean'
+                        self.feat_name = feature_name
 
     def update_index(self, pivote, index, mean_list):
         while mean_list[index] < pivote:
