@@ -211,14 +211,12 @@ class Node:
         # self.clase = self.data['class'].value_counts().idxmax()
 
     def add_left(self, left_data, y):
-        self.left = self.__class__(self.level + 1, self.max_depth,
-                                   self.min_samples_split)
+        self.left = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
         self.left.fit(left_data, y)
         self.left.is_left = True
 
     def add_right(self, right_data, y):
-        self.right = self.__class__(self.level + 1, self.max_depth,
-                                    self.min_samples_split)
+        self.right = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
         self.right.fit(right_data, y)
         self.right.is_right = True
 
