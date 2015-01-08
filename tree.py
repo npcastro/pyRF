@@ -33,7 +33,7 @@ class Tree:
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold)
-            data['class'] = pd.Series(y)
+            data['class'] = y
             self.root.fit(data)
 
     def predict(self, tupla):
