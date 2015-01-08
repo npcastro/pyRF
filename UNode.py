@@ -12,7 +12,7 @@ import pyRF_prob
 
 class UNode(Node):
     def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
-                 min_mass_threshold=0.0127, min_weight_threshold=0.0):
+                 min_mass_threshold=0.0127, min_weight_threshold=0.01):
         """
         data (DataFrame): Each row represents an object, each column represents
             a feature. Must contain a column named 'class'
@@ -24,8 +24,7 @@ class UNode(Node):
         min_mass_threshold (float): If the total mass is below this threshold the node is no longer
             splitted
         min_weight_threshold (float): Tuples with mass below this, are removed from the children.
-            This value must be small or else, problem with probabilities
-            may arise
+            This value must be small or else, problem with probabilities may arise.
         """
         # Atributos particulares del nodo
         self.clase = ''
@@ -81,11 +80,16 @@ class UNode(Node):
 
         mass_sum = self.data.groupby('class')['weight'].sum().to_dict()
 
-        for clase in mass_sum.keys():
-            if mass_sum[clase] / self.mass >= self.most_mass_threshold:
-                return True
+        if max(mass_sum.values()) / self.mass >= self.most_mass_threshold:
+            return True
+        else:
+            return False
 
-        return False
+        # for clase in mass_sum.keys():
+        #     if mass_sum[clase] / self.mass >= self.most_mass_threshold:
+        #         return True
+
+        # return False
 
     def entropy(self, data):
         """Calculates the entropy of a group of data
@@ -165,7 +169,7 @@ class UNode(Node):
         menores = self.data[self.data[feature_name + '.l'] < pivote]
 
         menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
-        #menores = menores[menores["weight"] > self.min_weight_threshold]
+        menores = menores[menores["weight"] > self.min_weight_threshold]
 
         return pd.DataFrame(menores, index=menores.index)
 
@@ -177,7 +181,7 @@ class UNode(Node):
         mayores = self.data[self.data[feature_name + '.r'] >= pivote]
 
         mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
-        #mayores = mayores[mayores["weight"] > self.min_weight_threshold]
+        mayores = mayores[mayores["weight"] > self.min_weight_threshold]
 
         return pd.DataFrame(mayores, index=mayores.index)
 
