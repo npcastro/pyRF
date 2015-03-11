@@ -1,9 +1,59 @@
 import unittest
 from UNode import UNode
 from node import Node
+import pyRF_prob
 
+
+class TestProbabilityMethods(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_split_at_left_border(self):
+        # pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
+        feature_mass = pyRF_prob.cdf(2, 5, 1, 2, 8)
+        self.assertEqual(feature_mass, 0)
+
+        feature_mass = pyRF_prob.cdf(5, 5, 1, 5, 8)
+        self.assertEqual(feature_mass, 0)
+
+        feature_mass = pyRF_prob.cdf(6, 5, 1, 6, 8)
+        self.assertEqual(feature_mass, 0)
+
+    def test_split_at_right_border(self):
+        feature_mass = pyRF_prob.cdf(8, 5, 1, 2, 8)
+        self.assertEqual(feature_mass, 1)
+
+        feature_mass = pyRF_prob.cdf(5, 5, 1, 2, 5)
+        self.assertEqual(feature_mass, 1)
+
+        feature_mass = pyRF_prob.cdf(4, 5, 1, 2, 4)
+        self.assertEqual(feature_mass, 1)
+
+    # def test_normal_case(self):
+    #     pass
+
+
+class TestSplittingMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.unode = UNode(None)
+
+    def test_normal_case(self):
+        left_values = [-8, -7, -5, -3, 0, 2, 3.5, 6]
+        right_values = [-6, -4, -1, 1, 2.5, 4, 5, 7]
+        clases = ['a', 'b', 'b', 'b', 'a', 'b', 'a', 'b']
+
+        bounds = self.unode.get_class_changes(left_values, right_values, clases)
+        self.assertEqual(set(bounds), set([-7, -6, 0, 1, 2, 2.5, 3.5, 4, 5]))
+
+    # numeros negativos
+
+    # puntos iguales
+
+    # multiples clases
 
 # testear que el argsort esta funcionando correctamente?
+
 
 class TestClassDistribution(unittest.TestCase):
 
@@ -48,7 +98,9 @@ class TestSplittingMeasures(unittest.TestCase):
 if __name__ == '__main__':
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
+    suite.addTests(loader.loadTestsFromTestCase(TestProbabilityMethods))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMeasures))
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
+    suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

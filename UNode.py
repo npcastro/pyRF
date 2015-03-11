@@ -10,7 +10,7 @@ from node import *
 import pyRF_prob
 
 
-class UNode(Node):
+class UNode():
     def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
                  min_mass_threshold=0.0127, min_weight_threshold=0.01):
         """
@@ -21,8 +21,10 @@ class UNode(Node):
         min_samples_split (int): Minimum number of tuples necesary for splitting
         most_mass_threshold (float): If a single class mass is over this threshold the node is
             considered a leaf
-        min_mass_threshold (float): If the total mass is below this threshold the node is no longer
-            splitted
+        min_mass_threshold (float):
+
+        ESTO FALTA!!: If the total mass is below this threshold the node is no longer
+            splitted.
         min_weight_threshold (float): Tuples with mass below this, are removed from the children.
             This value must be small or else, problem with probabilities may arise.
         """
@@ -36,6 +38,7 @@ class UNode(Node):
         self.left = None
         self.right = None
         self.level = level
+        # self.split_type = split_type
 
         # Atributos generales del arbol
         self.max_depth = max_depth
@@ -85,12 +88,6 @@ class UNode(Node):
         else:
             return False
 
-        # for clase in mass_sum.keys():
-        #     if mass_sum[clase] / self.mass >= self.most_mass_threshold:
-        #         return True
-
-        # return False
-
     def entropy(self, data):
         """Calculates the entropy of a group of data
         data: dicctionary where the keys are class names, and the values are counts or sums of mass
@@ -131,8 +128,13 @@ class UNode(Node):
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
 
-                self.add_right(mayores)
-                self.add_left(menores)
+                # There's a chance that the split that's been found leaves an empty dataframe
+                # because non of the tuples has enough mass to be considerable
+                if menores.empty or mayores.empty:
+                    self.set_leaf()
+                else:
+                    self.add_right(mayores)
+                    self.add_left(menores)
 
             else:
                 self.set_leaf()
@@ -185,21 +187,6 @@ class UNode(Node):
 
         return pd.DataFrame(mayores, index=mayores.index)
 
-    # retorna una lista con los todos los threshold a evaluar para buscar la mejor separacion
-    def get_pivotes(self, feature, calidad='exact'):
-
-        if calidad == 'exact':
-            return feature[1:].unique()
-        elif calidad == 'aprox':
-            minimo = feature.min()
-            maximo = feature.max()
-            step = maximo - minimo / 100
-            pivotes = []
-            for i in xrange(100):
-                pivotes.append(minimo + step * i)
-
-            return pivotes
-
     def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
         """Returns the relevant information of a dataframe as lists"""
         w_list = data['weight'].tolist()
@@ -211,15 +198,82 @@ class UNode(Node):
 
         return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
-    def get_split_candidates(self, feature_name):
-        """ Retorna todos los valores segun los que se debe intentar cortar una feature
+    def get_split_candidates(self, feature_name, split_type='simple'):
+        """Returns a list of all the points of a feature that must be tested as a split point
         """
-        bounds = (self.data[feature_name + '.l'].unique().tolist() +
-                  self.data[feature_name + '.r'].unique().tolist())
+        if split_type == 'simple':
+            bounds = (self.data[feature_name + '.l'].tolist() +
+                      self.data[feature_name + '.r'].tolist())
 
-        bounds.sort()
-        #print 'Numero de candidatos: ' + str(len(bounds))
+            print 'Simple ' + str(len(np.unique(bounds)))
+            return np.unique(bounds)
+
+        else:
+            bounds = self.get_class_changes(self.data[feature_name + '.l'].tolist(),
+                                            self.data[feature_name + '.r'].tolist(),
+                                            self.data['class'].tolist())
+            bounds = np.unique(bounds)
+            print 'Nuevo ' + str(len(bounds))
+            return bounds
+
+    # Parece que estoy guardando la clase actual por las puras
+    def get_class_changes(self, left_values, right_values, clases):
+        presence = {c: 0 for c in set(clases)}
+        bounds = []
+
+        left_index = 1
+        right_index = 0
+
+        # I add the values for the first point (neccesarily a left bound)
+        clase_actual = clases[0]
+        presence[clase_actual] = 1
+
+        while right_index < len(right_values):
+
+            if left_index < len(left_values) and left_values[left_index] <= right_values[right_index]:
+                value = left_values[left_index]
+                clase_actual = clases[left_index]
+                presence[clase_actual] += 1
+
+                left_index += 1
+                
+                right = False
+
+            else:
+                value = right_values[right_index]
+                clase_actual = clases[right_index]
+                # presence[clase_actual] -= 1
+
+                right_index += 1
+                right = True
+
+            # There's no one. I have to check the next border
+            if len(np.unique(presence.values())) == 1 and 0 in presence.values():
+                if right_index < len(right_values) - 1:
+                    if clases[right_index + 1] != clase_actual:
+                        bounds.append(value)
+                else:
+                    continue
+
+            # There's one class with presence, all the other have zeroes
+            elif self.check_algo(presence.values()):
+                continue
+
+            else:
+                bounds.append(value)
+
+            if right:
+                presence[clase_actual] -= 1
+
         return bounds
+
+    def check_algo(self, values):
+        aux = set(values)
+
+        if 0 in aux and len(aux) == 2:
+            return True
+        else:
+            return False
 
     def get_weight(self, tupla, pivote, feature_name, how):
         """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
@@ -405,8 +459,9 @@ class UNode(Node):
             mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
             # Me muevo a traves de los posibles pivotes
+            # for pivote in self.get_split_candidates(feature_name, split_type=self.split_type):
+            # for pivote in self.get_split_candidates(feature_name, split_type='otro'):
             for pivote in self.get_split_candidates(feature_name):
-            # for pivote in mean_list:
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(
@@ -475,14 +530,14 @@ class UNode(Node):
 
     def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list,
                               class_list, pivote, menores, mayores):
-        """Splits a group of data and divides it according to a pivot
+        """divides a group of data according to a pivot
 
         It operates along all the data. And then returns two dictionaries with the total sum
         of the mass separated by class.
 
         Returns:
             menores: Dictionary for the data thats inferior than the pivot
-            mayores: Dictionray for the data thats superior to the pivot
+            mayores: Dictionary for the data thats superior to the pivot
         """
         clip = lambda x, l, r: l if x < l else r if x > r else x
 
