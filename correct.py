@@ -1,7 +1,11 @@
+# Este script lo ocupe para corregir el formato en que guarde algunos resultados
+# Lo que hace es leer denuevo los resultados de clasificacion obtenidos para distintos grados
+# de incertidubmbre y guardarlos separados por f-score, precision y recall
+
 import pandas as pd
 import tree
 
-def fix_format(directory):
+def fix_format(directory, how='hard'):
 
 	result = pd.read_csv(directory + 'result 5.pkl', index_col=0)
 	clases = result.original.unique().tolist()
@@ -20,7 +24,11 @@ def fix_format(directory):
 		                        min_samples_split=20, most_mass_threshold=0.9, min_mass_threshold=0.10,
 		                        min_weight_threshold=0.01)
 
-		matrix = clf.hard_matrix(result)
+		if how == 'hard':
+			matrix = clf.hard_matrix(result)
+		elif how == 'soft':
+			matrix = clf.confusion_matrix(result)
+		
 
 		p = {c: clf.precision(matrix, c) for c in clases}
 		r = {c: clf.recall(matrix, c) for c in clases}
@@ -42,13 +50,13 @@ niveles = range(5,70,5)
 # directorio = 'Resultados/Comparacion/macho/Random/U/'
 directorio = 'Resultados/Comparacion/macho/Random/Normal/'
 
-p, r, f = fix_format(directorio)
+p, r, f = fix_format(directorio, how='soft')
 
 p_df = pd.DataFrame(p, index = niveles)
-p_df.to_csv(directorio + 'precision.csv')
+p_df.to_csv(directorio + 'precision_soft.csv')
 r_df = pd.DataFrame(r, index = niveles)
-r_df.to_csv(directorio + 'recall.csv')
+r_df.to_csv(directorio + 'recall_soft.csv')
 f_df = pd.DataFrame(f, index = niveles)
-f_df.to_csv(directorio + 'f_score.csv')
+f_df.to_csv(directorio + 'f_score_soft.csv')
 
 
