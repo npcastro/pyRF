@@ -117,8 +117,7 @@ class Tree:
     def hard_matrix(self, table):
         """Generates a hard_confusion matrix for probabilistic classifiers"""
 
-        unique = np.unique(np.concatenate((table['original'].values,
-                           table['predicted'].values)))
+        unique = np.unique(np.concatenate((table['original'].values, table['predicted'].values)))
 
         matrix = np.zeros((len(unique), len(unique)))
         matrix = pd.DataFrame(matrix)

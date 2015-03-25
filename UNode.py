@@ -460,8 +460,8 @@ class UNode():
 
             # Me muevo a traves de los posibles pivotes
             # for pivote in self.get_split_candidates(feature_name, split_type=self.split_type):
-            # for pivote in self.get_split_candidates(feature_name, split_type='otro'):
-            for pivote in self.get_split_candidates(feature_name):
+            for pivote in self.get_split_candidates(feature_name, split_type='otro'):
+            # for pivote in self.get_split_candidates(feature_name):
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(
