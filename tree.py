@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 from node import *
-from CompNode import *
 from UNode import *
 
 
@@ -24,10 +23,7 @@ class Tree:
             self.root = Node(level=1, max_depth=self.max_depth,
                              min_samples_split=self.min_samples_split)
             self.root.fit(data, y)
-        elif self.criterium == 'confianza':
-            self.root = CompNode(data, level=1, max_depth=self.max_depth,
-                                 min_samples_split=self.min_samples_split)
-            self.root.fit(data)
+        
         elif self.criterium == 'uncertainty':
             self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
@@ -174,3 +170,20 @@ class Tree:
         # Retorno f_score
         else:
             return 2 * acc * rec / (acc + rec)
+
+    def get_splits(self):
+        splits = {}
+
+        node_list = [self.root]
+
+        while node_list:
+            # Saco un elemento de la lista
+            node = node_list.pop(0)
+
+            if not node.is_leaf:
+                split_feat = node.feat_name
+                splits.setdefault(split_feat, []).append(node.feat_value)
+                node_list.append(node.right)
+                node_list.append(node.left)
+
+        return splits

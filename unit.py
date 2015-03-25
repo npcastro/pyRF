@@ -2,6 +2,8 @@ import unittest
 from UNode import UNode
 from node import Node
 import pyRF_prob
+import tree
+import pandas as pd
 
 
 class TestProbabilityMethods(unittest.TestCase):
@@ -95,6 +97,33 @@ class TestSplittingMeasures(unittest.TestCase):
 
     # Testear valores negativos?
 
+class TestFeatureSelection(unittest.TestCase):
+
+    def setUp(self):
+        data = pd.read_csv('sets/iris viejo/iris.data', sep=',', header=None,
+                           names=['sepal length', 'sepal width', 'petal length',
+                           'petal width', 'class'])
+        y = data['class']
+        data = data.drop('class', axis=1)
+
+        self.clf = tree.Tree('gain')
+        self.clf.fit(data, y)
+
+    def test_get_splits(self):
+
+        # Diccionario con los puntos de corte
+        test_splits = {'petal length': [3.0, 4.9, 5.0], 'petal width': [1.8, 1.7]}
+        splits = self.clf.get_splits()
+        self.assertEqual(splits, test_splits)
+
+    # def test_select_feats(self):
+        # Features importantes
+        # test_feats = ['petal length', 'petal width']
+
+
+        
+
+
 if __name__ == '__main__':
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -102,5 +131,6 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMeasures))
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
+    suite.addTests(loader.loadTestsFromTestCase(TestFeatureSelection))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

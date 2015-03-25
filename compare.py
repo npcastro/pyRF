@@ -1,5 +1,5 @@
 # 18 de marzo 
-# Este script lo ocupe para generar graficos comparativos entre los resultados obtenidos 
+# Este script lo ocupo para generar graficos comparativos de los resultados obtenidos 
 # entre el arbol normal y el arbol con incertidumbre
 
 import pandas as pd
