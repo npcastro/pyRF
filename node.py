@@ -64,6 +64,7 @@ class Node:
             self.split()
 
             if self.feat_name != '':
+                print '\n'
                 print 'Feature elegida: ' + self.feat_name
                 print 'Pivote elegido: ' + str(self.feat_value)
 

@@ -83,6 +83,7 @@ class Tree:
         ----------
         frame: Dataframe of the data that must be classified. Each row is an
                object and each column is a feature
+        y:     Real classes of the data that must be classified
         """
         # Creo el frame e inserto la clase
         tabla = []
@@ -170,6 +171,21 @@ class Tree:
         # Retorno f_score
         else:
             return 2 * acc * rec / (acc + rec)
+
+    def weighted_f_score(self, matrix):
+        clases = matrix.columns.tolist()
+
+        counts = {c: matrix.loc[c].sum() for c in clases}
+        f_scores = {c: self.f_score(matrix, c) for c in clases}
+
+        total = sum(counts.values())
+
+        ret = 0
+        for c in clases:
+            ret += counts[c] / total * f_scores[c]
+
+        return ret
+
 
     def get_splits(self):
         splits = {}
