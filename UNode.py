@@ -333,9 +333,6 @@ class UNode():
             r = tupla[feature_name + '.r']
             pivote = self.feat_value
 
-            # w_left = self.get_weight(w, mean, std, l, r, pivote, 'menor')
-            # w_right = self.get_weight(w, mean, std, l, r, pivote, 'mayor')
-
             w_left = min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
             w_right = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
 
@@ -407,8 +404,11 @@ class UNode():
             print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '      ')
 
-    # Busca el mejor corte posible para el nodo
     def split(self):
+        """Searches the best possible split for the node.
+
+        After it finishes, it sets self.feat_name and self.feat_value
+        """
 
         print '\n ################ \n'
         print 'Profundidad del nodo: ' + str(self.level)
@@ -434,7 +434,6 @@ class UNode():
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
 
-            # print '\n'
             #Transformo la informacion relevante de esta feature a listas
             w_list = data_por_media['weight'].tolist()
             mean_list = data_por_media[feature_name + '.mean'].tolist()
@@ -517,12 +516,12 @@ class UNode():
                 #     sys.exit("Ganancia de informacion indefinida")
 
                 if pivot_gain > max_gain:
-                    # print 'gain elegido: ' + str(pivot_gain)
-                    # print 'pivote elegido: ' + str(pivote)
-
                     max_gain = pivot_gain
                     self.feat_value = pivote
                     self.feat_name = feature_name + '.mean'
+
+            # Para profiling de codigo
+            break
 
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
