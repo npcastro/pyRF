@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import sys
 import time
 import math
@@ -516,7 +518,18 @@ class UNode():
 
         # First map applies function to all candidate features
         # Second map unzips the values into two different lists
-        gains_pivots_tuples = map(self.eval_feature_split, candidate_features)
+        from parallel import eval_feature_split
+        from functools import partial
+
+        partial_eval = partial(eval_feature_split, data = self.data, nodo = self)
+
+        from multiprocessing import Pool
+        pool = Pool(processes=3)
+        gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
+        pool.close()
+        pool.join()
+
+        # gains_pivots_tuples = pool.map(self.eval_feature_split, candidate_features)
         gains, pivots = map(list, zip(*gains_pivots_tuples))
 
         for i, gain in enumerate(gains):
