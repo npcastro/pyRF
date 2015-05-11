@@ -10,9 +10,11 @@ def eval_feature_split(feature, data, nodo):
     feature: The name of the feature in the dataframe
     data: Dataframe with the features and classes
     """
-    # unodo = UNode.UNode(level = 7)
+
     unodo = nodo
+    # unodo = UNode.UNode(level = 7)
     unodo.data = data
+    # unodo.entropia = unodo.entropy(data.groupby('class')['weight'].sum().to_dict())
 
     sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
     sys.stdout.flush()
