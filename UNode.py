@@ -196,20 +196,20 @@ class UNode():
 
         return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
-    def get_split_candidates(self, feature_name, split_type='simple'):
+    def get_split_candidates(self, data, feature_name, split_type='simple'):
         """Returns a list of all the points of a feature that must be tested as a split point
         """
         if split_type == 'simple':
-            bounds = (self.data[feature_name + '.l'].tolist() +
-                      self.data[feature_name + '.r'].tolist())
+            bounds = (data[feature_name + '.l'].tolist() +
+                      data[feature_name + '.r'].tolist())
 
             print 'Simple ' + str(len(np.unique(bounds)))
             return np.unique(bounds)
 
         else:
-            bounds = self.get_class_changes(self.data[feature_name + '.l'].tolist(),
-                                            self.data[feature_name + '.r'].tolist(),
-                                            self.data['class'].tolist())
+            bounds = self.get_class_changes(data[feature_name + '.l'].tolist(),
+                                            data[feature_name + '.r'].tolist(),
+                                            data['class'].tolist())
             bounds = np.unique(bounds)
             print 'Nuevo ' + str(len(bounds))
             return bounds
@@ -454,7 +454,7 @@ class UNode():
 
             # Me muevo a traves de los posibles pivotes
             # for pivote in self.get_split_candidates(feature_name, split_type=self.split_type):
-            for pivote in self.get_split_candidates(feature_name, split_type='otro'):
+            for pivote in self.get_split_candidates(data_por_media, feature_name, split_type='otro'):
             # for pivote in self.get_split_candidates(feature_name):
 
                 # Actualizo los indices
