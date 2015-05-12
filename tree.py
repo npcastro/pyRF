@@ -17,6 +17,7 @@ class Tree:
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
+        self.parallel = parallel
 
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data, y):
@@ -25,15 +26,15 @@ class Tree:
                              min_samples_split=self.min_samples_split)
             self.root.fit(data, y)
         
-        elif self.criterium == 'uncertainty' and not parallel:
+        elif self.criterium == 'uncertainty' and not self.parallel:
             self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold)
             data['class'] = y
             self.root.fit(data)
-            
-        elif self.criterium == 'uncertainty' and parallel:
+
+        elif self.criterium == 'uncertainty' and self.parallel:
             self.root = PNode(level=1, max_depth=self.max_depth,
                   min_samples_split=self.min_samples_split,
                   most_mass_threshold=self.most_mass_threshold,

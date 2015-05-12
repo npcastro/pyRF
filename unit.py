@@ -121,8 +121,32 @@ class TestFeatureSelection(unittest.TestCase):
         # test_feats = ['petal length', 'petal width']
 
 
-        
+class TestParallel(unittest.TestCase):
 
+    def setUp(self):
+        data = pd.read_csv('sets/iris random/iris random 25.csv')
+        data = data.dropna(axis=0, how='any')
+        data['weight'] = data['weight'].astype(float)
+
+        self.y = data['class']
+        self.data = data.drop('class', axis=1)
+
+        self.clf_normal = tree.Tree('uncertainty', max_depth=12,
+                        min_samples_split=10, most_mass_threshold=0.99, min_mass_threshold=0.10,
+                        min_weight_threshold=0.01)
+
+        self.clf_parallel = tree.Tree('uncertainty', max_depth=12,
+                        min_samples_split=10, most_mass_threshold=0.99, min_mass_threshold=0.10,
+                        min_weight_threshold=0.01, parallel = True)
+
+    def test_same_result(self):
+
+        self.clf_normal.fit(self.data, self.y)
+        self.clf_parallel.fit(self.data, self.y)
+
+        splits_normal = self.clf_normal.get_splits()
+        splits_parallel = self.clf_parallel.get_splits()
+        self.assertEqual(splits_normal, splits_parallel)
 
 if __name__ == '__main__':
     loader = unittest.TestLoader()
@@ -132,5 +156,6 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
     suite.addTests(loader.loadTestsFromTestCase(TestFeatureSelection))
+    suite.addTests(loader.loadTestsFromTestCase(TestParallel))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

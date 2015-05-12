@@ -47,7 +47,10 @@ def eval_feature_split(feature, data, nodo):
     mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
 
     current_gain = -sys.maxint - 1
+    # current_gain = 0
     current_pivot = 0
+    
+    
 
     for pivote in unodo.get_split_candidates(feature_name, split_type='otro'):
 

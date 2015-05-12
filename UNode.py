@@ -516,7 +516,7 @@ class UNode():
                     self.feat_name = feature_name + '.mean'
 
             # Para profiling de codigo
-            break
+            # break
 
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))

@@ -536,7 +536,7 @@ class PNode():
             if gain > max_gain:
                 max_gain = gain
                 self.feat_value = pivots[i]
-                self.feature_name = candidate_features[i]
+                self.feat_name = candidate_features[i]
 
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
@@ -557,9 +557,6 @@ class PNode():
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i],
                                      right_bound_list[i])
-
-            # if cum_prob > 1 or cum_prob < 0:
-            #     print cum_prob
 
             cum_prob = clip(cum_prob, 0, 1)
 
