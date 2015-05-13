@@ -156,6 +156,6 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
     suite.addTests(loader.loadTestsFromTestCase(TestFeatureSelection))
-    suite.addTests(loader.loadTestsFromTestCase(TestParallel))
+    # suite.addTests(loader.loadTestsFromTestCase(TestParallel))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

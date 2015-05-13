@@ -299,7 +299,6 @@ class PNode():
         pool.close()
         pool.join()
 
-        # gains_pivots_tuples = pool.map(self.eval_feature_split, candidate_features)
         gains, pivots = map(list, zip(*gains_pivots_tuples))
 
         for i, gain in enumerate(gains):

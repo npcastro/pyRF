@@ -1,5 +1,8 @@
+# coding=utf-8
+
 import sys
 from copy import deepcopy
+from functools import partial
 
 import numpy as np
 
@@ -44,70 +47,54 @@ def eval_feature_split(feature, data, nodo):
     right_bound_list = data_por_media[feature_name + '.r'].tolist()
     class_list = data_por_media['class'].tolist()
 
-    menores_index = 0
-    mayores_index = 0
-
-    old_menores_index = 0
-    old_mayores_index = 0
-
-    # Obtengo las clases existentes
-    clases = list(set(class_list))
-
-    # Creo diccionarios para guardar la masa de los estrictos menores y estrictos mayores,
-    # y asi no calcularla continuamente.
-    # Los menores parten vacios y los mayores parten con toda la masa
-    menores_estrictos_mass = {c: 0.0 for c in clases}
-    mayores_estrictos_mass = data_por_media.groupby('class')['weight'].sum().to_dict()
-
     current_gain = -sys.maxint - 1
-    # current_gain = 0
     current_pivot = 0
 
-    for pivote in get_split_candidates(data_por_media, feature_name, split_type='otro'):
+    pivotes = get_split_candidates(data_por_media, feature_name, split_type='otro')
+    partial_eval = partial(evaluate_split, entropia=unodo.entropia, mass=unodo.mass, w_list=w_list,
+                           mean_list=mean_list, std_list=std_list, left_bound_list=left_bound_list,
+                           right_bound_list=right_bound_list, class_list=class_list)
 
-        menores_index, mayores_index = update_indexes(
-            menores_index, mayores_index,
-            pivote, left_bound_list, right_bound_list
-        )
+    # pool = Pool(processes=self.n_jobs)
+    # gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
+    # pool.close()
+    # pool.join()
 
-        # Actualizo la masa estrictamente menor y mayor
-        for j in xrange(old_menores_index, menores_index):
-            menores_estrictos_mass[class_list[j]] += w_list[j]
+    gains_pivots_tuples = map(partial_eval, pivotes)
+    gains, pivots = map(list, zip(*gains_pivots_tuples))
 
-        for j in xrange(old_mayores_index, mayores_index):
-            mayores_estrictos_mass[class_list[j]] -= w_list[j]
+    max_gain = 0
+    pivot = 0
 
-        # Guardo los indices actuales
-        old_menores_index, old_mayores_index = menores_index, mayores_index
+    for i, gain in enumerate(gains):
+        if gain > max_gain:
+            max_gain = gain
+            pivot = pivotes[i]
 
-        # Guardo las listas de elementos afectados por el pivote actual
-        w_list_afectada = w_list[menores_index:mayores_index]
-        mean_list_afectada = mean_list[menores_index:mayores_index]
-        std_list_afectada = std_list[menores_index:mayores_index]
-        left_bound_list_afectada = left_bound_list[menores_index:mayores_index]
-        right_bound_list_afectada = right_bound_list[menores_index:mayores_index]
-        class_list_afectada = class_list[menores_index:mayores_index]
+    return max_gain, pivot
 
-        menores, mayores = split_tuples_by_pivot(
-            w_list_afectada, mean_list_afectada, std_list_afectada,
-            left_bound_list_afectada, right_bound_list_afectada, class_list_afectada,
-            pivote, deepcopy(menores_estrictos_mass), deepcopy(mayores_estrictos_mass)
-        )
+def evaluate_split(pivote, entropia, mass, w_list, mean_list, std_list, left_bound_list,
+                   right_bound_list, class_list):
 
-        if not any(menores) or not any(mayores):
-            continue
+    menores, mayores = split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list,
+                                                 right_bound_list, class_list, pivote)
 
-        elif sum(menores.values()) == 0 or sum(mayores.values()) == 0:
-            continue
+    if not any(menores) or not any(mayores):
+        return (0,0)
 
-        # Calculo la ganancia de informacion para este pivote
-        menores = fix_numeric_errors(menores)
-        mayores = fix_numeric_errors(mayores)
-        pivot_gain = gain(menores, mayores, unodo.entropia, unodo.mass)
+    elif sum(menores.values()) == 0 or sum(mayores.values()) == 0:
+        return (0,0)
 
-        if pivot_gain > current_gain:
-            current_gain = pivot_gain
-            current_pivot = pivote
+    menores = fix_numeric_errors(menores)
+    mayores = fix_numeric_errors(mayores)
+    pivot_gain = gain(menores, mayores, entropia, mass)
+
+    current_gain = 0
+    current_pivot = 0
+
+    if pivot_gain > current_gain:
+        current_gain = pivot_gain
+        current_pivot = pivote
 
     return current_gain, current_pivot
 
@@ -219,9 +206,8 @@ def get_split_candidates(data, feature_name, split_type='simple'):
         print 'Splits metodo nuevo: ' + str(len(bounds))
         return bounds
 
-
 def split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list,
-                          class_list, pivote, menores, mayores):
+                          class_list, pivote):
         """divides a group of data according to a pivot
 
         It operates along all the data. And then returns two dictionaries with the total sum
@@ -233,6 +219,10 @@ def split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bo
         """
         clip = lambda x, l, r: l if x < l else r if x > r else x
 
+        clases = set(class_list)
+        menores = {c: 0.0 for c in clases}
+        mayores = {c: 0.0 for c in clases}
+
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i],
                                      right_bound_list[i])
@@ -243,32 +233,3 @@ def split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bo
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
         return menores, mayores
-
-
-def update_indexes(menores_index, mayores_index, pivote, limites_l, limites_r):
-    """Updates the strictly inferior and superior tuples and updates to the new pivot.
-
-    Parameters
-    ----------
-    menores_index: The index of the strictly inferior data to the last pivot
-    mayores_index: The index of the strictly superior data to the last pivot
-    pivote: The new pivot that splits the data in two
-    limites_l: The left margin of the distributions of the data
-    limites_r: The right margin of the distributions of the data
-    """
-
-    ultimo_r_menor = limites_r[menores_index]
-
-    # Itero hasta encontrar una tupla que NO sea completamente menor que el pivote
-    while(ultimo_r_menor < pivote and menores_index < len(limites_r) - 1):
-        menores_index += 1
-        ultimo_r_menor = limites_r[menores_index]
-
-    ultimo_l_mayor = limites_l[mayores_index]
-
-    # Itero hasta encontrar una tupla que SEA completamente mayor que el pivote
-    while(ultimo_l_mayor < pivote and mayores_index < len(limites_l) - 1):
-        ultimo_l_mayor = limites_l[mayores_index]
-        mayores_index += 1
-
-    return menores_index, mayores_index
