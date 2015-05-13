@@ -1,9 +1,11 @@
-import PNode
 import sys
-import numpy as np
 from copy import deepcopy
 
+import numpy as np
+
+import PNode
 import pyRF_prob
+
 
 def check_algo(values):
     """Check if there's a class with presence and all else with zero"""
@@ -14,6 +16,7 @@ def check_algo(values):
     else:
         return False
 
+
 def eval_feature_split(feature, data, nodo):
     """Evaluates the best possible information gain for a given feature
 
@@ -22,9 +25,8 @@ def eval_feature_split(feature, data, nodo):
     feature: The name of the feature in the dataframe
     data: Dataframe with the features and classes
     """
-    
+
     unodo = nodo
-    unodo.data = data
 
     sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
     sys.stdout.flush()
@@ -35,7 +37,7 @@ def eval_feature_split(feature, data, nodo):
     # Ordeno el frame segun la media de la variable
     data_por_media = data.sort(feature, inplace=False)
 
-    #Transformo la informacion relevante de esta feature a listas
+    # Transformo la informacion relevante de esta feature a listas
     w_list = data_por_media['weight'].tolist()
     mean_list = data_por_media[feature_name + '.mean'].tolist()
     std_list = data_por_media[feature_name + '.std'].tolist()
@@ -107,7 +109,7 @@ def eval_feature_split(feature, data, nodo):
         if pivot_gain > current_gain:
             current_gain = pivot_gain
             current_pivot = pivote
-    
+
     return current_gain, current_pivot
 
 
@@ -168,7 +170,7 @@ def get_class_changes(left_values, right_values, clases):
             presence[clase_actual] += 1
 
             left_index += 1
-            
+
             right = False
 
         else:
@@ -212,14 +214,15 @@ def get_split_candidates(data, feature_name, split_type='simple'):
 
     else:
         bounds = get_class_changes(data[feature_name + '.l'].tolist(),
-                                        data[feature_name + '.r'].tolist(),
-                                        data['class'].tolist())
+                                   data[feature_name + '.r'].tolist(),
+                                   data['class'].tolist())
         bounds = np.unique(bounds)
         print 'Nuevo ' + str(len(bounds))
         return bounds
 
+
 def split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bound_list,
-                              class_list, pivote, menores, mayores):
+                          class_list, pivote, menores, mayores):
         """divides a group of data according to a pivot
 
         It operates along all the data. And then returns two dictionaries with the total sum
@@ -241,6 +244,7 @@ def split_tuples_by_pivot(w_list, mean_list, std_list, left_bound_list, right_bo
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
         return menores, mayores
+
 
 def update_indexes(menores_index, mayores_index, pivote, limites_l, limites_r):
     """Updates the strictly inferior and superior tuples and updates to the new pivot.

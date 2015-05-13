@@ -67,7 +67,7 @@ class UNode():
             return False
         elif self.level >= self.max_depth:
             return False
-        #Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
+        # Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
         elif self.n_rows < self.min_samples_split:
             return False
         elif self.mass < self.min_samples_split:
@@ -105,7 +105,7 @@ class UNode():
         """Retorna las features a considerar en un nodo para hacer la particion"""
         filter_arr = []
         for f in self.data.columns:
-            if (not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
+            if ('_comp' not in f and '.l' not in f and '.r' not in f and '.std' not in f and
                f != 'weight' and f != 'class'):
                 filter_arr.append(f)
         return filter_arr
@@ -185,16 +185,16 @@ class UNode():
 
         return pd.DataFrame(mayores, index=mayores.index)
 
-    def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
-        """Returns the relevant information of a dataframe as lists"""
-        w_list = data['weight'].tolist()
-        mean_list = data[feature_name + '.mean'].tolist()
-        std_list = data[feature_name + '.std'].tolist()
-        left_bound_list = data[feature_name + '.l'].tolist()
-        right_bound_list = data[feature_name + '.r'].tolist()
-        class_list = data['class'].tolist()
+    # def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
+    #     """Returns the relevant information of a dataframe as lists"""
+    #     w_list = data['weight'].tolist()
+    #     mean_list = data[feature_name + '.mean'].tolist()
+    #     std_list = data[feature_name + '.std'].tolist()
+    #     left_bound_list = data[feature_name + '.l'].tolist()
+    #     right_bound_list = data[feature_name + '.r'].tolist()
+    #     class_list = data['class'].tolist()
 
-        return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
+    #     return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
     def get_split_candidates(self, data, feature_name, split_type='simple'):
         """Returns a list of all the points of a feature that must be tested as a split point
@@ -228,13 +228,14 @@ class UNode():
 
         while right_index < len(right_values):
 
-            if left_index < len(left_values) and left_values[left_index] <= right_values[right_index]:
+            if left_index < len(left_values) and \
+               left_values[left_index] <= right_values[right_index]:
                 value = left_values[left_index]
                 clase_actual = clases[left_index]
                 presence[clase_actual] += 1
 
                 left_index += 1
-                
+
                 right = False
 
             else:
@@ -429,7 +430,7 @@ class UNode():
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f, inplace=False)
 
-            #Transformo la informacion relevante de esta feature a listas
+            # Transformo la informacion relevante de esta feature a listas
             w_list = data_por_media['weight'].tolist()
             mean_list = data_por_media[feature_name + '.mean'].tolist()
             std_list = data_por_media[feature_name + '.std'].tolist()
@@ -454,8 +455,9 @@ class UNode():
 
             # Me muevo a traves de los posibles pivotes
             # for pivote in self.get_split_candidates(feature_name, split_type=self.split_type):
-            for pivote in self.get_split_candidates(data_por_media, feature_name, split_type='otro'):
             # for pivote in self.get_split_candidates(feature_name):
+            for pivote in self.get_split_candidates(data_por_media, feature_name,
+                                                    split_type='otro'):
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(
@@ -520,7 +522,6 @@ class UNode():
 
         end_time = time.time()
         print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
-            # break # Para testear cuanto se demora una sola feature
 
     def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list,
                               class_list, pivote, menores, mayores):

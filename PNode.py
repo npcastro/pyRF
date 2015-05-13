@@ -5,6 +5,8 @@ import time
 import math
 import datetime
 from copy import deepcopy
+from functools import partial
+from multiprocessing import Pool
 
 import pandas as pd
 
@@ -71,7 +73,7 @@ class PNode():
             return False
         elif self.level >= self.max_depth:
             return False
-        #Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
+        # Creo que esta condicion esta de mas. La de abajo ya lo abarca y mejor
         elif self.n_rows < self.min_samples_split:
             return False
         elif self.mass < self.min_samples_split:
@@ -95,7 +97,7 @@ class PNode():
         """Retorna las features a considerar en un nodo para hacer la particion"""
         filter_arr = []
         for f in self.data.columns:
-            if (not '_comp' in f and not '.l' in f and not '.r' in f and not '.std' in f and
+            if ('_comp' not in f and '.l' not in f and '.r' not in f and '.std' not in f and
                f != 'weight' and f != 'class'):
                 filter_arr.append(f)
         return filter_arr
@@ -156,16 +158,16 @@ class PNode():
 
         return pd.DataFrame(mayores, index=mayores.index)
 
-    def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
-        """Returns the relevant information of a dataframe as lists"""
-        w_list = data['weight'].tolist()
-        mean_list = data[feature_name + '.mean'].tolist()
-        std_list = data[feature_name + '.std'].tolist()
-        left_bound_list = data[feature_name + '.l'].tolist()
-        right_bound_list = data[feature_name + '.r'].tolist()
-        class_list = data['class'].tolist()
+    # def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
+    #     """Returns the relevant information of a dataframe as lists"""
+    #     w_list = data['weight'].tolist()
+    #     mean_list = data[feature_name + '.mean'].tolist()
+    #     std_list = data[feature_name + '.std'].tolist()
+    #     left_bound_list = data[feature_name + '.l'].tolist()
+    #     right_bound_list = data[feature_name + '.r'].tolist()
+    #     class_list = data['class'].tolist()
 
-        return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
+    #     return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
 
     def get_weight(self, tupla, pivote, feature_name, how):
         """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
@@ -234,7 +236,6 @@ class PNode():
             # Tengo que retornar la suma elementwise de los diccionarios a y b
             return {key: a[key] + b[key] for key in a}
 
-
     # Convierte el nodo en hoja. Colocando la clase mas probable como resultado
     def set_leaf(self):
         self.is_leaf = True
@@ -291,12 +292,7 @@ class PNode():
 
         # First map applies function to all candidate features
         # Second map unzips the values into two different lists
-        
-        from functools import partial
-
-        partial_eval = partial(node_utils.eval_feature_split, data = self.data, nodo = self)
-
-        from multiprocessing import Pool
+        partial_eval = partial(node_utils.eval_feature_split, data=self.data, nodo=self)
         pool = Pool(processes=3)
         gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
         pool.close()
