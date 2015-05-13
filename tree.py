@@ -9,7 +9,7 @@ from PNode import *
 class Tree:
     def __init__(self, criterium, max_depth=8, min_samples_split=10,
                  most_mass_threshold=0.9, min_mass_threshold=0.0127,
-                 min_weight_threshold=0.0, parallel=False):
+                 min_weight_threshold=0.0, parallel=False, n_jobs=1):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth
@@ -18,6 +18,7 @@ class Tree:
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
         self.parallel = parallel
+        self.n_jobs = n_jobs
 
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data, y):
@@ -25,7 +26,7 @@ class Tree:
             self.root = Node(level=1, max_depth=self.max_depth,
                              min_samples_split=self.min_samples_split)
             self.root.fit(data, y)
-        
+
         elif self.criterium == 'uncertainty' and not self.parallel:
             self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
@@ -36,9 +37,9 @@ class Tree:
 
         elif self.criterium == 'uncertainty' and self.parallel:
             self.root = PNode(level=1, max_depth=self.max_depth,
-                  min_samples_split=self.min_samples_split,
-                  most_mass_threshold=self.most_mass_threshold,
-                  min_mass_threshold=self.min_mass_threshold)
+                              min_samples_split=self.min_samples_split,
+                              most_mass_threshold=self.most_mass_threshold,
+                              min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)
             data['class'] = y
             self.root.fit(data)
 
@@ -63,26 +64,6 @@ class Tree:
     def show(self):
         """Prints the tree structure"""
         self.root.show()
-
-    # def predict_table(self, frame):
-    #     """Returnes the original class, the prediction and its probability
-
-    #     It serves as a testing mechanism of the performance of a classifier
-
-    #     Parameters
-    #     ----------
-    #     frame: Dataframe of the data that must be classified. Each row is an
-    #            object and each column is a feature
-    #     """
-    #     # Creo el frame e inserto la clase
-    #     tabla = []
-    #     for index, row in frame.iterrows():
-    #         clase = row['class']
-    #         predicted, confianza = self.predict(row)
-    #         tabla.append([clase, predicted, confianza])
-
-    #     return pd.DataFrame(tabla, index=frame.index,
-    #                         columns=['original', 'predicted', 'trust'])
 
     def predict_table(self, frame, y):
         """Returnes the original class, the prediction and its probability
@@ -195,7 +176,6 @@ class Tree:
             ret += counts[c] / total * f_scores[c]
 
         return ret
-
 
     def get_splits(self):
         splits = {}

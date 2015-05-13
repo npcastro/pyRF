@@ -28,8 +28,10 @@ def eval_feature_split(feature, data, nodo):
 
     unodo = nodo
 
-    sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
-    sys.stdout.flush()
+    # sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
+    # sys.stdout.flush()
+
+    print 'Evaluando feature: ' + feature
 
     # Limpio el nombre de la feature
     feature_name = feature.replace('.mean', '')
@@ -209,7 +211,7 @@ def get_split_candidates(data, feature_name, split_type='simple'):
         bounds = (data[feature_name + '.l'].tolist() +
                   data[feature_name + '.r'].tolist())
 
-        print 'Simple ' + str(len(np.unique(bounds)))
+        print 'Splits metodo simple: ' + str(len(np.unique(bounds)))
         return np.unique(bounds)
 
     else:
@@ -217,7 +219,7 @@ def get_split_candidates(data, feature_name, split_type='simple'):
                                    data[feature_name + '.r'].tolist(),
                                    data['class'].tolist())
         bounds = np.unique(bounds)
-        print 'Nuevo ' + str(len(bounds))
+        print 'Splits metodo nuevo: ' + str(len(bounds))
         return bounds
 
 

@@ -17,7 +17,7 @@ import pyRF_prob
 
 class PNode():
     def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
-                 min_mass_threshold=0.0127, min_weight_threshold=0.01):
+                 min_mass_threshold=0.0127, min_weight_threshold=0.01, n_jobs=1):
         """
         data (DataFrame): Each row represents an object, each column represents
             a feature. Must contain a column named 'class'
@@ -51,6 +51,7 @@ class PNode():
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
+        self.n_jobs = n_jobs
 
     def add_left(self, left_data):
         self.left = self.__class__(self.level + 1, self.max_depth,
@@ -293,7 +294,7 @@ class PNode():
         # First map applies function to all candidate features
         # Second map unzips the values into two different lists
         partial_eval = partial(node_utils.eval_feature_split, data=self.data, nodo=self)
-        pool = Pool(processes=3)
+        pool = Pool(processes=self.n_jobs)
         gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
         pool.close()
         pool.join()
