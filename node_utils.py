@@ -20,7 +20,7 @@ def check_unique_presence(values):
         return False
 
 
-def eval_feature_split(feature, data, nodo):
+def eval_feature(feature, data, nodo):
     """Evaluates the best possible information gain for a given feature
 
     Parameters
