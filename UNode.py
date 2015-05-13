@@ -255,7 +255,7 @@ class UNode():
                     continue
 
             # There's one class with presence, all the other have zeroes
-            elif self.check_algo(presence.values()):
+            elif self.check_unique_presence(presence.values()):
                 continue
 
             else:
@@ -266,7 +266,7 @@ class UNode():
 
         return bounds
 
-    def check_algo(self, values):
+    def check_unique_presence(self, values):
         aux = set(values)
 
         if 0 in aux and len(aux) == 2:

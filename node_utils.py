@@ -7,7 +7,7 @@ import PNode
 import pyRF_prob
 
 
-def check_algo(values):
+def check_unique_presence(values):
     """Check if there's a class with presence and all else with zero"""
     aux = set(values)
 
@@ -27,9 +27,6 @@ def eval_feature_split(feature, data, nodo):
     """
 
     unodo = nodo
-
-    # sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
-    # sys.stdout.flush()
 
     print 'Evaluando feature: ' + feature
 
@@ -192,7 +189,7 @@ def get_class_changes(left_values, right_values, clases):
                 continue
 
         # There's one class with presence, all the other have zeroes
-        elif check_algo(presence.values()):
+        elif check_unique_presence(presence.values()):
             continue
 
         else:
