@@ -3,6 +3,7 @@
 import sys
 from copy import deepcopy
 from functools import partial
+from multiprocessing import Pool
 
 import numpy as np
 
@@ -55,13 +56,12 @@ def eval_feature(feature, data, nodo):
                            mean_list=mean_list, std_list=std_list, left_bound_list=left_bound_list,
                            right_bound_list=right_bound_list, class_list=class_list)
 
-    # pool = Pool(processes=self.n_jobs)
-    # gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
-    # pool.close()
-    # pool.join()
-
-    gains_pivots_tuples = map(partial_eval, pivotes)
+    pool = Pool(processes=2)
+    gains_pivots_tuples = pool.map(partial_eval, pivotes, 10)
+    # gains_pivots_tuples = map(partial_eval, pivotes)
     gains, pivots = map(list, zip(*gains_pivots_tuples))
+    pool.close()
+    pool.join()
 
     max_gain = 0
     pivot = 0
