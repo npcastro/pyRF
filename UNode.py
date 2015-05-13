@@ -534,15 +534,15 @@ class UNode():
         """
         clip = lambda x, l, r: l if x < l else r if x > r else x
 
+        # Este loop es fundamental paralelizarlo
         for i in xrange(len(class_list)):
             cum_prob = pyRF_prob.cdf(pivote, mean_list[i], std_list[i], left_bound_list[i],
                                      right_bound_list[i])
 
-            # if cum_prob > 1 or cum_prob < 0:
-            #     print cum_prob
-
             cum_prob = clip(cum_prob, 0, 1)
 
+            # En vez de agregar estas cantidades hago un submetodo que las retorne
+            # Hago un map y dsp las unzipeo y las sumo según su clase
             menores[class_list[i]] += w_list[i] * cum_prob
             mayores[class_list[i]] += w_list[i] * (1 - cum_prob)
 
