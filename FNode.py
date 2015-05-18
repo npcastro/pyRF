@@ -284,7 +284,10 @@ class FNode():
         # Second map unzips the values into two different lists
         partial_eval = partial(fnode_utils.eval_feature, data=self.data, nodo=self)
         pool = Pool(processes=self.n_jobs)
-        gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
+
+        clip = lambda a, b: b if a < b else a / b
+        chunks = clip(len(candidate_features), abs(self.n_jobs))
+        gains_pivots_tuples = pool.map(partial_eval, candidate_features, chunks)
         pool.close()
         pool.join()
 

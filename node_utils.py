@@ -56,9 +56,12 @@ def eval_feature(feature, data, nodo):
                            mean_list=mean_list, std_list=std_list, left_bound_list=left_bound_list,
                            right_bound_list=right_bound_list, class_list=class_list)
 
-    pool = Pool(processes=2)
-    gains_pivots_tuples = pool.map(partial_eval, pivotes, 10)
-    # gains_pivots_tuples = map(partial_eval, pivotes)
+    pool = Pool(processes=nodo.n_jobs)
+
+    clip = lambda a, b: b if a < b else a / b
+    chunks = clip(len(pivotes), abs(unodo.n_jobs))
+    gains_pivots_tuples = pool.map(partial_eval, pivotes, chunks)
+    
     gains, pivots = map(list, zip(*gains_pivots_tuples))
     pool.close()
     pool.join()

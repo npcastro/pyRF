@@ -283,11 +283,7 @@ class PNode():
         # First map applies function to all candidate features
         # Second map unzips the values into two different lists
         partial_eval = partial(node_utils.eval_feature, data=self.data, nodo=self)
-        pool = Pool(processes=self.n_jobs)
-        # gains_pivots_tuples = pool.map(partial_eval, candidate_features, 1)
         gains_pivots_tuples = map(partial_eval, candidate_features)
-        pool.close()
-        pool.join()
 
         gains, pivots = map(list, zip(*gains_pivots_tuples))
 
