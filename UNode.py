@@ -89,6 +89,14 @@ class UNode():
         else:
             return False
 
+    def check_unique_presence(self, values):
+        aux = set(values)
+
+        if 0 in aux and len(aux) == 2:
+            return True
+        else:
+            return False
+
     def entropy(self, data):
         """Calculates the entropy of a group of data
         data: dicctionary where the keys are class names, and the values are counts or sums of mass
@@ -256,14 +264,6 @@ class UNode():
                 presence[clase_actual] -= 1
 
         return bounds
-
-    def check_unique_presence(self, values):
-        aux = set(values)
-
-        if 0 in aux and len(aux) == 2:
-            return True
-        else:
-            return False
 
     def get_weight(self, tupla, pivote, feature_name, how):
         """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
