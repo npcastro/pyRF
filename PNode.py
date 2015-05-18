@@ -159,17 +159,6 @@ class PNode():
 
         return pd.DataFrame(mayores, index=mayores.index)
 
-    # def get_relevant_columns(data, feature_name, menores_index=0, mayores_index=0):
-    #     """Returns the relevant information of a dataframe as lists"""
-    #     w_list = data['weight'].tolist()
-    #     mean_list = data[feature_name + '.mean'].tolist()
-    #     std_list = data[feature_name + '.std'].tolist()
-    #     left_bound_list = data[feature_name + '.l'].tolist()
-    #     right_bound_list = data[feature_name + '.r'].tolist()
-    #     class_list = data['class'].tolist()
-
-    #     return w_list, mean_list, std_list, left_bound_list, right_bound_list, class_list
-
     def get_weight(self, tupla, pivote, feature_name, how):
         """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
 
