@@ -4,12 +4,13 @@ import numpy as np
 from node import *
 from UNode import *
 from PNode import *
+from FNode import *
 
 
 class Tree:
     def __init__(self, criterium, max_depth=8, min_samples_split=10,
                  most_mass_threshold=0.9, min_mass_threshold=0.0127,
-                 min_weight_threshold=0.0, parallel=False, n_jobs=1):
+                 min_weight_threshold=0.0, parallel=None, n_jobs=1):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth
@@ -27,7 +28,7 @@ class Tree:
                              min_samples_split=self.min_samples_split)
             self.root.fit(data, y)
 
-        elif self.criterium == 'uncertainty' and not self.parallel:
+        elif self.criterium == 'uncertainty' and self.parallel is None:
             self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
@@ -35,8 +36,16 @@ class Tree:
             data['class'] = y
             self.root.fit(data)
 
-        elif self.criterium == 'uncertainty' and self.parallel:
+        elif self.criterium == 'uncertainty' and self.parallel == 'splits':
             self.root = PNode(level=1, max_depth=self.max_depth,
+                              min_samples_split=self.min_samples_split,
+                              most_mass_threshold=self.most_mass_threshold,
+                              min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)
+            data['class'] = y
+            self.root.fit(data)
+
+        elif self.criterium == 'uncertainty' and self.parallel == 'features':
+            self.root = FNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)
