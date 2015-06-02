@@ -137,7 +137,7 @@ class TestParallel(unittest.TestCase):
 
         self.clf_parallel = tree.Tree('uncertainty', max_depth=12,
                         min_samples_split=10, most_mass_threshold=0.99, min_mass_threshold=0.10,
-                        min_weight_threshold=0.01, parallel = 'features')
+                        min_weight_threshold=0.01, parallel='features')
 
     def test_same_result(self):
 

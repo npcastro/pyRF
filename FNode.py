@@ -260,6 +260,19 @@ class FNode():
             print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '      ')
 
+    def get_relevant_columns(self, feat_name, data):
+        """
+        Ojo que feat_name viene con .mean al final
+        """
+
+        feat_name = feat_name.replace('.mean', '')
+        columnas = data.columns.tolist()
+        indices = [i for i, s in enumerate(columnas) if feat_name in s]
+
+        filtered_cols = data.columns[indices].tolist() + ['class', 'weight']
+
+        return data[filtered_cols]
+
     def split(self):
         """Searches the best possible split for the node.
 
@@ -280,17 +293,19 @@ class FNode():
 
         start_time = time.time()
 
-        # First map applies function to all candidate features
-        # Second map unzips the values into two different lists
-        partial_eval = partial(fnode_utils.eval_feature, data=self.data, nodo=self)
-        pool = Pool(processes=self.n_jobs)
+        filtered_data = [self.get_relevant_columns(feat_name, self.data) for feat_name in candidate_features]
 
+        partial_eval = partial(fnode_utils.eval_feature, entropia=self.entropia, mass = self.mass)
+        pool = Pool(processes=self.n_jobs)
         clip = lambda a, b: b if a < b else a / b
         chunks = clip(len(candidate_features), abs(self.n_jobs))
-        gains_pivots_tuples = pool.map(partial_eval, candidate_features, chunks)
+
+        # First map applies function to all candidate features
+        gains_pivots_tuples = pool.map(partial_eval, zip(candidate_features, filtered_data), chunks)
         pool.close()
         pool.join()
 
+        # Second map unzips the values into two different lists
         gains, pivots = map(list, zip(*gains_pivots_tuples))
 
         for i, gain in enumerate(gains):

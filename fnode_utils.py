@@ -19,16 +19,17 @@ def check_unique_presence(values):
         return False
 
 
-def eval_feature(feature, data, nodo):
+def eval_feature(name_data_tuple, entropia, mass):
     """Evaluates the best possible information gain for a given feature
 
     Parameters
     ----------
-    feature: The name of the feature in the dataframe
-    data: Dataframe with the features and classes
+    name_data_tuple: tuple containing the name of the feature, and the data corresponding to it
+    entropia: the current entropy of the node that it's being evaluated
+    mass: the total mass of the tuples of the node that it's being evaluated
     """
 
-    unodo = nodo
+    feature, data = name_data_tuple
 
     print 'Evaluando feature: ' + feature
 
@@ -105,7 +106,7 @@ def eval_feature(feature, data, nodo):
         # Calculo la ganancia de informacion para este pivote
         menores = fix_numeric_errors(menores)
         mayores = fix_numeric_errors(mayores)
-        pivot_gain = gain(menores, mayores, unodo.entropia, unodo.mass)
+        pivot_gain = gain(menores, mayores, entropia, mass)
 
         if pivot_gain > current_gain:
             current_gain = pivot_gain
