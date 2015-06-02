@@ -29,15 +29,12 @@ def eval_feature(name_data_tuple, entropia, mass):
     mass: the total mass of the tuples of the node that it's being evaluated
     """
 
-    feature, data = name_data_tuple
+    feature_name, data = name_data_tuple
 
-    print 'Evaluando feature: ' + feature
-
-    # Limpio el nombre de la feature
-    feature_name = feature.replace('.mean', '')
+    print 'Evaluando feature: ' + feature_name
 
     # Ordeno el frame segun la media de la variable
-    data_por_media = data.sort(feature, inplace=False)
+    data_por_media = data.sort(feature_name + '.mean', inplace=False)
 
     # Transformo la informacion relevante de esta feature a listas
     w_list = data_por_media['weight'].tolist()

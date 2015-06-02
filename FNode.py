@@ -100,7 +100,7 @@ class FNode():
         for f in self.data.columns:
             if ('_comp' not in f and '.l' not in f and '.r' not in f and '.std' not in f and
                f != 'weight' and f != 'class'):
-                filter_arr.append(f)
+                filter_arr.append(f.replace('.mean', ''))
         return filter_arr
 
     def fit(self, data):
@@ -261,11 +261,15 @@ class FNode():
             self.left.show(linea + '      ')
 
     def get_relevant_columns(self, feat_name, data):
-        """
-        Ojo que feat_name viene con .mean al final
-        """
+        """Returns all the columns corresponding to the selected features plus 
+        the weight and the class
 
-        feat_name = feat_name.replace('.mean', '')
+        Parameters
+        ----------
+        feat_name: Name of the feature.
+        data: Dataframe where to look for the columns
+        """
+        
         columnas = data.columns.tolist()
         indices = [i for i, s in enumerate(columnas) if feat_name in s]
 

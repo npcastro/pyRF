@@ -117,7 +117,7 @@ class UNode():
         for f in self.data.columns:
             if ('_comp' not in f and '.l' not in f and '.r' not in f and '.std' not in f and
                f != 'weight' and f != 'class'):
-                filter_arr.append(f)
+                filter_arr.append(f.replace('.mean', ''))
         return filter_arr
 
     def fit(self, data):
@@ -174,8 +174,6 @@ class UNode():
     def get_menores(self, feature_name, pivote):
         menores = []
 
-        # limpio el nombre de la feature
-        feature_name = feature_name.replace('.mean', '')
         menores = self.data[self.data[feature_name + '.l'] < pivote]
 
         menores = menores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "menor"])
@@ -186,8 +184,6 @@ class UNode():
     def get_mayores(self, feature_name, pivote):
         mayores = []
 
-        # limpio el nombre de la feature
-        feature_name = feature_name.replace('.mean', '')
         mayores = self.data[self.data[feature_name + '.r'] >= pivote]
 
         mayores = mayores.apply(func=self.get_weight, axis=1, args=[pivote, feature_name, "mayor"])
@@ -315,7 +311,6 @@ class UNode():
 
         # Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
         else:
-            feature_name = self.feat_name.replace('.mean', '')
             mean = tupla[feature_name + '.mean']
             std = tupla[feature_name + '.std']
             l = tupla[feature_name + '.l']
@@ -415,18 +410,15 @@ class UNode():
             sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
             sys.stdout.flush()
 
-            # Limpio el nombre de la feature
-            feature_name = f.replace('.mean', '')
-
             # Ordeno el frame segun la media de la variable
-            data_por_media = self.data.sort(f, inplace=False)
+            data_por_media = self.data.sort(f + '.mean', inplace=False)
 
             # Transformo la informacion relevante de esta feature a listas
             w_list = data_por_media['weight'].tolist()
-            mean_list = data_por_media[feature_name + '.mean'].tolist()
-            std_list = data_por_media[feature_name + '.std'].tolist()
-            left_bound_list = data_por_media[feature_name + '.l'].tolist()
-            right_bound_list = data_por_media[feature_name + '.r'].tolist()
+            mean_list = data_por_media[f + '.mean'].tolist()
+            std_list = data_por_media[f + '.std'].tolist()
+            left_bound_list = data_por_media[f + '.l'].tolist()
+            right_bound_list = data_por_media[f + '.r'].tolist()
             class_list = data_por_media['class'].tolist()
 
             menores_index = 0
@@ -447,8 +439,7 @@ class UNode():
             # Me muevo a traves de los posibles pivotes
             # for pivote in self.get_split_candidates(feature_name, split_type=self.split_type):
             # for pivote in self.get_split_candidates(feature_name):
-            for pivote in self.get_split_candidates(data_por_media, feature_name,
-                                                    split_type='otro'):
+            for pivote in self.get_split_candidates(data_por_media, f, split_type='otro'):
 
                 # Actualizo los indices
                 menores_index, mayores_index = self.update_indexes(
@@ -506,7 +497,7 @@ class UNode():
                 if pivot_gain > max_gain:
                     max_gain = pivot_gain
                     self.feat_value = pivote
-                    self.feat_name = feature_name + '.mean'
+                    self.feat_name = f
 
             # Para profiling de codigo
             # break
