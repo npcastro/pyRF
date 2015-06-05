@@ -7,6 +7,7 @@ import datetime
 from copy import deepcopy
 from functools import partial
 from multiprocessing import Pool
+import multiprocessing
 
 import pandas as pd
 
@@ -303,6 +304,10 @@ class FNode():
         pool = Pool(processes=self.n_jobs)
         clip = lambda a, b: b if a < b else a / b
         chunks = clip(len(candidate_features), abs(self.n_jobs))
+
+        print "Numero de Features: " + str(len(candidate_features))
+        print "Tamaño chunk: " + str(chunks)
+        print "Numero de procesadores " + str(multiprocessing.cpu_count()) 
 
         # First map applies function to all candidate features
         gains_pivots_tuples = pool.map(partial_eval, zip(candidate_features, filtered_data), chunks)
