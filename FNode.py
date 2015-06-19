@@ -35,6 +35,7 @@ class FNode():
             This value must be small or else, problem with probabilities may arise.
         """
         # Atributos particulares del nodo
+        self.classes = None
         self.clase = ''
         self.feat_name = ""
         self.feat_value = None
@@ -160,6 +161,23 @@ class FNode():
 
         return pd.DataFrame(mayores, index=mayores.index)
 
+    def get_relevant_columns(self, feat_name, data):
+        """Returns all the columns corresponding to the selected features plus 
+        the weight and the class
+
+        Parameters
+        ----------
+        feat_name: Name of the feature.
+        data: Dataframe where to look for the columns
+        """
+        
+        columnas = data.columns.tolist()
+        indices = [i for i, s in enumerate(columnas) if feat_name in s]
+
+        filtered_cols = data.columns[indices].tolist() + ['class', 'weight']
+
+        return data[filtered_cols]
+
     def get_weight(self, tupla, pivote, feature_name, how):
         """ Determina la distribucion de probabilidad gaussiana acumulada entre dos bordes.
 
@@ -202,7 +220,7 @@ class FNode():
     def predict(self, tupla, prediction={}, w=1):
         # Si es que es el nodo raiz
         if len(prediction.keys()) == 0:
-            prediction = {c: 0.0 for c in self.data['class'].unique()}
+            prediction = {c: 0.0 for c in self.classes}
 
         if self.is_leaf:
             aux = deepcopy(prediction)
@@ -241,6 +259,9 @@ class FNode():
             print 'y =', y
             raise
 
+        self.classes = self.data['class'].unique()
+        self.data = None
+
     def show(self, linea=""):
         if self.is_leaf:
             print linea + '|---- ' + str(self.clase)
@@ -260,23 +281,6 @@ class FNode():
             self.right.show(linea + '      ')
             print linea + '|- ' + self.feat_name + ' ' + '(' + ("%.2f" % self.feat_value) + ')'
             self.left.show(linea + '      ')
-
-    def get_relevant_columns(self, feat_name, data):
-        """Returns all the columns corresponding to the selected features plus 
-        the weight and the class
-
-        Parameters
-        ----------
-        feat_name: Name of the feature.
-        data: Dataframe where to look for the columns
-        """
-        
-        columnas = data.columns.tolist()
-        indices = [i for i, s in enumerate(columnas) if feat_name in s]
-
-        filtered_cols = data.columns[indices].tolist() + ['class', 'weight']
-
-        return data[filtered_cols]
 
     def split(self):
         """Searches the best possible split for the node.
