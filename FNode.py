@@ -57,13 +57,15 @@ class FNode():
 
     def add_left(self, left_data):
         self.left = self.__class__(self.level + 1, self.max_depth,
-                                   self.min_samples_split, self.most_mass_threshold)
+                                   self.min_samples_split, self.most_mass_threshold, self.min_mass_threshold,
+                                   self.min_weight_threshold, self.n_jobs)
         self.left.fit(left_data)
         self.left.is_left = True
 
     def add_right(self, right_data):
         self.right = self.__class__(self.level + 1, self.max_depth,
-                                    self.min_samples_split, self.most_mass_threshold)
+                                    self.min_samples_split, self.most_mass_threshold, self.min_mass_threshold, 
+                                    self.min_weight_threshold, self.n_jobs)
         self.right.fit(right_data)
         self.right.is_right = True
 
@@ -311,7 +313,7 @@ class FNode():
 
         print "Numero de Features: " + str(len(candidate_features))
         print "Tamaño chunk: " + str(chunks)
-        print "Numero de procesadores " + str(multiprocessing.cpu_count()) 
+        print "Procesadores disponibles: " + str(multiprocessing.cpu_count()) 
 
         # First map applies function to all candidate features
         gains_pivots_tuples = pool.map(partial_eval, zip(candidate_features, filtered_data), chunks)
