@@ -154,12 +154,6 @@ class Node:
             index += 1
         return index
 
-    # def get_menores(self, feature, pivote):
-    #     return self.data[self.data[feature] < pivote]
-
-    # def get_mayores(self, feature, pivote):
-    #     return self.data[self.data[feature] >= pivote]
-
     def get_menores(self, feature, pivote):
         aux = np.array(self.data[feature] < pivote)
         return self.data[aux], self.y[aux]
@@ -209,17 +203,19 @@ class Node:
     def set_leaf(self):
         self.is_leaf = True
         self.clase = stats.mode(self.y)[0][0]
-        # self.clase = self.data['class'].value_counts().idxmax()
+        self.data = None
 
     def add_left(self, left_data, y):
         self.left = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
         self.left.fit(left_data, y)
         self.left.is_left = True
+        self.data = None
 
     def add_right(self, right_data, y):
         self.right = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
         self.right.fit(right_data, y)
         self.right.is_right = True
+        self.data = None
 
     def predict(self, tupla, confianza=1):
         if self.is_leaf:

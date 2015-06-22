@@ -61,6 +61,7 @@ class FNode():
                                    self.min_weight_threshold, self.n_jobs)
         self.left.fit(left_data)
         self.left.is_left = True
+        self.data = None
 
     def add_right(self, right_data):
         self.right = self.__class__(self.level + 1, self.max_depth,
@@ -68,6 +69,7 @@ class FNode():
                                     self.min_weight_threshold, self.n_jobs)
         self.right.fit(right_data)
         self.right.is_right = True
+        self.data = None
 
     def check_leaf_condition(self):
         """ Determina se es necesario hacer un split de los datos
