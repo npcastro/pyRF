@@ -11,13 +11,6 @@
 
 *.lprof
 
-/resultados trust
-/resultados var_comp
-/resultados comp
-/resultados new_var
-/resultado especial
-/resultados iris
-
 /Resultados
 
 config.py

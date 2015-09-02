@@ -1,3 +1,6 @@
+# Este script toma un dataset entrena un arbol con el 
+# y guarda todos los splits que realiza.
+
 import pandas as pd
 import tree
 import pickle
