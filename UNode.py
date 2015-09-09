@@ -311,6 +311,7 @@ class UNode():
 
         # Puede que falte chequear casos bordes, al igual que lo hago en get_menores y get_mayores
         else:
+            feature_name = self.feat_name.replace('.mean', '')
             mean = tupla[feature_name + '.mean']
             std = tupla[feature_name + '.std']
             l = tupla[feature_name + '.l']
