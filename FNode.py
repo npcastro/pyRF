@@ -29,10 +29,14 @@ class FNode():
             considered a leaf
         min_mass_threshold (float):
 
-        ESTO FALTA!!: If the total mass is below this threshold the node is no longer
+        TODO: If the total mass is below this threshold the node is no longer
             splitted.
         min_weight_threshold (float): Tuples with mass below this, are removed from the children.
             This value must be small or else, problem with probabilities may arise.
+
+        classes: A list with the values of the classes of the dataset
+        clase: The class that the final leaf gets assigned
+
         """
         # Atributos particulares del nodo
         self.classes = None
@@ -114,6 +118,7 @@ class FNode():
         self.entropia = fnode_utils.entropy(data.groupby('class')['weight'].sum().to_dict())
         self.mass = data['weight'].sum()
         self.n_rows = len(data.index)
+        self.classes = data.columns.tolist()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
@@ -263,7 +268,7 @@ class FNode():
             print 'y =', y
             raise
 
-        self.classes = self.data['class'].unique()
+        self.clase = self.data['class'].unique()
         self.data = None
 
     def show(self, linea=""):
