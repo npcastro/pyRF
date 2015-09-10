@@ -268,7 +268,6 @@ class FNode():
             print 'y =', y
             raise
 
-        self.clase = self.data['class'].unique()
         self.data = None
 
     def show(self, linea=""):
