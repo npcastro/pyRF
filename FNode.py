@@ -118,7 +118,7 @@ class FNode():
         self.entropia = fnode_utils.entropy(data.groupby('class')['weight'].sum().to_dict())
         self.mass = data['weight'].sum()
         self.n_rows = len(data.index)
-        self.classes = data.columns.tolist()
+        self.classes = data['class'].unique().tolist()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
