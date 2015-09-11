@@ -57,7 +57,9 @@ if __name__ == '__main__':
     pickle.dump(clf, output)
     output.close()
 
-    output = open('/n/home09/ncastro/workspace/pyRF/Resultados/GP/result_' + percentage + '.pkl', 'w')
-    pickle.dump(result, output)
-    output.close()
+    result.to_csv'/n/home09/ncastro/workspace/pyRF/Resultados/GP/result_' + percentage + '.csv', index=False)
+
+    # output = open('/n/home09/ncastro/workspace/pyRF/Resultados/GP/result_' + percentage + '.pkl', 'w')
+    # pickle.dump(result, output)
+    # output.close()
 
