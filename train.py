@@ -23,7 +23,7 @@ if __name__ == '__main__':
     folds = 10
     training_set_path = SETS_DIR_PATH + 'GP/gp_u_set_' + percentage + '.csv'
     data = pd.read_csv(training_set_path)
-    data = data.iloc[0:1500]
+    # data = data.iloc[0:1500]
 
     data = data.dropna(axis=0, how='any')
     data['weight'] = data['weight'].astype(float)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
         clf = tree.Tree('uncertainty', max_depth=10, min_samples_split=20,
                         most_mass_threshold=0.9, min_mass_threshold=0.1,
-                        min_weight_threshold=0.01, parallel=None,
+                        min_weight_threshold=0.01, parallel='features',
                         n_jobs=n_jobs)
         
         clf.fit(train_X, train_y)
