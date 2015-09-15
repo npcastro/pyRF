@@ -11,7 +11,7 @@ result_dir = 'Resultados/'
 
 for p in xrange(5,105,5):
 
-
+	results = pd.read_csv(result_dir + 
 
 	matrix = clf.confusion_matrix(result)
 

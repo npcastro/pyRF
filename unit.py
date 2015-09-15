@@ -100,7 +100,7 @@ class TestSplittingMeasures(unittest.TestCase):
 class TestFeatureSelection(unittest.TestCase):
 
     def setUp(self):
-        data = pd.read_csv('sets/iris viejo/iris.data', sep=',', header=None,
+        data = pd.read_csv('sets/iris.data', sep=',', header=None,
                            names=['sepal length', 'sepal width', 'petal length',
                            'petal width', 'class'])
         y = data['class']
@@ -124,7 +124,7 @@ class TestFeatureSelection(unittest.TestCase):
 class TestParallel(unittest.TestCase):
 
     def setUp(self):
-        data = pd.read_csv('sets/iris random/iris random 25.csv')
+        data = pd.read_csv('sets/iris_random_25.csv')
         data = data.dropna(axis=0, how='any')
         data['weight'] = data['weight'].astype(float)
 
