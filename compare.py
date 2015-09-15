@@ -10,13 +10,13 @@ import matplotlib.pyplot as plt
 # Voy a un directorio con resultados para distintos niveles de completitud
 
 # directorio_u = 'Resultados/Comparacion/Macho/Random II/U/'
-directorio_u = 'Resultados/Comparacion/Macho/Prueba RII/U/'
+# directorio_u = 'Resultados/Comparacion/Macho/Prueba RII/U/'
 
 
 # directorio_normal = 'Resultados/Comparacion/Macho/Random II/Normal/'
-directorio_normal = 'Resultados/Comparacion/Macho/Prueba RII/Normal/'
+directorio_normal = 'Resultados/'
 
-avance_u_soft = pd.read_csv(directorio_u + 'f_score.csv', index_col=0).to_dict(orient='list')
+# avance_u_soft = pd.read_csv(directorio_u + 'f_score.csv', index_col=0).to_dict(orient='list')
 avance_normal = pd.read_csv(directorio_normal + 'f_score.csv', index_col=0).to_dict(orient='list')
 
 
@@ -32,7 +32,7 @@ for c in avance_normal.keys():
 	plt.figure()
 	# plt.plot( range(5,70,5), avance_u_hard[c], 'bo-', label='UTree hard')
 
-	plt.plot( range(5,70,5), avance_u_soft[c], 'go-', label='UTree soft')
+	# plt.plot( range(5,70,5), avance_u_soft[c], 'go-', label='UTree soft')
 	plt.plot( range(5,70,5), avance_normal[c], 'ro-', label='Classic')
 
 	plt.ylim(0.0,1.0)
