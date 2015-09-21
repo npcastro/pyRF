@@ -29,6 +29,8 @@ if __name__ == '__main__':
     data['weight'] = data['weight'].astype(float)
     y = data['class']
 
+    X = data.drop('class', axis=1)
+
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
 
     results = []
@@ -38,7 +40,7 @@ if __name__ == '__main__':
         print 'Fold: ' + str(count)
         count += 1
 
-        train_X, test_X = data.iloc[train_index], data.iloc[test_index]
+        train_X, test_X = X.iloc[train_index], X.iloc[test_index]
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
         clf = None

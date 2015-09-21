@@ -207,6 +207,12 @@ class FNode():
 
             feature_mass = pyRF_prob.cdf(pivote, mean, std, left_bound, right_bound)
 
+            if math.isnan(feature_mass):
+                if pivote > right_bound:
+                    feature_mass = 1.0
+                else: 
+                    feature_mass = 0.0
+
             if how == 'menor':
                 if (feature_mass >= self.min_mass_threshold):
                     tupla['weight'] = min(w * feature_mass, 1)
@@ -245,8 +251,17 @@ class FNode():
             r = tupla[feature_name + '.r']
             pivote = self.feat_value
 
-            w_left = min(w * pyRF_prob.cdf(pivote, mean, std, l, r), 1)
-            w_right = min(w * (1 - pyRF_prob.cdf(pivote, mean, std, l, r)), 1)
+            # MAL FIX
+            aux_mass = pyRF_prob.cdf(pivote, mean, std, l, r)
+            
+            if math.isnan(aux_mass):
+                if pivote > right_bound:
+                    aux_mass = 1.0
+                else: 
+                    aux_mass = 0.0
+
+            w_left = min(w * aux_mass, 1)
+            w_right = min(w * (1 - aux_mass), 1)
 
             a = self.right.predict(tupla, prediction, w_right)
             b = self.left.predict(tupla, prediction, w_left)
