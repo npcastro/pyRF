@@ -23,7 +23,7 @@ if __name__ == '__main__':
     folds = 10
     training_set_path = SETS_DIR_PATH + 'GP/gp_u_set_' + percentage + '.csv'
     data = pd.read_csv(training_set_path)
-    # data = data.iloc[0:1500]
+    data = data.iloc[0:1500]
 
     data = data.dropna(axis=0, how='any')
     data['weight'] = data['weight'].astype(float)

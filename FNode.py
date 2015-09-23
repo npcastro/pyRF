@@ -255,7 +255,7 @@ class FNode():
             aux_mass = pyRF_prob.cdf(pivote, mean, std, l, r)
             
             if math.isnan(aux_mass):
-                if pivote > right_bound:
+                if pivote > r:
                     aux_mass = 1.0
                 else: 
                     aux_mass = 0.0
