@@ -192,6 +192,8 @@ class FNode():
 
         pivote: valor de corte
         how: determina si la probabilidad se calcula desde l hasta pivote o desde pivote hasta r
+                -> mayor: probabilidad de caer entre pivote y limite right_bound
+                -> menor: probabilidad de caer entre left_bound y pivote
         """
 
         left_bound = tupla[feature_name + '.l']
@@ -209,9 +211,15 @@ class FNode():
 
             if math.isnan(feature_mass):
                 if pivote > right_bound:
-                    feature_mass = 1.0
-                else: 
-                    feature_mass = 0.0
+                    if how == 'menor':
+                        feature_mass = 1.0
+                    else:
+                        feature_mass = 0.0
+                else:
+                    if how == 'menor':
+                        feature_mass = 0.0
+                    else:
+                        feature_mass = 1.0
 
             if how == 'menor':
                 if (feature_mass >= self.min_mass_threshold):
