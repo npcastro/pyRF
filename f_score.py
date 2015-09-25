@@ -7,11 +7,15 @@ import pandas as pd
 
 clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
-result_dir = 'Resultados/'
+result_dir = 'Resultados/Regular/Predicciones/'
 
-for p in xrange(5,105,5):
+p_dict = {}
+r_dict = {}
+f_dict = {}
 
-	results = pd.read_csv(result_dir + 
+for percentage in xrange(5,105,5):
+
+	result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
 
 	matrix = clf.confusion_matrix(result)
 
@@ -19,3 +23,23 @@ for p in xrange(5,105,5):
 	p = [clf.precision(matrix, c) for c in clases]
 	r = [clf.recall(matrix, c) for c in clases]
 	f = [clf.f_score(matrix, c) for c in clases]
+
+	p_dict[percentage] = p
+	r_dict[percentage] = r
+	f_dict[percentage] = f
+
+p_df = pd.DataFrame.from_dict(p_dict, orient='index')
+p_df.columns = clases
+p_df = p_df.sort_index(ascending=False)
+p_df.to_csv('Resultados/Regular/Metricas/precision.csv')
+
+r_df = pd.DataFrame.from_dict(r_dict, orient='index')
+r_df.columns = clases
+r_df = r_df.sort_index(ascending=False)
+r_df.to_csv('Resultados/Regular/Metricas/recall.csv')
+
+f_df = pd.DataFrame.from_dict(f_dict, orient='index')
+f_df.columns = clases
+f_df = f_df.sort_index(ascending=False)
+f_df.to_csv('Resultados/Regular/Metricas/f_score.csv')
+

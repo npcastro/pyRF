@@ -240,7 +240,7 @@ class FNode():
                 tupla[feature_name + '.l'] = pivote
                 return tupla
 
-    def predict(self, tupla, prediction={}, w=1):
+    def predict(self, tupla, prediction={}, w=1.0):
         # Si es que es el nodo raiz
         if len(prediction.keys()) == 0:
             prediction = {c: 0.0 for c in self.classes}
@@ -268,8 +268,8 @@ class FNode():
                 else: 
                     aux_mass = 0.0
 
-            w_left = min(w * aux_mass, 1)
-            w_right = min(w * (1 - aux_mass), 1)
+            w_left = min(w * aux_mass, 1.0)
+            w_right = min(w * (1.0 - aux_mass), 1.0)
 
             a = self.right.predict(tupla, prediction, w_right)
             b = self.left.predict(tupla, prediction, w_left)
