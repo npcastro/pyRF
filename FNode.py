@@ -259,17 +259,22 @@ class FNode():
             r = tupla[feature_name + '.r']
             pivote = self.feat_value
 
-            # MAL FIX
             aux_mass = pyRF_prob.cdf(pivote, mean, std, l, r)
-            
+
+            # MAL FIX 
             if math.isnan(aux_mass):
                 if pivote > r:
                     aux_mass = 1.0
                 else: 
                     aux_mass = 0.0
 
-            w_left = min(w * aux_mass, 1.0)
-            w_right = min(w * (1.0 - aux_mass), 1.0)
+            clip = lambda hi, lo, x: lo if x <= lo else hi if x >= hi else x
+            aux_mass = clip(1, 0, aux_mass)
+
+            w_left = w * aux_mass
+            w_right = w * (1.0 - aux_mass)
+
+            print str(aux_mass) + ' ' + str(1.0 - aux_mass)
 
             a = self.right.predict(tupla, prediction, w_right)
             b = self.left.predict(tupla, prediction, w_left)
