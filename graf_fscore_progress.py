@@ -1,82 +1,66 @@
-import pickle
+import pandas as pd
 import matplotlib.pyplot as plt
 import tree
 
-# RESULT_DIR = 'Resultados/resultados var_comp/'
-# RESULT_DIR = 'Resultados/resultados trust/'
-# RESULT_DIR = 'Resultados/resultados new_var/'
-# RESULT_DIR = 'Resultados/resultados iris/'
-RESULT_DIR = 'Resultados/output/macho/'
+result_dir = 'Resultados/GP/Predicciones/'
 
-# Porcentaje a ocupar
-# porcentajes = [5,10,15,20,25,30,35,40,45,50,55,60,65,70]
-porcentajes = [50]
-for p in porcentajes:
-	
-	# Inicializo un arbol cualquiera para tener sus metodos
-	clf = tree.Tree('uncertainty')
+# No esta temrinado pero tiene que haber una manera de hacer el proceso mas rápido
+def find_indexes(lista):
+    indexes = []
 
-	# Cargo los resultados de la prediccion
-	# lector = open( RESULT_DIR + 'result ' + str(p) +'.pkl', 'r')
-	# lector = open( 'Result especial.pkl', 'r')
+    limites = [x/100.0 for x in range(1,101)]
 
-	lector = open( RESULT_DIR + 'iris_result ' + str(p) +'.pkl', 'r')
-	result = pickle.load(lector)
-	lector.close()
+    aux = 0
 
-	# Para cada clase
-	# for clase in range(2,10):
-	for clase in ['Iris-setosa', 'Iris-virginica', 'Iris-versicolor']:
+    for i, x in enumerate(lista):
+        if x > limites[aux]:
+            aux += 1
+            indexes.append(i)
+    return indexes
 
-		# valores_accuracy = []
-		# valores_recall = []
+for p in xrange(5, 105, 5):
 
-		valores_fscore = []
+    print str(p) + '%'
+    
+    clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
+    result = pd.read_csv(result_dir + 'result_' + str(p) +'.csv', index_col=0)
 
-		x_values = []
+    clases = result['original'].unique().tolist()
 
-		# Para cada porcentaje de confianza
-		for i in range(100):
+    x_values = {clase: [] for clase in clases}
+    valores_fscore = {clase: [] for clase in clases}
 
-			# Obtengo las predicciones con una confianza mayor a cierto umbral
-			porcentaje = float(i)/100
-			aux = result[result['trust'] > porcentaje]
+    result = result.sort('trust', axis=0)
 
-			# porcentaje = 1.0 - float(i)/100
-			# aux = result[result['trust'] < porcentaje]
+    for i in xrange(100):
+        
+        # Obtengo las predicciones con una confianza mayor a cierto umbral
+        trust_threshold = float(i)/100
+        result = result[result['trust'] > trust_threshold]
 
-			# matrix = clf.confusion_matrix(aux)
-			matrix = clf.hard_matrix(aux)
+        matrix = clf.hard_matrix(result)
 
-			# Si la precision es menor que cero, es porque no habian datos que superaran tal nivel de confianza
-			# precision = clf.accuracy(matrix, clase)
-			# if precision >= 0:
-			# 	valores_accuracy.append(precision)
-			# 	valores_recall.append(clf.recall(matrix, clase))
-			# 	x_values.append(porcentaje)
+        # Si el f_score es menor que cero, es porque no habian datos que superaran tal nivel de confianza
+        f_scores = {clase: clf.f_score(matrix, clase) for clase in clases}
 
-			# Si el f_score es menor que cero, es porque no habian datos que superaran tal nivel de confianza
-			f_score = clf.f_score(matrix, clase)
-			if f_score >= 0:
-				valores_fscore.append(f_score)
-				x_values.append(porcentaje)			
+        for clase in clases:
+            if f_scores[clase] >= 0:
+                valores_fscore[clase].append(f_scores[clase])
+                x_values[clase].append(trust_threshold)
 
+    for clase in clases:
+        x_list = x_values[clase]
+        y_list = valores_fscore[clase]
+        
+        plt.figure(clase)
+        plt.plot( x_list, y_list, '-ob')
 
-		# Grafico los valores obtenidos
-		plt.figure(clase)
-		plt.plot( x_values, valores_fscore, 'bo')
+        plt.ylim(0.0, 1.0)
+        plt.xlim(0.0, 1.0)
 
-		plt.ylim(0.0, 1.0)
-		plt.xlim(0.0, 1.0)
+        plt.title( 'Class ' + str(clase) + ' F-Score v/s Prediction Certainty')
+        plt.xlabel( 'Minimum Probability Considered')
+        plt.ylabel( 'F-Score' )
 
-		plt.title( 'Class ' + str(clase) + ' F-Score v/s Prediction Certainty')
-		# plt.xlabel( 'Minimum Stability considered')
-		plt.xlabel( 'Minimum Probability Considered')
-		plt.ylabel( 'F-Score' )
-
-		plt.savefig('Resultados/resultados iris/graficos/Clase ' + str(clase) + ' fscore ' + str(p) + '%.png')
-		# plt.show()
-		plt.close()
-
-# if __name__ == '__main__':
-# 	pass
+        plt.savefig('Resultados/GP/Graficos/FScore_progress/' + str(p) + '%/' + str(clase) + ' fscore progress.png')
+        plt.close()
