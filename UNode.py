@@ -14,7 +14,7 @@ import pyRF_prob
 
 class UNode():
     def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
-                 min_mass_threshold=0.0127, min_weight_threshold=0.01):
+                 min_mass_threshold=0.0127, min_weight_threshold=0.01, verbose=True):
         """
         data (DataFrame): Each row represents an object, each column represents
             a feature. Must contain a column named 'class'
@@ -47,16 +47,19 @@ class UNode():
         self.most_mass_threshold = most_mass_threshold
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
+        self.verbose = verbose
 
     def add_left(self, left_data):
         self.left = self.__class__(self.level + 1, self.max_depth,
-                                   self.min_samples_split, self.most_mass_threshold)
+                                   self.min_samples_split, self.most_mass_threshold,
+                                   verbose=self.verbose)
         self.left.fit(left_data)
         self.left.is_left = True
 
     def add_right(self, right_data):
         self.right = self.__class__(self.level + 1, self.max_depth,
-                                    self.min_samples_split, self.most_mass_threshold)
+                                    self.min_samples_split, self.most_mass_threshold,
+                                    verbose=self.verbose)
         self.right.fit(right_data)
         self.right.is_right = True
 
@@ -131,8 +134,9 @@ class UNode():
             self.split()
 
             if self.feat_name != '':
-                print 'Feature elegida: ' + self.feat_name
-                print 'Pivote elegido: ' + str(self.feat_value)
+                if self.verbose:
+                    print 'Feature elegida: ' + self.feat_name
+                    print 'Pivote elegido: ' + str(self.feat_value)
 
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
@@ -206,7 +210,8 @@ class UNode():
                                             data[feature_name + '.r'].tolist(),
                                             data['class'].tolist())
             bounds = np.unique(bounds)
-            print 'Nuevo ' + str(len(bounds))
+            if self.verbose:
+                print 'Nuevo ' + str(len(bounds))
             return bounds
 
     # Parece que estoy guardando la clase actual por las puras
@@ -392,12 +397,12 @@ class UNode():
         """Searches the best possible split for the node.
         After it finishes, it sets self.feat_name and self.feat_value
         """
-
-        print '\n ################ \n'
-        print 'Profundidad del nodo: ' + str(self.level)
-        print 'Numero de tuplas en nodo: ' + str(self.n_rows)
-        print 'Masa total del nodo: ' + str(self.mass)
-        print '\n ################ \n'
+        if self.verbose:
+            print '\n ################ \n'
+            print 'Profundidad del nodo: ' + str(self.level)
+            print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+            print 'Masa total del nodo: ' + str(self.mass)
+            print '\n ################ \n'
 
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = 0
@@ -408,8 +413,9 @@ class UNode():
         start_time = time.time()
         for f in filterfeatures:
 
-            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
-            sys.stdout.flush()
+            if self.verbose:
+                sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + f)
+                sys.stdout.flush()
 
             # Ordeno el frame segun la media de la variable
             data_por_media = self.data.sort(f + '.mean', inplace=False)
@@ -504,7 +510,8 @@ class UNode():
             # break
 
         end_time = time.time()
-        print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
+        if self.verbose:
+            print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
 
     def split_tuples_by_pivot(self, w_list, mean_list, std_list, left_bound_list, right_bound_list,
                               class_list, pivote, menores, mayores):

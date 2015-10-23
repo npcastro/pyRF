@@ -37,20 +37,22 @@ class Tree:
             self.root = UNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
-                              min_mass_threshold=self.min_mass_threshold)
-            data['class'] = y
-            self.root.fit(data)
-
-        elif self.criterium == 'uncertainty' and self.parallel == 'splits':
-            self.root = PNode(level=1, max_depth=self.max_depth,
-                              min_samples_split=self.min_samples_split,
-                              most_mass_threshold=self.most_mass_threshold,
-                              min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)
+                              min_mass_threshold=self.min_mass_threshold,
+                              verbose=self.verbose)
             data['class'] = y
             self.root.fit(data)
 
         elif self.criterium == 'uncertainty' and self.parallel == 'features':
             self.root = FNode(level=1, max_depth=self.max_depth,
+                              min_samples_split=self.min_samples_split,
+                              most_mass_threshold=self.most_mass_threshold,
+                              min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs,
+                              verbose=self.verbose)
+            data['class'] = y
+            self.root.fit(data)
+
+        elif self.criterium == 'uncertainty' and self.parallel == 'splits':
+            self.root = PNode(level=1, max_depth=self.max_depth,
                               min_samples_split=self.min_samples_split,
                               most_mass_threshold=self.most_mass_threshold,
                               min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)

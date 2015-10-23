@@ -146,11 +146,11 @@ class TestParallel(unittest.TestCase):
 
         self.clf_normal = tree.Tree('uncertainty', max_depth=12,
                         min_samples_split=10, most_mass_threshold=0.99, min_mass_threshold=0.10,
-                        min_weight_threshold=0.01)
+                        min_weight_threshold=0.01, verbose=False)
 
         self.clf_parallel = tree.Tree('uncertainty', max_depth=12,
                         min_samples_split=10, most_mass_threshold=0.99, min_mass_threshold=0.10,
-                        min_weight_threshold=0.01, parallel='features')
+                        min_weight_threshold=0.01, parallel='features', verbose=False)
 
     def test_same_result(self):
 
@@ -169,6 +169,6 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
     suite.addTests(loader.loadTestsFromTestCase(TestFeatureSelection))
-    # suite.addTests(loader.loadTestsFromTestCase(TestParallel))
+    suite.addTests(loader.loadTestsFromTestCase(TestParallel))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

@@ -18,7 +18,7 @@ import pyRF_prob
 
 class FNode():
     def __init__(self, level=1, max_depth=8, min_samples_split=10, most_mass_threshold=0.9,
-                 min_mass_threshold=0.0127, min_weight_threshold=0.01, n_jobs=1):
+                 min_mass_threshold=0.0127, min_weight_threshold=0.01, n_jobs=1, verbose=True):
         """
         data (DataFrame): Each row represents an object, each column represents
             a feature. Must contain a column named 'class'
@@ -58,11 +58,12 @@ class FNode():
         self.min_mass_threshold = min_mass_threshold
         self.min_weight_threshold = min_weight_threshold
         self.n_jobs = n_jobs
+        self.verbose = verbose
 
     def add_left(self, left_data):
         self.left = self.__class__(self.level + 1, self.max_depth,
                                    self.min_samples_split, self.most_mass_threshold, self.min_mass_threshold,
-                                   self.min_weight_threshold, self.n_jobs)
+                                   self.min_weight_threshold, self.n_jobs, self.verbose)
         self.left.fit(left_data)
         self.left.is_left = True
         self.data = None
@@ -70,7 +71,7 @@ class FNode():
     def add_right(self, right_data):
         self.right = self.__class__(self.level + 1, self.max_depth,
                                     self.min_samples_split, self.most_mass_threshold, self.min_mass_threshold, 
-                                    self.min_weight_threshold, self.n_jobs)
+                                    self.min_weight_threshold, self.n_jobs, self.verbose)
         self.right.fit(right_data)
         self.right.is_right = True
         self.data = None
@@ -125,8 +126,9 @@ class FNode():
             self.split()
 
             if self.feat_name != '':
-                print 'Feature elegida: ' + self.feat_name
-                print 'Pivote elegido: ' + str(self.feat_value)
+                if self.verbose:
+                    print 'Feature elegida: ' + self.feat_name
+                    print 'Pivote elegido: ' + str(self.feat_value)
 
                 menores = self.get_menores(self.feat_name, self.feat_value)
                 mayores = self.get_mayores(self.feat_name, self.feat_value)
@@ -323,12 +325,12 @@ class FNode():
 
         After it finishes, it sets self.feat_name and self.feat_value
         """
-
-        print '\n ################ \n'
-        print 'Profundidad del nodo: ' + str(self.level)
-        print 'Numero de tuplas en nodo: ' + str(self.n_rows)
-        print 'Masa total del nodo: ' + str(self.mass)
-        print '\n ################ \n'
+        if self.verbose:
+            print '\n ################ \n'
+            print 'Profundidad del nodo: ' + str(self.level)
+            print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+            print 'Masa total del nodo: ' + str(self.mass)
+            print '\n ################ \n'
 
         # Inicializo la ganancia de info en el peor nivel posible
         max_gain = 0
@@ -345,9 +347,10 @@ class FNode():
         clip = lambda a, b: b if a < b else a / b
         chunks = clip(len(candidate_features), abs(self.n_jobs))
 
-        print "Numero de Features: " + str(len(candidate_features))
-        print "Tamaño chunk: " + str(chunks)
-        print "Procesadores disponibles: " + str(multiprocessing.cpu_count()) 
+        if self.verbose:
+            print "Numero de Features: " + str(len(candidate_features))
+            print "Tamaño chunk: " + str(chunks)
+            print "Procesadores disponibles: " + str(multiprocessing.cpu_count()) 
 
         # First map applies function to all candidate features
         gains_pivots_tuples = pool.map(partial_eval, zip(candidate_features, filtered_data), chunks)
@@ -364,4 +367,5 @@ class FNode():
                 self.feat_name = candidate_features[i]
 
         end_time = time.time()
-        print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
+        if self.verbose:
+            print 'Tiempo tomado por nodo: ' + str(datetime.timedelta(0, end_time - start_time))
