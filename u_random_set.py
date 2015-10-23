@@ -59,10 +59,18 @@ def add_uncertainty(data, level):
 
 if __name__ == '__main__':
 
-	data = pd.read_csv('sets/Macho.csv', index_col = 0)
+	# data = pd.read_csv('sets/MACHO.csv', index_col=0)
+	data = pd.read_csv('/Users/npcastro/workspace/pyRF/sets/EROS.csv', index_col=0)
+
+
+	for i in xrange(1,4):
+		for j in xrange(4):
+			data = data.drop('Freq' + str(i) + '_harmonics_amplitude_' + str(j), axis=1)
+			data = data.drop('Freq' + str(i) + '_harmonics_rel_phase_' + str(j), axis=1)
 	uncertainty_levels = range(5, 70, 5)
 
 	for u in uncertainty_levels:	
 		u_data = add_uncertainty(data, u)
 		# u_data.to_csv('sets/Macho random I/Macho random ' + str(u) +'.csv', index=False)
-		u_data.to_csv('sets/Macho random II/Macho random ' + str(u) +'.csv', index=False)
+		# u_data.to_csv('sets/MACHO random II/Macho random ' + str(u) +'.csv', index=False)
+		u_data.to_csv('sets/EROS random II/EROS random ' + str(u) +'.csv', index=False)
