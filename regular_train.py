@@ -19,11 +19,18 @@ if __name__ == '__main__':
         percentage = '100'
 
     folds = 10
-    training_set_path = SETS_DIR_PATH + 'Macho regular set ' + percentage + '.csv'
-    data = pd.read_csv(training_set_path)
+    # training_set_path = SETS_DIR_PATH + 'Macho regular set ' + percentage + '.csv'
+    # training_set_path = '/n/home09/ncastro/workspace/pyRF/sets/MACHO random II/Macho random ' + percentage + '.csv'
+    training_set_path = '/n/home09/ncastro/workspace/pyRF/sets/EROS random II/EROS random ' + percentage + '.csv'
 
+    data = pd.read_csv(training_set_path)
     data = data.dropna(axis=0, how='any')
     y = data['class']
+
+    if 'weight' in data.columns.tolist():
+        data = data.drop('weight', axis=1)
+
+    data = data.drop('class', axis=1)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
 
@@ -46,9 +53,9 @@ if __name__ == '__main__':
 
     result = pd.concat(results)
 
-    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Artificial/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
-    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/Regular/Predicciones/result_' + percentage + '.csv')
+    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Artificial/Predicciones/result_' + percentage + '.csv')
 
