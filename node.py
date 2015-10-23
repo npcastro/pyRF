@@ -6,16 +6,10 @@ import sys
 import numpy as np
 from scipy import stats
 
-# Data es un dataframe que tiene que contener una columna class.
-# La cual el arbol intenta predecir.
-# podria pensar en relajar esto y simplemente indicar cual es la variable
-#a predecir.
-
-
 class Node:
     """Represents the internal and final nodes of a decision tree"""
 
-    def __init__(self, level=1, max_depth=8, min_samples_split=10):
+    def __init__(self, level=1, max_depth=8, min_samples_split=10, verbose=True):
         """
         data (DataFrame): Each row represents an object, each column represents
                           a feature. Must contain a column named 'class'
@@ -38,6 +32,7 @@ class Node:
         # Atributos generales del arbol
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.verbose = verbose
 
     def get_class_distribution(self, y):
         """Produces a dictionary with the amount of tuples of each class
@@ -55,24 +50,20 @@ class Node:
     def fit(self, data, y):
         self.data = data
         self.y = np.array(y)
-        # self.entropia = self.entropy(data.groupby('class').size().to_dict())
         self.entropia = self.entropy(self.get_class_distribution(y))
         self.n_rows = len(y)
+
+        self.feat_names = self.filterfeatures()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
             self.split()
 
             if self.feat_name != '':
-                print '\n'
-                print 'Feature elegida: ' + self.feat_name
-                print 'Pivote elegido: ' + str(self.feat_value)
-
-                # menores = self.get_menores(self.feat_name, self.feat_value)
-                # mayores = self.get_mayores(self.feat_name, self.feat_value)
-
-                # self.add_right(mayores)
-                # self.add_left(menores)
+                if self.verbose:
+                    print '\n'
+                    print 'Feature elegida: ' + self.feat_name
+                    print 'Pivote elegido: ' + str(self.feat_value)
 
                 menores_X, menores_y = self.get_menores(self.feat_name, self.feat_value)
                 mayores_X, mayores_y = self.get_mayores(self.feat_name, self.feat_value)
@@ -96,22 +87,17 @@ class Node:
         #Obtengo los nombres de las features a probar
         filterfeatures = self.filterfeatures()
 
-        print '\n ################ \n'
-        print 'Profundidad del nodo: ' + str(self.level)
-        print 'Numero de tuplas en nodo: ' + str(self.n_rows)
-        print '\n ################ \n'
+        if self.verbose:
+            print '\n ################ \n'
+            print 'Profundidad del nodo: ' + str(self.level)
+            print 'Numero de tuplas en nodo: ' + str(self.n_rows)
+            print '\n ################ \n'
 
         for feature in filterfeatures:
 
-            sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
-            sys.stdout.flush()
-
-            # # Ordeno el frame segun la feature indicada
-            # data_por_media = self.data.sort(feature, inplace=False)
-
-            # #Transformo la informacion relevante de esta feature a listas
-            # mean_list = data_por_media[feature].tolist()
-            # class_list = data_por_media['class'].tolist()
+            if self.verbose:
+                sys.stdout.write("\r\x1b[K" + 'Evaluando feature: ' + feature)
+                sys.stdout.flush()
 
             # Ordeno los datos segun la feature que se esta probando
             sort_index = np.argsort(self.data[feature].tolist())
@@ -206,13 +192,15 @@ class Node:
         self.data = None
 
     def add_left(self, left_data, y):
-        self.left = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
+        self.left = self.__class__(self.level + 1, self.max_depth, self.min_samples_split,
+                                   self.verbose)
         self.left.fit(left_data, y)
         self.left.is_left = True
         self.data = None
 
     def add_right(self, right_data, y):
-        self.right = self.__class__(self.level + 1, self.max_depth, self.min_samples_split)
+        self.right = self.__class__(self.level + 1, self.max_depth, self.min_samples_split,
+                                    self.verbose)
         self.right.fit(right_data, y)
         self.right.is_right = True
         self.data = None

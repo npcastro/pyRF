@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import pandas as pd
 import numpy as np
 
@@ -10,7 +12,8 @@ from FNode import *
 class Tree:
     def __init__(self, criterium, max_depth=8, min_samples_split=10,
                  most_mass_threshold=0.9, min_mass_threshold=0.0127,
-                 min_weight_threshold=0.0, parallel=None, n_jobs=1):
+                 min_weight_threshold=0.0, parallel=None, n_jobs=1,
+                 verbose=True):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth
@@ -20,12 +23,14 @@ class Tree:
         self.min_weight_threshold = min_weight_threshold
         self.parallel = parallel
         self.n_jobs = n_jobs
+        self.feat_names = None
+        self.verbose=verbose
 
     # recibe un set de entrenamiento y ajusta el arbol
     def fit(self, data, y):
         if self.criterium == 'gain':
             self.root = Node(level=1, max_depth=self.max_depth,
-                             min_samples_split=self.min_samples_split)
+                             min_samples_split=self.min_samples_split, verbose=self.verbose)
             self.root.fit(data, y)
 
         elif self.criterium == 'uncertainty' and self.parallel is None:
@@ -51,6 +56,8 @@ class Tree:
                               min_mass_threshold=self.min_mass_threshold, n_jobs=self.n_jobs)
             data['class'] = y
             self.root.fit(data)
+
+        self.feat_names = self.root.feat_names
 
     def predict(self, tupla):
         """Returnes the predicted class of a tuple"""
@@ -187,18 +194,67 @@ class Tree:
         return ret
 
     def get_splits(self):
+        """Returns a dict with the positions of the splits made for each feature in the tree
+
+        Parameters
+        ----------
+        
+
+        return -> (dict) las llaves son los nombres de las feats presentes en el arbol
+                  los valores son listas de floats que corresponden a los ptos de corte
+        """
         splits = {}
 
         node_list = [self.root]
 
         while node_list:
-            # Saco un elemento de la lista
             node = node_list.pop(0)
 
             if not node.is_leaf:
-                split_feat = node.feat_name
-                splits.setdefault(split_feat, []).append(node.feat_value)
+                splits.setdefault(node.feat_name, []).append(node.feat_value)
                 node_list.append(node.right)
                 node_list.append(node.left)
 
         return splits
+
+    def get_split_counts(self):
+        """Retorna el numero de cortes que el árbol hace para cada feature. Según esto se puede
+        realizar una medida de importancia para las features.
+
+        Parameters
+        ----------
+        class: (string) nombre de la clase segun la cual se quiere filtrar. En este caso solo se 
+                consideran las features que hacen cortes en los caminos para llegar a esa clase
+
+        max_depth: (int) numero de niveles que se toman en consideración para hacer el conteo
+
+        return -> (dict) las llaves son los nombres de las features que se ocuparon al entrenar el
+                  árbol. Los valores son ints con los conteos
+        """
+        split_counts = {feat: 0 for feat in self.feat_names}
+
+        node_list = [self.root]
+
+        while node_list:
+            node = node_list.pop(0)
+
+            if not node.is_leaf:
+                split_counts[node.feat_name] += 1
+                node_list.append(node.right)
+                node_list.append(node.left)
+
+        return split_counts
+
+    def get_feat_importance(self, type='gini'):
+        """Retorna la importancia relativa de cada una de las features con las que el árbol
+        fue entrenado
+
+        Parameters
+        ----------
+
+        type: (string) que tipo de medida se ocupa para determinar la importancia. Puede ser
+              'gini', 'split_counts'
+
+        """
+        pass
+
