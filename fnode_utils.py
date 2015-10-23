@@ -31,7 +31,7 @@ def eval_feature(name_data_tuple, entropia, mass):
 
     feature_name, data = name_data_tuple
 
-    print 'Evaluando feature: ' + feature_name
+    # print 'Evaluando feature: ' + feature_name
 
     # Ordeno el frame segun la media de la variable
     data_por_media = data.sort(feature_name + '.mean', inplace=False)
@@ -208,7 +208,7 @@ def get_split_candidates(data, feature_name, split_type='simple'):
         bounds = (data[feature_name + '.l'].tolist() +
                   data[feature_name + '.r'].tolist())
 
-        print 'Splits metodo simple: ' + str(len(np.unique(bounds)))
+        # print 'Splits metodo simple: ' + str(len(np.unique(bounds)))
         return np.unique(bounds)
 
     else:

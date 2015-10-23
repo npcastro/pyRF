@@ -128,6 +128,7 @@ class UNode():
         self.entropia = self.entropy(data.groupby('class')['weight'].sum().to_dict())
         self.mass = data['weight'].sum()
         self.n_rows = len(data.index)
+        self.feat_names = self.filterfeatures()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():

@@ -52,7 +52,6 @@ class Node:
         self.y = np.array(y)
         self.entropia = self.entropy(self.get_class_distribution(y))
         self.n_rows = len(y)
-
         self.feat_names = self.filterfeatures()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
