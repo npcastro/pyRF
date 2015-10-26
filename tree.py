@@ -248,7 +248,7 @@ class Tree:
 
         return split_counts
 
-    def get_feat_importance(self, type='gini'):
+    def get_feat_importance(self, type='splits', max_depth=float('inf')):
         """Retorna la importancia relativa de cada una de las features con las que el árbol
         fue entrenado
 
@@ -256,8 +256,11 @@ class Tree:
         ----------
 
         type: (string) que tipo de medida se ocupa para determinar la importancia. Puede ser
-              'gini', 'split_counts'
+              'gini', 'splits'
 
         """
-        pass
 
+        scores = self.get_split_counts(max_depth)
+        suma = float(sum(scores.values()))
+
+        return { key: scores[key] / suma for key in scores.keys() }

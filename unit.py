@@ -132,12 +132,13 @@ class TestFeatureSelection(unittest.TestCase):
         counts = self.clf.get_split_counts(max_depth=2)
         self.assertEqual(test_counts, counts)
 
+    def test_feat_importance(self):
+        test_values = {'petal length': 0.6, 'petal width': 0.4, 'sepal length': 0, 'sepal width': 0}
+        feat_importance = self.clf.get_feat_importance()
+        self.assertEqual(test_values, feat_importance)
+
     def test_gini_importance(self):
         pass
-
-    # def test_select_feats(self):
-        # Features importantes
-        # test_feats = ['petal length', 'petal width']
 
 
 class TestParallel(unittest.TestCase):
