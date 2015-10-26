@@ -134,11 +134,9 @@ class TestFeatureSelection(unittest.TestCase):
 
     def test_feat_importance(self):
         test_values = {'petal length': 0.6, 'petal width': 0.4, 'sepal length': 0, 'sepal width': 0}
-        feat_importance = self.clf.get_feat_importance()
+        feat_importance = self.clf.get_feat_importance('splits')
         self.assertEqual(test_values, feat_importance)
-
-    def test_gini_importance(self):
-        pass
+        
 
 
 class TestParallel(unittest.TestCase):

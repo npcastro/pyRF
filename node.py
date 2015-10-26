@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from __future__ import division
 from collections import Counter
 import math
@@ -52,12 +54,15 @@ class Node:
         self.y = np.array(y)
         self.entropia = self.entropy(self.get_class_distribution(y))
         self.n_rows = len(y)
+        self.mass = self.n_rows
         self.feat_names = self.filterfeatures()
 
         # Si es necesario particionar el nodo, llamo a split para hacerlo
         if self.check_leaf_condition():
             self.split()
 
+            # Feat_name puede ser vacio si es que ningun corte genero ganancia de información
+            # O sea todos los posibles cortes causaban mas desorden
             if self.feat_name != '':
                 if self.verbose:
                     print '\n'

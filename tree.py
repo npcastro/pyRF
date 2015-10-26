@@ -200,8 +200,6 @@ class Tree:
 
         Parameters
         ----------
-        
-
         return -> (dict) las llaves son los nombres de las feats presentes en el arbol
                   los valores son listas de floats que corresponden a los ptos de corte
         """
@@ -248,19 +246,56 @@ class Tree:
 
         return split_counts
 
-    def get_feat_importance(self, type='splits', max_depth=float('inf')):
+    def get_feat_importance(self, criterion='entropy', max_depth=float('inf')):
         """Retorna la importancia relativa de cada una de las features con las que el árbol
         fue entrenado
 
         Parameters
         ----------
 
-        type: (string) que tipo de medida se ocupa para determinar la importancia. Puede ser
+        criterion: (string) que tipo de medida se ocupa para determinar la importancia. Puede ser
               'gini', 'splits'
-
         """
+        if criterion == 'entropy':
+            importance_function = self.get_entropy_reduction
+        elif criterion == 'splits':
+            importance_function = self.get_split_counts
+        
 
-        scores = self.get_split_counts(max_depth)
+        scores = importance_function(max_depth)
         suma = float(sum(scores.values()))
 
         return { key: scores[key] / suma for key in scores.keys() }
+
+    def get_entropy_reduction(self, max_depth=float('inf')):
+        """Retorna la reducción total de entropía que cada feature aporta en el árbol.
+        Esto se puede tomar como una medida de importancia para las features.
+
+        Parameters
+        ----------
+        class: (string) nombre de la clase segun la cual se quiere filtrar. En este caso solo se 
+                consideran las features que hacen cortes en los caminos para llegar a esa clase
+
+        max_depth: (int) numero de niveles que se toman en consideración para hacer el conteo
+
+        return -> (dict) las llaves son los nombres de las features que se ocuparon al entrenar el
+                  árbol. Los valores son ints con los conteos
+        """
+
+        reduction_by_feat = {feat: 0.0 for feat in self.feat_names}
+
+        node_list = [self.root]
+
+        while node_list:
+            node = node_list.pop(0)
+
+            if not node.is_leaf:
+                reduction = node.entropia - (node.left.mass * node.left.entropia +
+                                             node.right.mass * node.right.entropia) / float(node.mass)
+
+                reduction_by_feat[node.feat_name] += reduction
+                if node.level < max_depth:
+                    node_list.append(node.right)
+                    node_list.append(node.left)
+
+        return reduction_by_feat
