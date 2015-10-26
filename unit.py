@@ -124,7 +124,13 @@ class TestFeatureSelection(unittest.TestCase):
         pass
 
     def test_split_depth_limit(self):
-        pass
+        test_counts = {'petal length': 3, 'petal width': 1, 'sepal length': 0, 'sepal width': 0}
+        counts = self.clf.get_split_counts(max_depth=3)
+        self.assertEqual(test_counts, counts)
+
+        test_counts = {'petal length': 1, 'petal width': 1, 'sepal length': 0, 'sepal width': 0}
+        counts = self.clf.get_split_counts(max_depth=2)
+        self.assertEqual(test_counts, counts)
 
     def test_gini_importance(self):
         pass
@@ -169,6 +175,6 @@ if __name__ == '__main__':
     suite.addTests(loader.loadTestsFromTestCase(TestClassDistribution))
     suite.addTests(loader.loadTestsFromTestCase(TestSplittingMethods))
     suite.addTests(loader.loadTestsFromTestCase(TestFeatureSelection))
-    suite.addTests(loader.loadTestsFromTestCase(TestParallel))
+    # suite.addTests(loader.loadTestsFromTestCase(TestParallel))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

@@ -219,7 +219,7 @@ class Tree:
 
         return splits
 
-    def get_split_counts(self):
+    def get_split_counts(self, max_depth=float('inf')):
         """Retorna el numero de cortes que el árbol hace para cada feature. Según esto se puede
         realizar una medida de importancia para las features.
 
@@ -242,8 +242,9 @@ class Tree:
 
             if not node.is_leaf:
                 split_counts[node.feat_name] += 1
-                node_list.append(node.right)
-                node_list.append(node.left)
+                if node.level < max_depth:
+                    node_list.append(node.right)
+                    node_list.append(node.left)
 
         return split_counts
 

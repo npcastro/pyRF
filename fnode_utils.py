@@ -216,7 +216,7 @@ def get_split_candidates(data, feature_name, split_type='simple'):
                                    data[feature_name + '.r'].tolist(),
                                    data['class'].tolist())
         bounds = np.unique(bounds)
-        print 'Splits metodo nuevo: ' + str(len(bounds))
+        # print 'Splits metodo nuevo: ' + str(len(bounds))
         return bounds
 
 
