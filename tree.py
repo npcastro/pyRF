@@ -187,7 +187,7 @@ class Tree:
         counts = {c: matrix.loc[c].sum() for c in clases}
         f_scores = {c: self.f_score(matrix, c) for c in clases}
 
-        total = sum(counts.values())
+        total = float(sum(counts.values()))
 
         ret = 0
         for c in clases:
