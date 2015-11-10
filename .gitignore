@@ -11,6 +11,7 @@
 
 config.py
 \temp*
+\#*
 
 /build
 /sets

@@ -10,7 +10,8 @@ clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 # result_dir = 'Resultados/Regular/Predicciones/'
 # result_dir = 'Resultados/GP/Predicciones/'
 # result_dir = '../Resultados/EROS/UTree/GP/Predicciones/'
-result_dir = '../Resultados/EROS/Tree/Regular/Predicciones/'
+# result_dir = '../Resultados/EROS/Tree/Regular/Predicciones/'
+result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Tree/Regular/Predicciones/'
 
 p_dict = {}
 r_dict = {}
@@ -40,7 +41,8 @@ for percentage in xrange(5,105,5):
 # save_dir = 'Resultados/Regular/Metricas/'
 # save_dir = 'Resultados/GP/Metricas/'
 # save_dir = '../Resultados/EROS/UTree/GP/Metricas/'
-save_dir = '../Resultados/EROS/Tree/Regular/Metricas/'
+# save_dir = '../Resultados/EROS/Tree/Regular/Metricas/'
+save_dir = '/Users/npcastro/Dropbox/Resultados/EROS/Tree/Regular/Metricas/'
 
 w_df = pd.DataFrame.from_dict(w_dict, orient='index')
 w_df.columns = ['f_score']
