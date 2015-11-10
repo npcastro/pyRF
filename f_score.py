@@ -7,30 +7,39 @@ import pandas as pd
 
 clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
-# result_dir = 'Resultados/Regular/Predicciones/'
-result_dir = 'Resultados/GP/Predicciones/'
+# result_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Predicciones/'
+result_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Predicciones/'
 
 p_dict = {}
 r_dict = {}
 f_dict = {}
+w_dict = {}
 
 for percentage in xrange(5,105,5):
 
-	result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
+    result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
 
-	matrix = clf.confusion_matrix(result)
+    matrix = clf.confusion_matrix(result)
+    
+    w_dict[percentage] = clf.weighted_f_score(matrix)
 
-	clases = matrix.columns.tolist()
-	p = [clf.precision(matrix, c) for c in clases]
-	r = [clf.recall(matrix, c) for c in clases]
-	f = [clf.f_score(matrix, c) for c in clases]
+    clases = matrix.columns.tolist()
+    p = [clf.precision(matrix, c) for c in clases]
+    r = [clf.recall(matrix, c) for c in clases]
+    f = [clf.f_score(matrix, c) for c in clases]
 
-	p_dict[percentage] = p
-	r_dict[percentage] = r
-	f_dict[percentage] = f
+    p_dict[percentage] = p
+    r_dict[percentage] = r
+    f_dict[percentage] = f
 
-# save_dir = 'Resultados/Regular/Metricas/'
-save_dir = 'Resultados/GP/Metricas/'
+# save_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Metricas/'
+save_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Metricas/'
+
+w_df = pd.DataFrame.from_dict(w_dict, orient='index')
+w_df.columns = ['f_score']
+w_df = w_df.sort_index(ascending=True)
+w_df = w_df.fillna(value=0.0)
+w_df.to_csv(save_dir + 'weight_fscore.csv')
 
 p_df = pd.DataFrame.from_dict(p_dict, orient='index')
 p_df.columns = clases
