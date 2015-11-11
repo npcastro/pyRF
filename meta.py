@@ -9,13 +9,13 @@
 
 # La predicción es siempre probabilistica
 
-import tree
 
+class MetaClassifier:
 
-class Meta_Classifier:
-
-	def __init__(self):
-		pass
+	def __init__(self, clf_filter, clf_left, clf_right):
+		self.clf_filter = clf_filter
+		self.clf_left = clf_left
+		self.clf_right = clf_right
 
 	def fit(self, data, y):
 		pass

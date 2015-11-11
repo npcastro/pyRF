@@ -3,33 +3,60 @@
 
 from config import *
 import tree
+from meta import MetaClassifier
 
 import pandas as pd
 from sklearn import cross_validation
+from sklearn.ensemble import RandomForestClassifier
 
 import pickle
 import sys
 
 
-def meta_datasets(data, list_B, list_C):
+# def meta_datasets(data, list_B, list_C):
 
-    # Los datos dificiles de clasificar (B)
-    data_b = data[data['class'].apply(lambda x: True if x in list_B else False)]
+#     # Los datos dificiles de clasificar (B)
+#     data_b = data[data['class'].apply(lambda x: True if x in list_B else False)]
 
-    # Los datos faciles de clasificar (C)
-    data_c = data[data['class'].apply(lambda x: True if x not in list_C else False)]
+#     # Los datos faciles de clasificar (C)
+#     data_c = data[data['class'].apply(lambda x: True if x not in list_C else False)]
 
-    # El set con solo dos clases B y C
-    y = data['class']
-    y_a = y.apply(lambda x: 'B' if x in list_B else 'C')
-    data['class'] = y_a
+#     # El set con solo dos clases B y C
+#     y = data['class']
+#     y_a = y.apply(lambda x: 'B' if x in list_B else 'C')
+#     data['class'] = y_a
 
-    return data, data_b, data_c
+#     return data, data_b, data_c
 
 if __name__ == '__main__':
 
     folds = 10
-    training_set_path = '/Users/npcastro/workspace/Features/sets/MACHO/Macho regular set 40.csv'
+    n_jobs = 2
+
+    # Creo el metaclasificador con los tres clasificadores como parametro
+
+    clf_filter = RandomForestClassifier(n_estimators=200, criterion='entropy', max_depth=14,
+                                        min_samples_split=20)
+    clf_left = tree.Tree('uncertainty', max_depth=10, min_samples_split=20,
+                        most_mass_threshold=0.9, min_mass_threshold=0.1,
+                        min_weight_threshold=0.01, parallel='features',
+                        n_jobs=n_jobs)
+    clf_right = RandomForestClassifier(n_estimators=200, criterion='entropy', max_depth=14,
+                                       min_samples_split=20)
+
+    clf = MetaClassifier(clf_filter, clf_left, clf_right)
+
+    # Alimento el clasificador con dos datasets distintos
+    set_path = '/Users/npcastro/workspace/Features/sets/MACHO/Macho regular set 40.csv'
+    u_set_path = '/Users/npcastro/workspace/Features/sets/MACHO_GP/macho_gp_u_set_40.csv'
+
+    # Me aseguro que ambos sets tengan las mismas curvas
+
+
+
+    
+
+
     list_B = ['non_variables', 'CEPH', 'quasar_lc', 'longperiod_lc', 'RRL', 'microlensing_lc']
     list_C = ['Be_lc','EB']
 

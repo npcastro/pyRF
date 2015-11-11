@@ -10,20 +10,23 @@ from sklearn.ensemble import RandomForestClassifier
 
 folds = 4
 
-result_dir = 'Resultados/Fitting/MACHO'
+# result_dir = 'Resultados/Fitting/MACHO/'
+result_dir = 'Resultados/Fitting/EROS/'
 
 # Parametros a probar
 min_samples_splits = range(10, 100, 10)
 max_depths = range(8,16, 2)
 
-params = [a for a in itertools.product(min_samples_splits, max_depths)]
+# params = [a for a in itertools.product(min_samples_splits, max_depths)]
+params = xrange(50,1000,20)
 
 for p in params:
 
-    min_samples_split = p[0]
-    max_depth = p[1]
+    # min_samples_split = p[0]
+    # max_depth = p[1]
 
-    path = '/Users/npcastro/workspace/Features/sets/MACHO/Macho regular set 40.csv'
+    # path = '/Users/npcastro/workspace/Features/sets/MACHO/Macho regular set 40.csv'
+    path = '/Users/npcastro/workspace/Features/sets/EROS/EROS regular set 40.csv'
     data = pd.read_csv(path)
 
     data = data.dropna(axis=0, how='any')
@@ -42,8 +45,8 @@ for p in params:
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
         clf = None
-        clf = RandomForestClassifier(n_estimators=200, criterion='entropy',
-                                     max_depth=max_depth, min_samples_split=min_samples_split,
+        clf = RandomForestClassifier(n_estimators=p, criterion='entropy',
+                                     max_depth=14, min_samples_split=20,
                                      n_jobs=2)
         
         clf.fit(train_X, train_y)
@@ -61,7 +64,8 @@ for p in params:
 
     w_score = metrics.weighted_f_score(matrix)
 
-    f = open(result_dir + str(max_depth) + ' ' + str(min_samples_split) + '.txt', 'w')
+    # f = open(result_dir + str(max_depth) + ' ' + str(min_samples_split) + '.txt', 'w')
+    f = open(result_dir + str(p) + '.txt', 'w')
 
     f.write('F_score by class')
     f.write('\n')
