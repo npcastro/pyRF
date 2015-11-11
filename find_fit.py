@@ -2,26 +2,31 @@
 # de parametros
 
 import itertools
+import metrics
 import pandas as pd
 import tree
 from sklearn import cross_validation
+from sklearn.ensemble import RandomForestClassifier
 
-folds = 10
+folds = 4
 
-result_dir = 'Resultados/Fitting/'
+# result_dir = 'Resultados/Fitting/MACHO/'
+result_dir = 'Resultados/Fitting/EROS/'
 
 # Parametros a probar
 min_samples_splits = range(10, 100, 10)
 max_depths = range(8,16, 2)
 
-params = [a for a in itertools.product(min_samples_splits, max_depths)]
+# params = [a for a in itertools.product(min_samples_splits, max_depths)]
+params = xrange(50,1000,20)
 
 for p in params:
 
-    min_samples_split = p[0]
-    max_depth = p[1]
+    # min_samples_split = p[0]
+    # max_depth = p[1]
 
-    path = 'sets/Macho.csv'
+    # path = '/Users/npcastro/workspace/Features/sets/MACHO/Macho regular set 40.csv'
+    path = '/Users/npcastro/workspace/Features/sets/EROS/EROS regular set 40.csv'
     data = pd.read_csv(path)
 
     data = data.dropna(axis=0, how='any')
@@ -40,25 +45,27 @@ for p in params:
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
         clf = None
-        clf = tree.Tree('gain', max_depth=max_depth, min_samples_split=min_samples_split)
+        clf = RandomForestClassifier(n_estimators=p, criterion='entropy',
+                                     max_depth=14, min_samples_split=20,
+                                     n_jobs=2)
         
         clf.fit(train_X, train_y)
-
-        results.append(clf.predict_table(test_X, test_y))
+        results.append(metrics.predict_table(clf, test_X, test_y))
         
 
     result = pd.concat(results)
 
-    matrix = clf.confusion_matrix(result)
+    matrix = metrics.confusion_matrix(result)
 
     clases = matrix.columns.tolist()
-    precisions = [clf.precision(matrix, c) for c in clases]
-    recalls = [clf.recall(matrix, c) for c in clases]
-    f_scores = [clf.f_score(matrix, c) for c in clases]
+    precisions = [metrics.precision(matrix, c) for c in clases]
+    recalls = [metrics.recall(matrix, c) for c in clases]
+    f_scores = [metrics.f_score(matrix, c) for c in clases]
 
-    w_score = clf.weighted_f_score(matrix)
+    w_score = metrics.weighted_f_score(matrix)
 
-    f = open(result_dir + str(max_depth) + ' ' + str(min_samples_split) + '.txt', 'w')
+    # f = open(result_dir + str(max_depth) + ' ' + str(min_samples_split) + '.txt', 'w')
+    f = open(result_dir + str(p) + '.txt', 'w')
 
     f.write('F_score by class')
     f.write('\n')

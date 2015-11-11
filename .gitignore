@@ -5,30 +5,17 @@
 
 .DS_Store
 
-/build
-
 .idea
 
 *.lprof
 
-/Resultados
-
 config.py
+\temp*
+\#*
 
+/build
 /sets
-
-/output
-
-notas.txt
-
-performance.py
-
+/Resultados
 /.ipynb_checkpoints
 
-script.py
-testtree.py
-
-temp.py
-
-prueba.py
-
+test.py

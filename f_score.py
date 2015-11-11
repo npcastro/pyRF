@@ -7,6 +7,8 @@ import pandas as pd
 
 clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
+
+# result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Tree/Regular/Predicciones/'
 # result_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Predicciones/'
 result_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Predicciones/'
 
@@ -17,23 +19,28 @@ w_dict = {}
 
 for percentage in xrange(5,105,5):
 
-    result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
-
+	result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     matrix = clf.confusion_matrix(result)
     
     w_dict[percentage] = clf.weighted_f_score(matrix)
 
-    clases = matrix.columns.tolist()
-    p = [clf.precision(matrix, c) for c in clases]
-    r = [clf.recall(matrix, c) for c in clases]
-    f = [clf.f_score(matrix, c) for c in clases]
+
+	w_dict[percentage] = clf.weighted_f_score(matrix)
+
+	clases = matrix.columns.tolist()
+	p = [clf.precision(matrix, c) for c in clases]
+	r = [clf.recall(matrix, c) for c in clases]
+	f = [clf.f_score(matrix, c) for c in clases]
 
     p_dict[percentage] = p
     r_dict[percentage] = r
     f_dict[percentage] = f
 
+
+# save_dir = '/Users/npcastro/Dropbox/Resultados/EROS/Tree/Regular/Metricas/'
 # save_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Metricas/'
 save_dir = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Metricas/'
+
 
 w_df = pd.DataFrame.from_dict(w_dict, orient='index')
 w_df.columns = ['f_score']
