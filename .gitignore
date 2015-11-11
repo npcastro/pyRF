@@ -17,3 +17,5 @@ config.py
 /sets
 /Resultados
 /.ipynb_checkpoints
+
+test.py
