@@ -25,6 +25,10 @@ if __name__ == '__main__':
     # training_set_path = '/n/home09/ncastro/workspace/Features/sets/EROS/EROS regular set ' + percentage + '.csv'
 
     data = pd.read_csv(training_set_path)
+
+    # Filtro para dejar solo las clases malas
+    data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
+
     data = data.dropna(axis=0, how='any')
     y = data['class']
 
@@ -58,10 +62,12 @@ if __name__ == '__main__':
     result = pd.concat(results)
 
     # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
-    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
     # result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Predicciones/result_' + percentage + '.csv')
-    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Predicciones/result_' + percentage + '.csv')
+    # result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Predicciones/result_' + percentage + '.csv')
+    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/Predicciones/result_' + percentage + '.csv')
 
