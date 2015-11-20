@@ -2,7 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import tree
 
-result_dir = 'Resultados/GP/Predicciones/'
+result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/UTree/Predicciones'
+save_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/Graficos/'
 
 # No esta temrinado pero tiene que haber una manera de hacer el proceso mas rápido
 def find_indexes(lista):
@@ -62,5 +63,5 @@ for p in xrange(5, 105, 5):
         plt.xlabel( 'Minimum Probability Considered')
         plt.ylabel( 'F-Score' )
 
-        plt.savefig('Resultados/GP/Graficos/FScore_progress/' + str(p) + '%/' + str(clase) + ' fscore progress.png')
+        plt.savefig(save_dir + str(p) + '%/' + str(clase) + ' fscore progress.png')
         plt.close()
