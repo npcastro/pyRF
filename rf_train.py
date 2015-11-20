@@ -20,8 +20,8 @@ if __name__ == '__main__':
         percentage = '100'
 
     folds = 10
-    training_set_path = SETS_DIR_PATH + 'MACHO/Macho regular set ' + percentage + '.csv'
-    # training_set_path = '/n/home09/ncastro/workspace/Features/sets/EROS/EROS regular set ' + percentage + '.csv'
+    # training_set_path = SETS_DIR_PATH + 'MACHO/Macho regular set ' + percentage + '.csv'
+    training_set_path = SETS_DIR_PATH + 'EROS/EROS regular set ' + percentage + '.csv'
 
     data = pd.read_csv(training_set_path)
     data = data.dropna(axis=0, how='any')
@@ -51,11 +51,11 @@ if __name__ == '__main__':
 
     result = pd.concat(results)
 
-    # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
-    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
-    # result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Predicciones/result_' + percentage + '.csv')
-    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Predicciones/result_' + percentage + '.csv')
+    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Predicciones/result_' + percentage + '.csv')
+    # result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Predicciones/result_' + percentage + '.csv')
 
