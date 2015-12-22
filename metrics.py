@@ -1,6 +1,32 @@
 import pandas as pd
 import numpy as np
 
+def aggregate_predictions(results):
+    unique = np.unique(np.concatenate((results[0]['original'].values, results[0]['predicted'].values), axis=1))
+
+    N_curves = len(results[0].index)
+    N_trees = len(results)
+
+    # Diccionario, cada llave es una clase con una lista de los conteos de votaciones
+    # para cada curva
+    result_dict = {c: np.zeros(N_curves) for c in unique}
+
+    for i in xrange(N_curves):
+        for result in results:
+            result_dict[result.iloc[i]['predicted']][i] += 1
+
+    for i in xrange(N_curves):
+        for key in result_dict:
+            result_dict[key][i] = result_dict[key][i] / float(N_trees)
+
+    agg_preds = pd.DataFrame(result_dict, index=results[0].index)
+
+    aux_dict = {'original': results[0]['original']}
+    aux_dict['predicted'] = algo.max(axis = 1)
+    aux_dict['trust'] = algo.apply(lambda x: x.argmax(), axis=1)
+
+    return aux_dict
+
 def predict_table(clf, test_X, test_y):
     """Toma un random Forest
     """

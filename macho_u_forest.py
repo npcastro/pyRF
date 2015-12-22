@@ -64,3 +64,7 @@ if __name__ == '__main__':
             resultados.append(result)
 
             break
+
+    result = metrics.aggregate_predictions(results)
+
+    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/URF/Predicciones/result_' + percentage + '.csv')
