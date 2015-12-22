@@ -7,8 +7,11 @@ import pandas as pd
 
 clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/UTree/'
-path = '/Users/npcastro/Dropbox/Resultados/EROS/RF/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/'
+# path = '/Users/npcastro/Dropbox/Resultados/EROS/RF/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Completed/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Completed/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
 
 result_dir = path + 'Predicciones/'
 
@@ -18,6 +21,8 @@ f_dict = {}
 w_dict = {}
 
 for percentage in xrange(5,105,5):
+# for percentage in xrange(150, 250, 10):
+# for percentage in xrange(185, 245, 5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     matrix = clf.confusion_matrix(result)

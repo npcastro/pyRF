@@ -18,11 +18,11 @@ if __name__ == '__main__':
     else:
         percentage = '100'
 
-    n_jobs = 4
+    n_jobs = 30
 
-    folds = 10
-    training_set_path = SETS_DIR_PATH + 'MACHO_GP/macho_gp_u_set_' + percentage + '.csv'
-    data = pd.read_csv(training_set_path)
+    folds = 5
+    training_set_path = SETS_DIR_PATH + 'MACHO_GP/gp_u_set_' + percentage + '.csv'
+    data = pd.read_csv(training_set_path, index_col=0)
     data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
 
     data = data.dropna(axis=0, how='any')
@@ -56,7 +56,9 @@ if __name__ == '__main__':
     result = pd.concat(results)
 
     output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/UTree/Arboles/Arbol GP_' + percentage + '.pkl', 'wb+')
+    #output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/UTree/GP/Arboles/Arbol GP_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
     result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/UTree/Predicciones/result_' + percentage + '.csv')
+    #result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/UTree/GP/Predicciones/result_' + percentage + '.csv')

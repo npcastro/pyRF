@@ -18,13 +18,16 @@ if __name__ == '__main__':
     else:
         percentage = '100'
 
-    folds = 10
-    training_set_path = SETS_DIR_PATH + 'MACHO/Macho regular set ' + percentage + '.csv'
+    folds = 5
+
+    training_set_path = SETS_DIR_PATH + 'MACHO_Reduced/Macho reduced set ' + percentage + '.csv'
+    #training_set_path = SETS_DIR_PATH + 'MACHO/Macho regular set ' + percentage + '.csv'
     # training_set_path = '/n/home09/ncastro/workspace/pyRF/sets/MACHO random II/Macho random ' + percentage + '.csv'
     # training_set_path = '/n/home09/ncastro/workspace/pyRF/sets/EROS random II/EROS random ' + percentage + '.csv'
     # training_set_path = '/n/home09/ncastro/workspace/Features/sets/EROS/EROS regular set ' + percentage + '.csv'
 
-    data = pd.read_csv(training_set_path)
+    data = pd.read_csv(training_set_path, index_col=0)
+    # data = pd.read_csv(training_set_path)
 
     # Filtro para dejar solo las clases malas
     data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
@@ -43,6 +46,7 @@ if __name__ == '__main__':
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
 
     results = []
+    ids = []
     count = 1
 
     for train_index, test_index in skf:
@@ -58,8 +62,13 @@ if __name__ == '__main__':
 
         clf.fit(train_X, train_y)
         results.append(clf.predict_table(test_X, test_y))
+        ids.extend(test_X.index.tolist())
 
     result = pd.concat(results)
+    result['indice'] = ids
+    result.set_index('indice')
+    result.index.name = None
+    result = result.drop('indice', axis=1)
 
     # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     # output = open('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Regular/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
