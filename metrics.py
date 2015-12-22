@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 def predict_table(clf, test_X, test_y):
+    """Toma un random Forest
+    """
     
     prediction = clf.predict(test_X).tolist()
     probs = clf.predict_proba(test_X).tolist()

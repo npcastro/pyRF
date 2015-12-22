@@ -8,10 +8,13 @@ import pandas as pd
 clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/'
-# path = '/Users/npcastro/Dropbox/Resultados/EROS/RF/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Completed/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Completed/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/UTree/'
+# path = '/Users/npcastro/Dropbox/Resultados/EROS/RF/'
+# path = '/Users/npcastro/Dropbox/Resultados/MACHO/UTree/GP/'
+# path = '/Users/npcastro/Dropbox/Resultados/EROS/UTree/GP/'
 
 result_dir = path + 'Predicciones/'
 

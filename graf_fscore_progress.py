@@ -1,11 +1,17 @@
+# coding=utf-8
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import tree
+import metrics
 
-result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/UTree/Predicciones'
-save_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/Graficos/'
+# result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/UTree/GP/Predicciones/'
+# save_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Graficos/'
 
-# No esta temrinado pero tiene que haber una manera de hacer el proceso mas rápido
+result_dir = '/Users/npcastro/Dropbox/Resultados/EROS/UTree/GP/Predicciones/'
+save_dir = '/Users/npcastro/Dropbox/Resultados/EROS/Graficos/'
+
+# No esta terminado pero tiene que haber una manera de hacer el proceso mas rápido
 def find_indexes(lista):
     indexes = []
 
@@ -19,11 +25,17 @@ def find_indexes(lista):
             indexes.append(i)
     return indexes
 
-for p in xrange(5, 105, 5):
+# regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/Tree/Metricas/f_score.csv', index_col=0)
+# regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/MACHO/Tree/Regular/Metricas/f_score.csv', index_col=0)
+regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/EROS/Tree/Regular/Metricas/f_score.csv', index_col=0)
+
+for p in xrange(25, 105, 5):
+
+    if p == 50:
+        continue
 
     print str(p) + '%'
     
-    clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
     result = pd.read_csv(result_dir + 'result_' + str(p) +'.csv', index_col=0)
 
     clases = result['original'].unique().tolist()
@@ -39,10 +51,10 @@ for p in xrange(5, 105, 5):
         trust_threshold = float(i)/100
         result = result[result['trust'] > trust_threshold]
 
-        matrix = clf.hard_matrix(result)
+        matrix = metrics.hard_matrix(result)
 
         # Si el f_score es menor que cero, es porque no habian datos que superaran tal nivel de confianza
-        f_scores = {clase: clf.f_score(matrix, clase) for clase in clases}
+        f_scores = {clase: metrics.f_score(matrix, clase) for clase in clases}
 
         for clase in clases:
             if f_scores[clase] >= 0:
@@ -58,6 +70,7 @@ for p in xrange(5, 105, 5):
 
         plt.ylim(0.0, 1.0)
         plt.xlim(0.0, 1.0)
+        plt.axhline(regular_fscore.loc[p][clase], ls='--', color='r')
 
         plt.title( 'Class ' + str(clase) + ' F-Score v/s Prediction Certainty')
         plt.xlabel( 'Minimum Probability Considered')
