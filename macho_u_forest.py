@@ -26,11 +26,13 @@ if __name__ == '__main__':
 
     arboles = []
     resultados = []
-    fold_indices = []
 
     # Preproceso cada dataset por separado
+    count = 0
     for i in xrange(100):
-        aux_path = sets_path + 'macho_sampled_' + i + '.csv'
+        print str(count)
+        count +=1
+        aux_path = sets_path + 'macho_sampled_' + str(i) + '.csv'
         data = pd.read_csv(aux_path, index_col=0)
         
         # Filtro para dejar solo las clases malas
@@ -49,7 +51,6 @@ if __name__ == '__main__':
         skf = cross_validation.StratifiedKFold(y, n_folds=folds)
 
         for train_index, test_index in skf:
-            fold_indices.append(test_y)
             train_X, test_X = data.iloc[train_index], data.iloc[test_index]
             train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
@@ -63,7 +64,3 @@ if __name__ == '__main__':
             resultados.append(result)
 
             break
-
-
-
-
