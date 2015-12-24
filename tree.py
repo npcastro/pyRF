@@ -13,7 +13,7 @@ class Tree:
     def __init__(self, criterium, max_depth=8, min_samples_split=10,
                  most_mass_threshold=0.9, min_mass_threshold=0.0127,
                  min_weight_threshold=0.0, parallel=None, n_jobs=1,
-                 verbose=True):
+                 verbose=False):
         self.root = []
         self.criterium = criterium
         self.max_depth = max_depth

@@ -21,8 +21,11 @@ if __name__ == '__main__':
     else:
         percentage = '100'
 
-    folds = 4
+    folds = 10
     sets_path = '/n/seasfs03/IACS/TSC/ncastro/sets/MACHO_Sampled/' + percentage + '%/'
+    
+    # Para asegurar que sean las mismas curvas que en el caso normal
+    # fix_df = pd.read_csv('/n/home09/ncastro/workspace/Features/sets/MACHO_Reduced/Macho reduced set ' + percentage + '.csv', index_col=0)
 
     arboles = []
     resultados = []
@@ -34,9 +37,10 @@ if __name__ == '__main__':
         count +=1
         aux_path = sets_path + 'macho_sampled_' + str(i) + '.csv'
         data = pd.read_csv(aux_path, index_col=0)
+        # data = data.loc[fix_df.index]
         
         # Filtro para dejar solo las clases malas
-        data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
+        # data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
 
         data = data.dropna(axis=0, how='any')
         if 'weight' in data.columns.tolist():
@@ -49,7 +53,8 @@ if __name__ == '__main__':
                      'Q31', 'Rcs', 'Skew', 'SlottedA_length', 'SmallKurtosis', 'Std', 'StetsonK', 'StetsonK_AC']]
 
         skf = cross_validation.StratifiedKFold(y, n_folds=folds)
-
+        
+        aux_results = []
         for train_index, test_index in skf:
             train_X, test_X = data.iloc[train_index], data.iloc[test_index]
             train_y, test_y = y.iloc[train_index], y.iloc[test_index]
@@ -59,12 +64,13 @@ if __name__ == '__main__':
 
             clf.fit(train_X, train_y)
             result = clf.predict_table(test_X, test_y)
+            aux_results.append(result)
+            # break
             
-            arboles.append(clf)
-            resultados.append(result)
+        resultados.append(pd.concat(aux_results))
 
-            break
 
-    result = metrics.aggregate_predictions(results)
+    result = metrics.aggregate_predictions(resultados)
 
-    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/URF/Predicciones/result_' + percentage + '.csv')
+    # result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled_reduced/UF/Predicciones/result_' + percentage + '.csv')
+    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/UF/Predicciones/result_' + percentage + '.csv')

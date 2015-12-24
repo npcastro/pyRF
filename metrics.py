@@ -22,10 +22,12 @@ def aggregate_predictions(results):
     agg_preds = pd.DataFrame(result_dict, index=results[0].index)
 
     aux_dict = {'original': results[0]['original']}
-    aux_dict['predicted'] = algo.max(axis = 1)
-    aux_dict['trust'] = algo.apply(lambda x: x.argmax(), axis=1)
+    aux_dict['predicted'] = agg_preds.apply(lambda x: x.argmax(), axis=1)
+    aux_dict['trust'] = agg_preds.max(axis = 1)
 
-    return aux_dict
+    agg_preds = pd.DataFrame(aux_dict, index=results[0].index)
+
+    return agg_preds
 
 def predict_table(clf, test_X, test_y):
     """Toma un random Forest
