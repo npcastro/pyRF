@@ -30,7 +30,8 @@ def aggregate_predictions(results):
     return agg_preds
 
 def predict_table(clf, test_X, test_y):
-    """Toma un random Forest
+    """Toma un random Forest entrenado y un grupo de tuplas de testing y genera un dataframe con 
+    la forma df['original', 'predicted', 'trust']
     """
     
     prediction = clf.predict(test_X).tolist()
