@@ -42,7 +42,7 @@ if __name__ == '__main__':
                       'SlottedA_length', 'SmallKurtosis', 'Std', 'StetsonK', 'StetsonK_AC']
 
     partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=10)
-    pool = Pool(processes=self.n_jobs)
+    pool = Pool()
     
     resultados = pool.map(partial_fit, paths)
     pool.close()
