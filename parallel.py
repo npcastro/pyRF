@@ -70,8 +70,9 @@ def fit_means_tree(train_path, test_path, index_filter=None, class_filter=None, 
     test_data = test_data.dropna(axis=0, how='any')
 
     # Me aseguro que los datasets sean de los mismos datos
-    test_data = test_data[test_data.index.map(lambda x: x in train_data.index.tolist())]
-    train_data = train_data[train_data.index.map(lambda x: x in test_data.index.tolist())]
+    common_index = list(set(test_data.index.tolist()) & set(train_data.index.tolist()))
+    test_data = test_data.loc[common_index]
+    train_data = train_data.loc[common_index]
     train_data = train_data.sort_index()
     test_data = test_data.sort_index()
 
