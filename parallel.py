@@ -1,5 +1,6 @@
 # coding=utf-8
 import tree
+import utils
 
 import pandas as pd
 from sklearn import cross_validation
@@ -45,12 +46,6 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
 
     return pd.concat(results)
 
-def remove_duplicate_index(df):
-    aux = df.index.value_counts() == 1
-    b = aux[aux]
-    df = df.loc[b.index]
-    return df
-
 def fit_means_tree(train_path, test_path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
     """
 
@@ -65,8 +60,8 @@ def fit_means_tree(train_path, test_path, index_filter=None, class_filter=None, 
     test_data = pd.read_csv(test_path, index_col=0)
 
     # Elimino curvas que estan repetidas
-    test_data = remove_duplicate_index(test_data)
-    train_data = remove_duplicate_index(train_data)
+    test_data = utils.remove_duplicate_index(test_data)
+    train_data = utils.remove_duplicate_index(train_data)
 
     if index_filter:
         train_data = train_data.loc[index_filter]
