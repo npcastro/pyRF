@@ -42,7 +42,8 @@ if __name__ == '__main__':
     partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
     pool = Pool()
     
-    resultados = pool.map(partial_fit, paths)
+    # resultados = pool.map(partial_fit, paths)
+    resultados = map(partial_fit, paths)
     pool.close()
     pool.join()
 
