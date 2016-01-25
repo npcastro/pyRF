@@ -2,6 +2,8 @@
 # Entrena un random forest en un dataset aumentado y clasifica ocupando las medias
 # de los GP como datos de testing
 
+# -------------------------------------------------------------------------------------------------
+
 from config import *
 import metrics
 import utils
