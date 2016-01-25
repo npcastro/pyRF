@@ -20,8 +20,8 @@ if __name__ == '__main__':
     else:
         percentage = '100'
 
-    folds = 10
-    training_path = '/n/seasfs03/IACS/TSC/ncastro/sets/MACHO_Big/macho big ' + percentage + '.csv'
+    folds = 5
+    train_path = '/n/seasfs03/IACS/TSC/ncastro/sets/MACHO_Big/macho big ' + percentage + '.csv'
     test_path = '/n/home09/ncastro/workspace/Features/sets/MACHO_Means/Macho means set ' + percentage + '.csv'
 
     # Index Filter??
@@ -57,12 +57,15 @@ if __name__ == '__main__':
     train_X = train_X[feature_filter]
     test_X = test_X[feature_filter]
 
-    skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+    skf = cross_validation.StratifiedKFold(test_y, n_folds=folds)
 
     results = []
     ids = []
 
+    count = 1
     for train_index, test_index in skf:
+        print count
+        count += 1
         fold_test_X = test_X.iloc[test_index]
         fold_test_y = test_y.iloc[test_index]
 
@@ -72,7 +75,7 @@ if __name__ == '__main__':
         fold_train_y = train_y.loc[aux_index]
 
         clf = None
-        clf = RandomForestClassifier(n_estimators=100, criterion='entropy', max_depth=14, min_samples_split=5, n_jobs=-1)
+        clf = RandomForestClassifier(n_estimators=100, criterion='entropy', max_depth=14, min_samples_split=50, n_jobs=-1)
 
         clf.fit(fold_train_X, fold_train_y)
         results.append(metrics.predict_table(clf, fold_test_X, fold_test_y))
@@ -89,3 +92,6 @@ if __name__ == '__main__':
     output.close()
 
     result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Big/Predicciones/result_' + percentage + '.csv')
+
+    m = metrics.confusion_matrix(result)
+    print metrics.weighted_f_score(m)
