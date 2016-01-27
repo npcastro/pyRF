@@ -1,6 +1,6 @@
 import pickle
 import matplotlib.pyplot as plt
-import tree
+import metrics
 
 def graf(clase, x_values, y_values, y_label):
 
@@ -24,9 +24,6 @@ def graf(clase, x_values, y_values, y_label):
 if __name__ == '__main__':
 
 	RESULT_DIR = 'output/macho/'
-		
-	# Inicializo un arbol cualquiera para tener sus metodos
-	clf = tree.Tree('uncertainty')
 
 	lector = open( RESULT_DIR + 'result random.pkl', 'r')
 	result = pickle.load(lector)
@@ -52,18 +49,18 @@ if __name__ == '__main__':
 
 			aux = result[result['trust'] > porcentaje]
 
-			# matrix = clf.confusion_matrix(aux)
-			matrix = clf.hard_matrix(aux)
+			# matrix = metrics.confusion_matrix(aux)
+			matrix = metrics.hard_matrix(aux)
 
 			# Si la precision es menor que cero, es porque no habian datos que superaran tal nivel de confianza
-			precision = clf.accuracy(matrix, clase)
+			precision = metrics.accuracy(matrix, clase)
 			if precision >= 0:
 				valores_accuracy.append(precision)
-				valores_recall.append(clf.recall(matrix, clase))
+				valores_recall.append(metrics.recall(matrix, clase))
 				x_values.append(porcentaje)
 
 			# Si el f_score es menor que cero, es porque no habian datos que superaran tal nivel de confianza
-			f_score = clf.f_score(matrix, clase)
+			f_score = metrics.f_score(matrix, clase)
 			if f_score >= 0:
 				valores_fscore.append(f_score)
 				x_values_fscore.append(porcentaje)			
