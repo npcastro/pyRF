@@ -1,13 +1,12 @@
 # Toma un directorio de resultados y arma un csv con el progreso
 # de los f_score
 
-import tree
+import metrics
 
 import pandas as pd
 
-clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
-
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Big/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Big/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled_reduced/RF/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Completed/'
@@ -26,19 +25,17 @@ f_dict = {}
 w_dict = {}
 
 for percentage in xrange(5,100,5):
-# for percentage in xrange(150, 250, 10):
-# for percentage in xrange(185, 245, 5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
-    matrix = clf.confusion_matrix(result)
-    # matrix = clf.hard_matrix(result)
+    matrix = metrics.confusion_matrix(result)
+    # matrix = metrics.hard_matrix(result)
 
-    w_dict[percentage] = clf.weighted_f_score(matrix)
+    w_dict[percentage] = metrics.weighted_f_score(matrix)
 
     clases = matrix.columns.tolist()
-    p = [clf.precision(matrix, c) for c in clases]
-    r = [clf.recall(matrix, c) for c in clases]
-    f = [clf.f_score(matrix, c) for c in clases]
+    p = [metrics.precision(matrix, c) for c in clases]
+    r = [metrics.recall(matrix, c) for c in clases]
+    f = [metrics.f_score(matrix, c) for c in clases]
 
     p_dict[percentage] = p
     r_dict[percentage] = r
