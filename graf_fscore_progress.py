@@ -5,11 +5,8 @@ import matplotlib.pyplot as plt
 import tree
 import metrics
 
-# result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/UTree/GP/Predicciones/'
-# save_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Graficos/'
-
-result_dir = '/Users/npcastro/Dropbox/Resultados/EROS/UTree/GP/Predicciones/'
-save_dir = '/Users/npcastro/Dropbox/Resultados/EROS/Graficos/'
+result_dir = '/Users/npcastro/Dropbox/Resultados/MACHO/Sampled/uniform/UF/Predicciones/'
+save_dir = '/Users/npcastro/Desktop/temp/'
 
 # No esta terminado pero tiene que haber una manera de hacer el proceso mas rápido
 def find_indexes(lista):
@@ -25,14 +22,10 @@ def find_indexes(lista):
             indexes.append(i)
     return indexes
 
-# regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/MACHO/Comparacion/Tree/Metricas/f_score.csv', index_col=0)
-# regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/MACHO/Tree/Regular/Metricas/f_score.csv', index_col=0)
-regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/EROS/Tree/Regular/Metricas/f_score.csv', index_col=0)
 
-for p in xrange(25, 105, 5):
+regular_fscore = pd.read_csv('/Users/npcastro/Dropbox/Resultados/MACHO/RF/Metricas/f_score.csv', index_col=0)
 
-    if p == 50:
-        continue
+for p in xrange(5, 105, 5):
 
     print str(p) + '%'
     
@@ -51,7 +44,8 @@ for p in xrange(25, 105, 5):
         trust_threshold = float(i)/100
         result = result[result['trust'] > trust_threshold]
 
-        matrix = metrics.hard_matrix(result)
+        # matrix = metrics.hard_matrix(result)
+        matrix = metrics.confusion_matrix(result)
 
         # Si el f_score es menor que cero, es porque no habian datos que superaran tal nivel de confianza
         f_scores = {clase: metrics.f_score(matrix, clase) for clase in clases}

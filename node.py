@@ -1,5 +1,8 @@
 # coding=utf-8
 
+# Clase nodo para el arbol de decisión normal
+# -------------------------------------------------------------------------------------------------
+
 from __future__ import division
 from collections import Counter
 import math

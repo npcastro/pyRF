@@ -1,5 +1,9 @@
 # coding=utf-8
 
+# Nodo para paralelizar por splits. Esta forma de paralelizar impone limitaciones, que a la larga
+# me parecieron mas ineficientes (no se puede aprovechar otras optimizaciones del algoritmo)
+# -------------------------------------------------------------------------------------------------
+
 import sys
 import time
 import math

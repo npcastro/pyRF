@@ -1,6 +1,7 @@
 # coding=utf-8
-# Entrena un random forest
-# Y guarda sus resultados
+
+# Entrena un random forest y guarda sus resultados
+# -------------------------------------------------------------------------------------------------
 
 from config import *
 import metrics

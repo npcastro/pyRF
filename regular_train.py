@@ -1,6 +1,7 @@
 # coding=utf-8
-# Entra un arbol de decisión clasico
-# Y guarda sus resultados
+
+# Entrena un arbol de decisión clasico y guarda sus resultados
+# ------------------------------------------------------------------------------------------------- 
 
 from config import *
 import tree

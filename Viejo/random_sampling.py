@@ -1,4 +1,4 @@
-# Toma un dataset con incertidumbre y genera n datasets nuervos sampleados de el. 
+# Toma un dataset con incertidumbre y genera n datasets nuevos sampleados de el. 
 
 import pandas as pd
 from numpy import random
