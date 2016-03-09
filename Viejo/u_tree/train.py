@@ -1,6 +1,7 @@
 # coding=utf-8
-# Entra un arbol de decisión con incertidumbre en paralelo
-# Y guarda sus resultados
+
+# Entrena un arbol de decisión con incertidumbre en paralelo
+# -------------------------------------------------------------------------------------------------
 
 from config import *
 import tree

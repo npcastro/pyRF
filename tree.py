@@ -1,5 +1,8 @@
 # coding=utf-8
 
+# Clase que engloba los distintos tipos de árboles de decisión
+# -------------------------------------------------------------------------------------------------
+
 import pandas as pd
 import numpy as np
 

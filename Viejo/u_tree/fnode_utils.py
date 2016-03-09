@@ -1,5 +1,8 @@
 # coding=utf-8
 
+# Utils especiales para la clase de FNode
+# -------------------------------------------------------------------------------------------------
+
 import sys
 from copy import deepcopy
 

@@ -1,5 +1,8 @@
+# coding=utf-8
+
 # Este script lo ocupe para encontrar el mejor fit para un arbol de decision entre artas combinaciones
 # de parametros
+# -------------------------------------------------------------------------------------------------
 
 import itertools
 import metrics

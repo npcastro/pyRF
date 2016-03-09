@@ -1,5 +1,8 @@
 # coding=utf-8
-# En este script voy a desarrollar y medir la paralelizacion del árbol de decision
+
+# Desarrollo y medición de la velocidad del arbol de decisión en paralelo
+# -------------------------------------------------------------------------------------------------
+
 
 from UNode import *
 import pandas as pd

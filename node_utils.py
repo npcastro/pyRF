@@ -1,5 +1,8 @@
 # coding=utf-8
 
+# Métodos utiles para la clase nodo del árbol de decisión normal
+# -------------------------------------------------------------------------------------------------
+
 import sys
 from copy import deepcopy
 from functools import partial

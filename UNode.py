@@ -1,5 +1,8 @@
 # coding=utf-8
 
+# Nodo de arbol de decisión con incertidumbre sin paralelización
+# -------------------------------------------------------------------------------------------------
+
 import sys
 import time
 import math
