@@ -27,8 +27,6 @@ w_dict = {}
 for percentage in xrange(5,55,5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
-    #print result.original.unique()
-    #print result.predicted.unique()
     matrix = metrics.confusion_matrix(result)
     # matrix = metrics.hard_matrix(result)
 
