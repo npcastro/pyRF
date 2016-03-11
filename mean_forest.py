@@ -1,4 +1,5 @@
 # coding=utf-8
+
 # Entreno un grupo de árboles, cada uno sobre un set de entrenamiento distinto.
 # Después ocupo la media de cada curva para clasificar y junto la votación de cada árbol para tomar
 # la decisión final
