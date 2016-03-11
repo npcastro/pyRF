@@ -5,17 +5,13 @@ import metrics
 
 import pandas as pd
 
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Big/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled_reduced/RF/'
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Completed/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Completed/'
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/UTree/'
 # path = '/Users/npcastro/Dropbox/Resultados/EROS/RF/'
-# path = '/Users/npcastro/Dropbox/Resultados/MACHO/UTree/GP/'
-# path = '/Users/npcastro/Dropbox/Resultados/EROS/UTree/GP/'
+path = '/Users/npcastro/Desktop/UF/'
 
 result_dir = path + 'Predicciones/'
 
@@ -24,7 +20,7 @@ r_dict = {}
 f_dict = {}
 w_dict = {}
 
-for percentage in xrange(5,55,5):
+for percentage in xrange(5, 105, 5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     matrix = metrics.confusion_matrix(result)
@@ -58,12 +54,12 @@ p_df.to_csv(save_dir + 'precision.csv')
 r_df = pd.DataFrame.from_dict(r_dict, orient='index')
 r_df.columns = clases
 r_df = r_df.sort_index(ascending=True)
-r_df = p_df.fillna(value=0.0)
+r_df = r_df.fillna(value=0.0)
 r_df.to_csv(save_dir + 'recall.csv')
 
 f_df = pd.DataFrame.from_dict(f_dict, orient='index')
 f_df.columns = clases
 f_df = f_df.sort_index(ascending=True)
-f_df = p_df.fillna(value=0.0)
+f_df = f_df.fillna(value=0.0)
 f_df.to_csv(save_dir + 'f_score.csv')
 

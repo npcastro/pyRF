@@ -59,7 +59,7 @@ def confusion_matrix(table):
     matrix.index = unique
 
     for index, row in table.iterrows():
-        matrix[row[0]][row[1]] += row[2]
+        matrix.loc[row[0]][row[1]] += row[2]
 
     return matrix
 
