@@ -24,6 +24,7 @@ for percentage in xrange(5, 105, 5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     matrix = metrics.confusion_matrix(result)
+    matrix.to_csv(path + 'Metricas/confusion_' + str(percentage) + '.csv')
     # matrix = metrics.hard_matrix(result)
 
     w_dict[percentage] = metrics.weighted_f_score(matrix)

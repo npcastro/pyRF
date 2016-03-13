@@ -34,7 +34,7 @@ if __name__ == '__main__':
     result_path = args.result_path
     feature_filter = args.feature_filter
 
-    paths = [sets_path + 'macho_sampled_' + str(i) + '.csv' for i in xrange(100)]
+    paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
     
     # Para asegurar que sean las mismas curvas que en el caso normal
     # index_filter = pd.read_csv('/n/home09/ncastro/workspace/Features/sets/MACHO_Reduced/Macho reduced set '
