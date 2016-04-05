@@ -42,11 +42,6 @@ if __name__ == '__main__':
 
     # class_filter = ['Be_lc','EB']
 
-    feature_filter = ['Amplitude', 'AndersonDarling', 'Autocor_length', 'Beyond1Std', 'Con',
-                      'Eta_e', 'LinearTrend', 'MaxSlope', 'Mean', 'Meanvariance', 'MedianAbsDev',
-                      'MedianBRP', 'PairSlopeTrend', 'PercentAmplitude', 'Q31', 'Rcs', 'Skew',
-                      'SlottedA_length', 'SmallKurtosis', 'Std', 'StetsonK', 'StetsonK_AC']
-
     partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds)
     pool = Pool()
     
