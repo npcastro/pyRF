@@ -18,6 +18,7 @@ if __name__ == '__main__':
 
     print ' '.join(sys.argv)
     parser = argparse.ArgumentParser()
+    parser.add_argument('--percentage', required=True, type=str)
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds', required=True, type=int)
@@ -30,7 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
-
+    
+    percentage = args.percentage
     catalog = args.catalog
     n_processes = args.n_processes
     folds = args.folds
