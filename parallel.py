@@ -9,6 +9,26 @@ import utils
 import pandas as pd
 from sklearn import cross_validation
 
+def train_tree(path, feature_filter=None, train_index=None):
+    data = pd.read_csv(path, index_col=0)
+    data = data.dropna(axis=0, how='any')
+    y = data['class']
+    data = data.drop('class', axis=1)
+
+    if feature_filter:
+        data = data[feature_filter]
+
+    train_X = data.iloc[train_index]
+    train_y = y.iloc[train_index]
+
+    clf = None
+    clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
+
+    clf.fit(train_X, train_y)
+
+    return clf
+    
+
 def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
     """
 
@@ -46,7 +66,6 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
         clf.fit(train_X, train_y)
         result = clf.predict_table(test_X, test_y)
         results.append(result)
-        
 
     return pd.concat(results)
 
