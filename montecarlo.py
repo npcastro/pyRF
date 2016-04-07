@@ -53,6 +53,9 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
 
+        print 'Paso etapa de arboles'
+        
+        algo = []
         for path in paths:
             data = pd.read_csv(path, index_col=0)
             data = data.dropna(axis=0, how='any')
@@ -63,13 +66,17 @@ if __name__ == '__main__':
 
             test_X = data.iloc[test_index]
             test_y = y.iloc[test_index]
-
+            
+            aux = []
             for clf in arboles:
                 result = clf.predict_table(test_X, test_y)
-                resultados.append(result)
-            print len(resultados)
+                aux.append(result)
+            algo.append(metrics.aggregate_predictions(aux))
+            print 'Largo de lista para cada muestra: ' + str(len(algo))
+        
+        resultados.append(metrics.aggregate_predictions(algo))
 
-        print len(resultados)
+        print 'Largo de lista para folds: ' + str(len(resultados))
 
-    result = metrics.aggregate_predictions(resultados)
+    result = pd.concat(resultados)
     result.to_csv(result_path)
