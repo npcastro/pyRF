@@ -1,15 +1,41 @@
+# coding=utf-8
+
 import pandas as pd
 import numpy as np
 
+
+def result_to_frame(result):
+    """Recibe una tabla de resultados (id, original, predicted, trust) y la mapea a un dataframe
+    o matriz
+    """
+    lc_ids = result.index.tolist()
+    unique = np.unique(np.concatenate((result['original'].values, result['predicted'].values), axis=1))
+    df = pd.DataFrame(index=lc_ids, columns=unique).fillna(0.0)
+
+    for index, row in result.iterrows():
+        df.set_value(index, row['predicted'], row['trust'])
+
+    return df
+
 def aggregate_predictions(results):
+    """
+    Toma una lista de resultados. Cada resultado es un dataframe con la clase original y su
+    predicción para un grupo de curvas. Para cada curva junta las predicciones y retorna
+    un solo dataframe con la probabilidad agregada de pertencer a la clase mas probable.
+    """
+
+    # Lista de diccionarios. Donde cada entrada corresponde a una curva y es un diccionario donde
+    # las llaves son clases y contienen el conteo para cada una de las clases
+    
+    prediction_counts = []
+
+    ids = results.index.tolist()
     unique = np.unique(np.concatenate((results[0]['original'].values, results[0]['predicted'].values), axis=1))
 
     N_curves = len(results[0].index)
     N_trees = len(results)
 
-    # Diccionario, cada llave es una clase con una lista de los conteos de votaciones
-    # para cada curva
-    result_dict = {c: np.zeros(N_curves) for c in unique}
+    
 
     for i in xrange(N_curves):
         for result in results:
@@ -28,6 +54,39 @@ def aggregate_predictions(results):
     agg_preds = pd.DataFrame(aux_dict, index=results[0].index)
 
     return agg_preds
+
+# def aggregate_predictions(results):
+#     """
+#     Toma una lista de resultados. Cada resultado es un dataframe con la clase original y su
+#     predicción para un grupo de curvas. Para cada curva junta las predicciones y retorna
+#     un solo dataframe con la probabilidad agregada de pertencer a la clase mas probable.
+#     """
+#     unique = np.unique(np.concatenate((results[0]['original'].values, results[0]['predicted'].values), axis=1))
+
+#     N_curves = len(results[0].index)
+#     N_trees = len(results)
+
+#     # Diccionario, cada llave es una clase con una lista de los conteos de votaciones
+#     # para cada curva
+#     result_dict = {c: np.zeros(N_curves) for c in unique}
+
+#     for i in xrange(N_curves):
+#         for result in results:
+#             result_dict[result.iloc[i]['predicted']][i] += 1
+
+#     for i in xrange(N_curves):
+#         for key in result_dict:
+#             result_dict[key][i] = result_dict[key][i] / float(N_trees)
+
+#     agg_preds = pd.DataFrame(result_dict, index=results[0].index)
+
+#     aux_dict = {'original': results[0]['original']}
+#     aux_dict['predicted'] = agg_preds.apply(lambda x: x.argmax(), axis=1)
+#     aux_dict['trust'] = agg_preds.max(axis = 1)
+
+#     agg_preds = pd.DataFrame(aux_dict, index=results[0].index)
+
+#     return agg_preds
 
 def predict_table(clf, test_X, test_y):
     """Toma un random Forest entrenado y un grupo de tuplas de testing y genera un dataframe con 
