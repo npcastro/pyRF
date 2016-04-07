@@ -1,29 +1,41 @@
+# coding=utf-8
+
 import pandas as pd
 import numpy as np
 
+
+def result_to_frame(result):
+    """Recibe una tabla de resultados (id, original, predicted, trust) y la mapea a un dataframe
+    o matriz
+    """
+    lc_ids = result.index.tolist()
+    unique = np.unique(np.concatenate((result['original'].values, result['predicted'].values), axis=1))
+    df = pd.DataFrame(index=lc_ids, columns=unique).fillna(0.0)
+
+    for index, row in result.iterrows():
+        df.set_value(index, row['predicted'], row['trust'])
+
+    return df
+
 def aggregate_predictions(results):
-    unique = np.unique(np.concatenate((results[0]['original'].values, results[0]['predicted'].values), axis=1))
+    """
+    Toma una lista de resultados. Cada resultado es un dataframe con la clase original y su
+    predicción para un grupo de curvas. Para cada curva junta las predicciones y retorna
+    un solo dataframe con la probabilidad agregada de pertencer a la clase mas probable.
+    """
 
-    N_curves = len(results[0].index)
-    N_trees = len(results)
+    # Lista de diccionarios. Donde cada entrada corresponde a una curva y es un diccionario donde
+    # las llaves son clases y contienen el conteo para cada una de las clases
 
-    # Diccionario, cada llave es una clase con una lista de los conteos de votaciones
-    # para cada curva
-    result_dict = {c: np.zeros(N_curves) for c in unique}
+    aggregate_matrix = reduce(lambda x, y: x+y, map(result_to_frame, results))
 
-    for i in xrange(N_curves):
-        for result in results:
-            result_dict[result.iloc[i]['predicted']][i] += 1
-
-    for i in xrange(N_curves):
-        for key in result_dict:
-            result_dict[key][i] = result_dict[key][i] / float(N_trees)
-
-    agg_preds = pd.DataFrame(result_dict, index=results[0].index)
+    row_sum = aggregate_matrix.sum(axis=1)          # El total de las votaciones para la curva
+    row_max_class = aggregate_matrix.idxmax(axis=1) # La clase mas probable
+    row_max_count = aggregate_matrix.max(axis=1)    # La votación de la clase mas probable
 
     aux_dict = {'original': results[0]['original']}
-    aux_dict['predicted'] = agg_preds.apply(lambda x: x.argmax(), axis=1)
-    aux_dict['trust'] = agg_preds.max(axis = 1)
+    aux_dict['predicted'] = row_max_class
+    aux_dict['trust'] = row_max_count / row_sum
 
     agg_preds = pd.DataFrame(aux_dict, index=results[0].index)
 
