@@ -75,8 +75,12 @@ if __name__ == '__main__':
             print 'Largo de lista para cada muestra: ' + str(len(algo))
         
         resultados.append(metrics.aggregate_predictions(algo))
+        del aux
+        del algo
 
         print 'Largo de lista para folds: ' + str(len(resultados))
+        print 'Memoria de dataframe: ' + str(resultados[0].memory_usage(index=True))
+        break
 
     result = pd.concat(resultados)
     result.to_csv(result_path)
