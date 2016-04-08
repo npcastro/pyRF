@@ -22,6 +22,7 @@ if __name__ == '__main__':
     # Recibo parámetros de la linea de comandos
     print ' '.join(sys.argv)
     parser = argparse.ArgumentParser()
+    parser.add_argument('--percentage', required=True, type=str)
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds',  required=True, type=int)
@@ -31,6 +32,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args(sys.argv[1:])
 
+    percentage = args.percentage
     catalog = args.catalog
     n_processes = args.n_processes
     folds = args.folds
@@ -61,7 +63,7 @@ if __name__ == '__main__':
 
         count = 0
         for clf in arboles:
-            output = open("/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/Arboles/arbol_" + str(count) + '.pkl', 'wb+')
+            output = open(result_path + "Arboles/arbol_" + str(count) + '.pkl', 'wb+')
             pickle.dump(clf, output)
             output.close()
             count += 1
@@ -93,7 +95,7 @@ if __name__ == '__main__':
             print 'Largo de lista para cada muestra: ' + str(len(algo))
 
         resultados.append(metrics.temp(reduce(lambda a, b: a+b, algo), test_y))
-        
+
         del aux
         del algo
         print 'Largo de lista para folds: ' + str(len(resultados))
@@ -102,4 +104,4 @@ if __name__ == '__main__':
         break
 
     result = pd.concat(resultados)
-    result.to_csv(result_path)
+    result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')
