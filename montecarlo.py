@@ -6,6 +6,7 @@
 
 from functools import partial
 from multiprocessing import Pool
+import pickle
 import argparse
 import sys
 
@@ -46,6 +47,9 @@ if __name__ == '__main__':
 
     resultados = []
     for train_index, test_index in skf:
+
+        print 'Entrenamiento de arboles'
+
         partial_train = partial(parallel.train_tree, feature_filter=feature_filter,
                                 train_index=train_index)
         pool = Pool()
@@ -53,10 +57,20 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
 
-        print 'Paso etapa de arboles'
-        
+        print 'Guardado de arboles'
+
+        count = 0
+        for clf in arboles:
+            output = open("/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/Arboles/arbol_" + str(count) + '.pkl', 'wb+')
+            pickle.dump(clf, output)
+            output.close()
+            count += 1
+
+        print 'Consolido resultados'
+
+        # Guardo las votaciones de clasificaciones para cada dataset
         algo = []
-        for path in paths:
+        for path in paths[0:4]:
             data = pd.read_csv(path, index_col=0)
             data = data.dropna(axis=0, how='any')
             y = data['class']
@@ -67,16 +81,20 @@ if __name__ == '__main__':
             test_X = data.iloc[test_index]
             test_y = y.iloc[test_index]
             
+            # Guardo la clasificacion de cada árbol para el dataset actual
             aux = []
             for clf in arboles:
                 result = clf.predict_table(test_X, test_y)
                 aux.append(result)
-            algo.append(metrics.aggregate_predictions(aux))
-            print 'Largo de lista para cada muestra: ' + str(len(algo))
-        
-        resultados.append(metrics.aggregate_predictions(algo))
 
+            # Consolido las votaciones de los árboles en un solo frame
+            consolidated_frame = reduce(lambda a, b: a+b, map(metrics.result_to_frame, aux))
+            algo.append(consolidated_frame)
+            print 'Largo de lista para cada muestra: ' + str(len(algo))
+
+        resultados.append(metrics.temp(reduce(lambda a, b: a+b, algo), test_y))
         print 'Largo de lista para folds: ' + str(len(resultados))
+        break
 
     result = pd.concat(resultados)
     result.to_csv(result_path)
