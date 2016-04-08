@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
         # Guardo las votaciones de clasificaciones para cada dataset
         algo = []
-        for path in paths[0:4]:
+        for path in paths:
             data = pd.read_csv(path, index_col=0)
             data = data.dropna(axis=0, how='any')
             y = data['class']
