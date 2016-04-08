@@ -12,7 +12,7 @@ import pandas as pd
 # path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
 # path = '/Users/npcastro/Dropbox/Resultados/EROS/Sampled/uniform/UF/'
 # path = '/Users/npcastro/Desktop/UF/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/'
 
 result_dir = path + 'Predicciones/'
 
@@ -21,7 +21,7 @@ r_dict = {}
 f_dict = {}
 w_dict = {}
 
-for percentage in xrange(5, 105, 5):
+for percentage in xrange(5, 10, 5):
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     matrix = metrics.confusion_matrix(result)
