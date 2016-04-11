@@ -8,6 +8,7 @@
 
 from multiprocessing import Pool
 from functools import partial
+import argparse
 import sys
 
 from config import *
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     result_path = args.result_path
     feature_filter = args.feature_filter
 
-    paths = [sets_path + 'macho_sampled_' + str(i) + '.csv' for i in xrange(100)]
+    paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
     partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
     
@@ -48,4 +49,4 @@ if __name__ == '__main__':
     pool.join()
 
     result = metrics.aggregate_predictions(resultados)
-    result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Means/Predicciones/result_' + percentage + '.csv')
+    result.to_csv(result_path)
