@@ -69,39 +69,36 @@ if __name__ == '__main__':
     #         output.close()
     #         count += 1
 
-    #     print 'Consolido resultados'
+        print 'Consolido resultados'
 
-    #     # Guardo las votaciones de clasificaciones para cada dataset
-    #     sample_set_result = []
-    #     for path in paths:
-    #         data = pd.read_csv(path, index_col=0)
-    #         data = data.dropna(axis=0, how='any')
-    #         y = data['class']
-    #         data = data.drop('class', axis=1)
-    #         if feature_filter:
-    #             data = data[feature_filter]
+        # Guardo las votaciones de clasificaciones para cada dataset
+        sample_set_result = []
+        for path in paths:
+            data = pd.read_csv(path, index_col=0)
+            data = data.dropna(axis=0, how='any')
+            y = data['class']
+            data = data.drop('class', axis=1)
+            if feature_filter:
+                data = data[feature_filter]
 
-    #         test_X = data.iloc[test_index]
-    #         test_y = y.iloc[test_index]
+            test_X = data.iloc[test_index]
+            test_y = y.iloc[test_index]
             
-    #         # Guardo la clasificacion de cada árbol para el dataset actual
-    #         aux = []
-    #         for clf in arboles:
-    #             result = clf.predict_table(test_X, test_y)
-    #             aux.append(result)
+            # Guardo la clasificacion de cada árbol para el dataset actual
+            aux = []
+            for clf in arboles:
+                result = clf.predict_table(test_X, test_y)
+                aux.append(result)
 
-    #         # Consolido las votaciones de los árboles en un solo frame
-    #         consolidated_frame = reduce(lambda a, b: a+b, map(metrics.result_to_frame, aux))
-    #         sample_set_result.append(consolidated_frame)
-    #         print 'Largo de lista para cada muestra: ' + str(len(sample_set_result))
+            # Consolido las votaciones de los árboles en un solo frame
+            consolidated_frame = reduce(lambda a, b: a+b, map(metrics.result_to_frame, aux))
+            sample_set_result.append(consolidated_frame)
+            print 'Largo de lista para cada muestra: ' + str(len(sample_set_result))
 
-    #     resultados.append(metrics.matrix_to_result(reduce(lambda a, b: a+b, sample_set_result), test_y))
+        resultados.append(metrics.matrix_to_result(reduce(lambda a, b: a+b, sample_set_result), test_y))
         
-    #     del arboles
-    #     del aux
-    #     del sample_set_result
-    #     print 'Largo de lista para folds: ' + str(len(resultados))
-    #     print 'Memoria de dataframe: ' + str(resultados[0].memory_usage(index=True))
+        print 'Largo de lista para folds: ' + str(len(resultados))
+        print 'Memoria de dataframe: ' + str(resultados[0].memory_usage(index=True))
 
-    # result = pd.concat(resultados)
-    # result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')
+    result = pd.concat(resultados)
+    result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')

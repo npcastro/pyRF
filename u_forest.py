@@ -35,15 +35,9 @@ if __name__ == '__main__':
     feature_filter = args.feature_filter
 
     paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
-    
-    # Para asegurar que sean las mismas curvas que en el caso normal
-    # index_filter = pd.read_csv('/n/home09/ncastro/workspace/Features/sets/MACHO_Reduced/Macho reduced set '
-    #                      + percentage + '.csv', index_col=0).index
-
-    # class_filter = ['Be_lc','EB']
 
     partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds)
-    pool = Pool()
+    pool = Pool(processes=n_processes, maxtasksperchild=2)
     
     resultados = pool.map(partial_fit, paths)
     pool.close()
