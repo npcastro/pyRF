@@ -4,6 +4,7 @@
 
 # -------------------------------------------------------------------------------------------------
 
+from contextlib import closing
 from functools import partial
 from multiprocessing import Pool
 import pickle
@@ -54,7 +55,7 @@ if __name__ == '__main__':
 
         partial_train = partial(parallel.train_tree, feature_filter=feature_filter,
                                 train_index=train_index)
-        pool = Pool()
+        pool = Pool(processes=n_processes, maxtasksperchild=2)
         arboles = pool.map(partial_train, paths)
         pool.close()
         pool.join()

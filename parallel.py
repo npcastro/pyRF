@@ -11,7 +11,7 @@ from sklearn import cross_validation
 
 def train_tree(path, feature_filter=None, train_index=None):
     data = pd.read_csv(path, index_col=0)
-    data, y = utils.filter_data(data, feature_filter)
+    data, y = utils.filter_data(data, feature_filter=feature_filter)
     
     train_X = data.iloc[train_index]
     train_y = y.iloc[train_index]
@@ -20,7 +20,7 @@ def train_tree(path, feature_filter=None, train_index=None):
     clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
     clf.fit(train_X, train_y)
-
+    
     return clf
 
 def fit_montecarlo_tree(path_index, paths = None, index_filter=None, class_filter=None,
