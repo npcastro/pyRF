@@ -17,7 +17,7 @@ def result_to_frame(result):
 
     return df
 
-def temp(matrix, y):
+def matrix_to_result(matrix, y):
     row_sum = matrix.sum(axis=1)          # El total de las votaciones para la curva
     row_max_class = matrix.idxmax(axis=1) # La clase mas probable
     row_max_count = matrix.max(axis=1)    # La votación de la clase mas probable

@@ -11,13 +11,8 @@ from sklearn import cross_validation
 
 def train_tree(path, feature_filter=None, train_index=None):
     data = pd.read_csv(path, index_col=0)
-    data = data.dropna(axis=0, how='any')
-    y = data['class']
-    data = data.drop('class', axis=1)
-
-    if feature_filter:
-        data = data[feature_filter]
-
+    data, y = utils.filter_data(data, feature_filter)
+    
     train_X = data.iloc[train_index]
     train_y = y.iloc[train_index]
 
@@ -27,6 +22,35 @@ def train_tree(path, feature_filter=None, train_index=None):
     clf.fit(train_X, train_y)
 
     return clf
+
+def fit_montecarlo_tree(path_index, paths = None, index_filter=None, class_filter=None,
+                        feature_filter=None, folds=10):
+    """A diferencia de fit tree, este metodo recibe todos los paths. Entrena solo con uno, indicado
+    por path index. Pero luego por orden, voy abriendo todos los sets para clasificar.
+    """
+    data = pd.read_csv(paths[path_index], index_col=0)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+
+    skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+
+    results = []
+    for train_index, test_index in skf:
+        train_X = data.iloc[train_index]
+        train_y = y.iloc[train_index]
+
+        clf = None
+        clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
+
+        clf.fit(train_X, train_y)
+        # result = clf.predict_table(test_X, test_y)
+        # results.append(result)
+
+    # Ahora clasifico con este arbol para todos los datasets
+    for path in paths:
+        data = pd.read_csv(path, index_col=0)
+        data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+
+    return pd.concat(results)
     
 
 def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
@@ -39,19 +63,7 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
 
     """
     data = pd.read_csv(path, index_col=0)
-    
-    if index_filter:
-        data = data.loc[index_filter]
-    
-    if class_filter:
-        data = data[data['class'].apply(lambda x: True if x in class_filter else False)]
-
-    data = data.dropna(axis=0, how='any')
-    y = data['class']
-    data = data.drop('class', axis=1)
-
-    if feature_filter:
-        data = data[feature_filter]
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
     
