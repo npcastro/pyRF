@@ -1,17 +1,12 @@
-# Toma un directorio de resultados y arma un csv con el progreso
-# de los f_score
+# coding=utf-8
 
-import metrics
+# Toma un directorio de resultados y arma un csv con el progreso de los f_score
+# -------------------------------------------------------------------------------------------------
 
 import pandas as pd
 
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Comparacion/Tree/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Completed/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Tree/Completed/'
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
-# path = '/Users/npcastro/Dropbox/Resultados/EROS/Sampled/uniform/UF/'
-# path = '/Users/npcastro/Desktop/UF/'
+import metrics
+
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/'
 
 result_dir = path + 'Predicciones/'
@@ -64,4 +59,3 @@ f_df.columns = clases
 f_df = f_df.sort_index(ascending=True)
 f_df = f_df.fillna(value=0.0)
 f_df.to_csv(save_dir + 'f_score.csv')
-

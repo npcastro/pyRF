@@ -6,48 +6,46 @@
 
 # -------------------------------------------------------------------------------------------------
 
+from multiprocessing import Pool
+from functools import partial
+import sys
+
 from config import *
 import metrics
 import parallel
 
-import sys
-
-from functools import partial
-from multiprocessing import Pool
 
 if __name__ == '__main__':
-    
-    if len(sys.argv) == 2:
-        percentage = sys.argv[1]
-    else:
-        percentage = '100'
 
-    folds = 10
+    # Recibo parámetros de la linea de comandos
+    print ' '.join(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--n_processes', required=True, type=int)
+    parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
+    parser.add_argument('--folds',  required=True, type=int)
+    parser.add_argument('--sets_path',  required=True, type=str)
+    parser.add_argument('--test_path',  required=True, type=str)
+    parser.add_argument('--result_path',  required=True, type=str)
+    parser.add_argument('--feature_filter',  nargs='*', type=str)
 
-    sets_path = '/n/seasfs03/IACS/TSC/ncastro/sets/MACHO_Sampled/' + percentage + '%/'
+    args = parser.parse_args(sys.argv[1:])
+
+    n_processes = args.n_processes
+    catalog = args.catalog
+    folds = args.folds
+    sets_path = args.sets_path
+    test_path = args.test_path
+    result_path = args.result_path
+    feature_filter = args.feature_filter
+
     paths = [sets_path + 'macho_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
-    test_path = '/n/home09/ncastro/workspace/Features/sets/MACHO_Means/Macho means set ' + percentage + '.csv'
-    
-    # Para asegurar que sean las mismas curvas que en el caso normal
-    # index_filter = pd.read_csv('/n/home09/ncastro/workspace/Features/sets/MACHO_Reduced/Macho reduced set '
-    #                      + percentage + '.csv', index_col=0).index
-
-    # class_filter = ['Be_lc','EB']
-
-    feature_filter = ['Amplitude', 'AndersonDarling', 'Autocor_length', 'Beyond1Std', 'Con',
-                      'Eta_e', 'LinearTrend', 'MaxSlope', 'Mean', 'Meanvariance', 'MedianAbsDev',
-                      'MedianBRP', 'PairSlopeTrend', 'PercentAmplitude', 'Q31', 'Rcs', 'Skew',
-                      'SlottedA_length', 'SmallKurtosis', 'Std', 'StetsonK', 'StetsonK_AC']
-
     partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
-    pool = Pool()
     
-    # resultados = pool.map(partial_fit, paths)
-    resultados = map(partial_fit, paths)
+    pool = Pool(processes=n_processes, maxtasksperchild=2)
+    resultados = pool.map(partial_fit, paths)
     pool.close()
     pool.join()
 
     result = metrics.aggregate_predictions(resultados)
-
     result.to_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/Means/Predicciones/result_' + percentage + '.csv')
