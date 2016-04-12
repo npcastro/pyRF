@@ -2,7 +2,6 @@
 # Entra un arbol de decisión clasico sobre los sets de entrenamiento con curvas
 # completadas
 
-from config import *
 import tree
 
 import pandas as pd

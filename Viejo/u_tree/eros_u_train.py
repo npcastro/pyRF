@@ -2,7 +2,6 @@
 # Entrena un arbol de decisión con incertidumbre en paralelo
 # En el dataset de EROS y guarda sus resultados
 
-from config import *
 import tree
 
 import pandas as pd
@@ -21,7 +20,7 @@ if __name__ == '__main__':
     n_jobs = 30
 
     folds = 4
-    training_set_path = SETS_DIR_PATH + 'EROS_GP/eros_gp_u_set_' + percentage + '.csv'
+    training_set_path = '/n/home09/ncastro/workspace/Features/sets/EROS_GP/eros_gp_u_set_' + percentage + '.csv'
     data = pd.read_csv(training_set_path)
     # data = data.iloc[0:1500]
 

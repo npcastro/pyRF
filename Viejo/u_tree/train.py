@@ -3,7 +3,6 @@
 # Entrena un arbol de decisión con incertidumbre en paralelo
 # -------------------------------------------------------------------------------------------------
 
-from config import *
 import tree
 
 import pandas as pd
@@ -22,7 +21,7 @@ if __name__ == '__main__':
     n_jobs = 30
 
     folds = 5
-    training_set_path = SETS_DIR_PATH + 'MACHO_GP/gp_u_set_' + percentage + '.csv'
+    training_set_path = '/n/home09/ncastro/workspace/Features/sets/MACHO_GP/gp_u_set_' + percentage + '.csv'
     data = pd.read_csv(training_set_path, index_col=0)
     data = data[data['class'].apply(lambda x: True if x in ['Be_lc','EB'] else False)]
 

@@ -4,17 +4,14 @@
 
 # -------------------------------------------------------------------------------------------------
 
-from contextlib import closing
 from functools import partial
 from multiprocessing import Pool
-import pickle
 import argparse
 import sys
 
 from sklearn import cross_validation
 import pandas as pd
 
-from config import *
 import metrics
 import parallel
 

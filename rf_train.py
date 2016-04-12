@@ -11,7 +11,6 @@ import pandas as pd
 from sklearn import cross_validation
 from sklearn.ensemble import RandomForestClassifier
 
-from config import *
 import metrics
 
 if __name__ == '__main__':

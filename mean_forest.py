@@ -11,7 +11,6 @@ from functools import partial
 import argparse
 import sys
 
-from config import *
 import metrics
 import parallel
 

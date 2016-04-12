@@ -10,7 +10,6 @@ import sys
 import pandas as pd
 from sklearn import cross_validation
 
-from config import *
 import tree
 import utils
 

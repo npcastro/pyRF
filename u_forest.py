@@ -9,7 +9,6 @@ from multiprocessing import Pool
 import argparse
 import sys
 
-from config import *
 import metrics
 import parallel
 
