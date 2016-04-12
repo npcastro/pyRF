@@ -3,11 +3,13 @@
 # Métodos para paralelizar 
 # -------------------------------------------------------------------------------------------------
 
-import tree
-import utils
-
 import pandas as pd
 from sklearn import cross_validation
+from sklearn.ensemble import RandomForestClassifier
+
+import tree
+import utils
+import metrics
 
 def train_tree(path, feature_filter=None, train_index=None):
     data = pd.read_csv(path, index_col=0)
@@ -76,10 +78,38 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
         clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
 
         clf.fit(train_X, train_y)
-        result = clf.predict_table(test_X, test_y)
-        results.append(result)
+        results.append(clf.predict_table(test_X, test_y))
 
     return pd.concat(results)
+
+def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
+    """
+
+    path: Dirección del dataset a ocupar para entrenar
+    index_filter: Pandas index para filtrar las filas del dataset que se quieren utilizar
+    class_filter: Lista de clases que se quiere utilizar
+    feature_filter: Lista de features que se quiere utilizar
+
+    """
+    data = pd.read_csv(path, index_col=0)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+
+    skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+    
+    results = []
+    for train_index, test_index in skf:
+        train_X, test_X = data.iloc[train_index], data.iloc[test_index]
+        train_y, test_y = y.iloc[train_index], y.iloc[test_index]
+
+        clf = None
+        clf = RandomForestClassifier(n_estimators=100, criterion='entropy', max_depth=14,
+                                     min_samples_split=5)
+
+        clf.fit(train_X, train_y)
+        results.append(metrics.predict_table(clf, test_X, test_y))
+
+    return pd.concat(results)
+
 
 def fit_means_tree(train_path, test_path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
     """
