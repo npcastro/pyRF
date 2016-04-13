@@ -8,8 +8,12 @@ import pandas as pd
 import metrics
 
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Sampled/uniform/UF/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/rf/'
 how = 'soft'
-# how = 'hard'
+how = 'hard'
 
 result_dir = path + 'Predicciones/'
 
