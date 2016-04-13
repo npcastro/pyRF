@@ -68,8 +68,8 @@ def predict_table(clf, test_X, test_y):
     for index, p in enumerate(probs):
         clase = test_y.iloc[index]
         predicted = prediction[index]
-        # confianza = max(p)
-        confianza = 1.0
+        confianza = max(p)
+        # confianza = 1.0
         tabla.append([clase, predicted, confianza])
 
     return pd.DataFrame(tabla, index=test_y.index, columns=['original', 'predicted', 'trust'])
