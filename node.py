@@ -212,9 +212,13 @@ class Node:
         self.right.is_right = True
         self.data = None
 
-    def predict(self, tupla, confianza=1):
+    def predict(self, tupla):
+        """TODO se podria cambiar el 1.0 por la proporcion de curvas de cada clase
+        en el nodo hoja. Para esto habaria que guardar ese valor. Algo asi como scikit 
+        predict_proba
+        """
         if self.is_leaf:
-            return self.clase, confianza
+            return self.clase, 1.0
         else:
             if tupla[self.feat_name] < self.feat_value:
                 return self.left.predict(tupla)
