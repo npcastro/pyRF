@@ -25,7 +25,6 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
-
     args = parser.parse_args(sys.argv[1:])
 
     catalog = args.catalog

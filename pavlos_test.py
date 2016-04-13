@@ -1,6 +1,6 @@
 # coding=utf-8
 # Entreno un modelo (random forest) sobre un set de entrenamiento normal
-# Después al testear testeo con las medias del random forest, en lugar de con las feats normales
+# Después al testear testeo con las medias del GP, en lugar de con las feats normales
 
 # -------------------------------------------------------------------------------------------------
 
