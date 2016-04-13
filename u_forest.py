@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     if model == 'tree':
         partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds)
-    elif model =='rf':
+    elif model == 'rf':
         partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds)
 
     pool = Pool(processes=n_processes, maxtasksperchild=2)

@@ -44,7 +44,7 @@ if __name__ == '__main__':
     pool.join()
 
     # Imprimo y guardo resultados obtenidos
-    for i, r in resultados_tree:
+    for i, r in enumerate(resultados_tree):
         r.to_csv(result_path + 'result_tree_' + str(i) + '.csv')
         matrix = metrics.hard_matrix(r)
         print 'Tree ' + str(i) + ' f_score: ' + str(metrics.weighted_f_score(matrix))
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     pool.join()
 
     # Imprimo y guardo resultados obtenidos
-    for i, r in resultados_tree:
+    for i, r in enumerate(resultados_tree):
         r.to_csv(result_path + 'result_rf_' + str(i) + '.csv')
         matrix = metrics.hard_matrix(r)
         print 'RF ' + str(i) + ' f_score: ' + str(metrics.weighted_f_score(matrix))
