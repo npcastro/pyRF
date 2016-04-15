@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--sets_path',  required=True, type=str)
     parser.add_argument('--test_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
+    parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
@@ -36,11 +37,16 @@ if __name__ == '__main__':
     sets_path = args.sets_path
     test_path = args.test_path
     result_path = args.result_path
+    model = args.model
     feature_filter = args.feature_filter
 
     paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
-    partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
+
+    if model == 'tree':
+        partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
+    elif model == 'rf':
+        partial_fit = partial(parallel.fit_means_rf, test_path, feature_filter=feature_filter, folds=10)
     
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     resultados = pool.map(partial_fit, paths)
