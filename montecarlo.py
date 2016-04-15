@@ -14,6 +14,7 @@ import pandas as pd
 
 import metrics
 import parallel
+import utils
 
 if __name__ == '__main__':
 
@@ -72,11 +73,7 @@ if __name__ == '__main__':
         sample_set_result = []
         for path in paths:
             data = pd.read_csv(path, index_col=0)
-            data = data.dropna(axis=0, how='any')
-            y = data['class']
-            data = data.drop('class', axis=1)
-            if feature_filter:
-                data = data[feature_filter]
+            data, y = utils.filter_data(data, feature_filter=feature_filter)
 
             test_X = data.iloc[test_index]
             test_y = y.iloc[test_index]
