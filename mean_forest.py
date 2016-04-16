@@ -42,7 +42,6 @@ if __name__ == '__main__':
 
     paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
-
     if model == 'tree':
         partial_fit = partial(parallel.fit_means_tree, test_path, feature_filter=feature_filter, folds=10)
     elif model == 'rf':

@@ -24,3 +24,12 @@ def filter_data(df, index_filter=None, class_filter=None, feature_filter=None):
         df = df[feature_filter]
 
     return df, y
+
+def equalize_indexes(df1, df2):
+    common_index = list(set(df1.index.tolist()) & set(df2.index.tolist()))
+    df1 = df1.loc[common_index]
+    df2 = df2.loc[common_index]
+    df2 = df2.sort_index()
+    df1 = df1.sort_index()
+
+    return df1, df2
