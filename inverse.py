@@ -49,9 +49,14 @@ if __name__ == '__main__':
     feature_filter = args.feature_filter
 
     data = pd.read_csv(training_set_path, index_col=0)
-    data, y = utils.filter_data(data, feature_filter=feature_filter)
-
+    
     paths = [test_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
+
+    # Necesito asegurarm de que las curvas sean las mismas
+    test_data = pd.read_csv(paths[0], index_col=0)
+    data, test_data = utils.equalize_indexes(data, test_data)
+
+    data, y = utils.filter_data(data, feature_filter=feature_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
     results = []
@@ -70,6 +75,7 @@ if __name__ == '__main__':
         aux = []
         for path in paths:
         	test_data = pd.read_csv(path, index_col=0)
+        	test_data = test_data.loc[data.index].sort_index()
         	test_data, test_y = utils.filter_data(test_data, feature_filter=feature_filter)
         	test_X, test_y  = test_data.iloc[train_index], test_y.iloc[train_index]
 
