@@ -60,9 +60,8 @@ if __name__ == '__main__':
     result.index.name = None
     result = result.drop('indice', axis=1)
 
-    output = open(result_path + 'Arboles/Arbol_' + percentage + '.pkl', 'wb+')
+    output = open(result_path + '/Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
     result.to_csv(result_path + '/Predicciones/result_' + percentage + '.csv')
-
