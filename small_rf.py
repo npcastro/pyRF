@@ -75,5 +75,5 @@ if __name__ == '__main__':
 
     result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')
 
-    train_X.index.to_csv(result_path + 'train_index.csv')
-    test_X.index.to_csv(result_path + 'test_index.csv')
+    train_X.to_csv(result_path + 'train.csv')
+    test_X.to_csv(result_path + 'test.csv')

@@ -14,7 +14,7 @@ path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Sampled/uniform/UF/'
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/rf/'
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Sampled/uniform/UF/rf/'
 path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Mean/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/MF/rf/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Small/'
 how = 'soft'
 # how = 'hard'
 
