@@ -10,7 +10,7 @@ def remove_duplicate_index(df):
     return df
 
 def filter_data(df, index_filter=None, class_filter=None, feature_filter=None):
-    if index_filter:
+    if index_filter is not None:
         df = df.loc[index_filter]
     
     if class_filter:

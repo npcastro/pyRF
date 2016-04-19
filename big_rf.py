@@ -47,11 +47,11 @@ if __name__ == '__main__':
     feature_filter = args.feature_filter
 
     train_data = pd.read_csv(train_path, index_col=0)
-    train_index_filter = pd.read_csv(' /n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Small/train_index.csv', index_col=0).index
+    train_index_filter = pd.read_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Small/train.csv', index_col=0).index
     train_X, train_y = utils.filter_data(train_data, index_filter=train_index_filter, feature_filter=feature_filter)
 
     test_data = pd.read_csv(test_path, index_col=0)
-    test_index_filter = pd.read_csv(' /n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Small/test_index.csv', index_col=0).index
+    test_index_filter = pd.read_csv('/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/Small/test.csv', index_col=0).index
     test_X, test_y = utils.filter_data(test_data, index_filter=test_index_filter, feature_filter=feature_filter)
 
     results = []
