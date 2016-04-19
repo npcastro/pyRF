@@ -48,11 +48,13 @@ if __name__ == '__main__':
     result_path = args.result_path
     feature_filter = args.feature_filter
 
+
+
     data = pd.read_csv(training_set_path, index_col=0)
     
     paths = [test_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
-    # Necesito asegurarm de que las curvas sean las mismas
+    # Necesito asegurarme de que las curvas sean las mismas en train y test
     test_data = pd.read_csv(paths[0], index_col=0)
     data, test_data = utils.equalize_indexes(data, test_data)
 
