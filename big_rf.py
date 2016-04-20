@@ -51,9 +51,11 @@ if __name__ == '__main__':
     index_filter = pd.read_csv(index_filter, index_col=0).index
 
     train_data = pd.read_csv(train_path, index_col=0)
-    train_X, train_y = utils.filter_data(train_data, index_filter=index_filter, feature_filter=feature_filter)
-
     test_data = pd.read_csv(test_path, index_col=0)
+
+    train_data, test_data = utils.equalize_indexes(train_data, test_data)
+
+    train_X, train_y = utils.filter_data(train_data, index_filter=index_filter, feature_filter=feature_filter)
     test_X, test_y = utils.filter_data(test_data, index_filter=index_filter, feature_filter=feature_filter)
 
     # Ocupo solo los datos de test para hacer el k-fold, por que estos no estan repetidos
