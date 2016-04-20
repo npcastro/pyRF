@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--criterion', required=False, type=str)
     parser.add_argument('--max_depth', required=False, type=int)
     parser.add_argument('--min_samples_split', required=False, type=int)
-    parser.add_argument('--index_filter', required=True, type=str)
+    parser.add_argument('--index_filter', required=False, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
