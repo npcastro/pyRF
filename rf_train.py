@@ -30,6 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--criterion', required=False, type=str)
     parser.add_argument('--max_depth', required=False, type=int)
     parser.add_argument('--min_samples_split', required=False, type=int)
+    parser.add_argument('--index_filter', required=True, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
@@ -45,11 +46,20 @@ if __name__ == '__main__':
     criterion = args.criterion
     max_depth = args.max_depth
     min_samples_split = args.min_samples_split
+    index_filter = args.index_filter
     feature_filter = args.feature_filter
 
     data = pd.read_csv(training_set_path, index_col=0)
-    data = utils.stratified_filter(data, data['class'], lc_filter)
-    data, y = utils.filter_data(data, feature_filter=feature_filter)
+
+    if index_filter is not None:
+        index_filter = pd.read_csv(index_filter, index_col=0).index
+
+    elif lc_filter is not None:
+        # Filtro un porcentaje de las curvas y las guardo para comparar despues
+        data = utils.stratified_filter(data, data['class'], lc_filter)
+        data.to_csv(result_path + 'data.csv')
+
+    data, y = utils.filter_data(data, feature_filter=feature_filter, index_filter=index_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
 
@@ -82,3 +92,4 @@ if __name__ == '__main__':
 
     result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')
 
+    print metrics.weighted_f_score(metrics.confusion_matrix(result))
