@@ -3,6 +3,8 @@
 
 # -----------------------------------------------------------------------------
 
+from sklearn import cross_validation
+
 def remove_duplicate_index(df):
     aux = df.index.value_counts() == 1
     b = aux[aux]
@@ -33,3 +35,12 @@ def equalize_indexes(df1, df2):
     df1 = df1.sort_index()
 
     return df1, df2
+
+def stratified_filter(df, y, percentage=0.1):
+    """ Toma un dataframe. Y retorna un porcentaje de las tuplas, manteniendo la proporción,
+    de elementos encontrados en y.
+    """
+
+    skf = cross_validation.StratifiedKFold(y, n_folds=int(1 / percentage))
+    aux = [x for x in skf]
+    return df.iloc[aux[0][1]]

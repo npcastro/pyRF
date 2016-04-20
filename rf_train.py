@@ -24,6 +24,8 @@ if __name__ == '__main__':
     parser.add_argument('--folds', required=True, type=int)
     parser.add_argument('--training_set_path', required=True, type=str)
     parser.add_argument('--result_path', required=True, type=str)
+    parser.add_argument('--lc_filter', required=False, type=float, 
+                        help='Percentage of the total amount of data to use')
     parser.add_argument('--n_estimators', required=False, type=int)
     parser.add_argument('--criterion', required=False, type=str)
     parser.add_argument('--max_depth', required=False, type=int)
@@ -38,6 +40,7 @@ if __name__ == '__main__':
     folds = args.folds
     training_set_path = args.training_set_path
     result_path = args.result_path
+    lc_filter = args.lc_filter
     n_estimators = args.n_estimators
     criterion = args.criterion
     max_depth = args.max_depth
@@ -45,6 +48,7 @@ if __name__ == '__main__':
     feature_filter = args.feature_filter
 
     data = pd.read_csv(training_set_path, index_col=0)
+    data = utils.stratified_filter(data, data['class'], lc_filter)
     data, y = utils.filter_data(data, feature_filter=feature_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
