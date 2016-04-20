@@ -55,7 +55,7 @@ def fit_montecarlo_tree(path_index, paths = None, index_filter=None, class_filte
     return pd.concat(results)
     
 
-def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
+def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10, inverse=False):
     """
 
     path: Dirección del dataset a ocupar para entrenar
@@ -71,6 +71,11 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
     
     results = []
     for train_index, test_index in skf:
+        if inverse:
+            aux = train_index
+            train_index = test_index
+            test_index = aux
+
         train_X, test_X = data.iloc[train_index], data.iloc[test_index]
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
@@ -82,7 +87,7 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
 
     return pd.concat(results)
 
-def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, folds=10):
+def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, folds=10, inverse=False):
     """
 
     path: Dirección del dataset a ocupar para entrenar
@@ -98,6 +103,11 @@ def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, fold
     
     results = []
     for train_index, test_index in skf:
+        if inverse:
+            aux = train_index
+            train_index = test_index
+            test_index = aux
+            
         train_X, test_X = data.iloc[train_index], data.iloc[test_index]
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 

@@ -23,13 +23,17 @@ if __name__ == '__main__':
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds', required=True, type=int)
+    parser.add_argument('--inverse', required=False, action='store_true')
+
     parser.add_argument('--train_path',  required=True, type=str)
     parser.add_argument('--test_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
+
     parser.add_argument('--n_estimators', required=False, type=int)
     parser.add_argument('--criterion', required=False, type=str)
     parser.add_argument('--max_depth', required=False, type=int)
     parser.add_argument('--min_samples_split', required=False, type=int)
+
     parser.add_argument('--feature_filter',  nargs='*', type=str)
     parser.add_argument('--index_filter', required=False, type=str)
 
@@ -38,15 +42,20 @@ if __name__ == '__main__':
     n_processes = args.n_processes
     catalog = args.catalog
     folds = args.folds
+    inverse = args.inverse
+
     train_path = args.train_path
     test_path = args.test_path
     result_path = args.result_path
+
     n_estimators = args.n_estimators
     criterion = args.criterion
     max_depth = args.max_depth
     min_samples_split = args.min_samples_split
+
     feature_filter = args.feature_filter
     index_filter = args.index_filter
+
 
     index_filter = pd.read_csv(index_filter, index_col=0).index
 
@@ -65,6 +74,10 @@ if __name__ == '__main__':
     ids = []
 
     for train_index, test_index in skf:
+        if inverse:
+            aux = train_index
+            train_index = test_index
+            test_index = aux
 
         fold_test_X = test_X.iloc[test_index]
         fold_test_y = test_y.iloc[test_index]

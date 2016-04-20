@@ -22,9 +22,12 @@ if __name__ == '__main__':
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds',  required=True, type=int)
+    parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
+    parser.add_argument('--inverse', required=False, action='store_true')
+
     parser.add_argument('--sets_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
-    parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
+    
     parser.add_argument('--index_filter', required=False, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
@@ -33,9 +36,12 @@ if __name__ == '__main__':
     catalog = args.catalog
     n_processes = args.n_processes
     folds = args.folds
+    model = args.model
+    inverse = args.inverse
+
     sets_path = args.sets_path
     result_path = args.result_path
-    model = args.model
+    
     index_filter = args.index_filter
     feature_filter = args.feature_filter
 
@@ -45,9 +51,11 @@ if __name__ == '__main__':
     paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
     if model == 'tree':
-        partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds)
+        partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds,
+                              inverse=inverse)
     elif model == 'rf':
-        partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds)
+        partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds,
+                              inverse=inverse)
 
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     

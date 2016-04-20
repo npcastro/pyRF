@@ -22,30 +22,38 @@ if __name__ == '__main__':
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds', required=True, type=int)
+    parser.add_argument('--inverse', required=False, action='store_true')
+
     parser.add_argument('--training_set_path', required=True, type=str)
     parser.add_argument('--result_path', required=True, type=str)
-    parser.add_argument('--lc_filter', required=False, type=float, 
-                        help='Percentage of the total amount of data to use')
+    
     parser.add_argument('--n_estimators', required=False, type=int)
     parser.add_argument('--criterion', required=False, type=str)
     parser.add_argument('--max_depth', required=False, type=int)
     parser.add_argument('--min_samples_split', required=False, type=int)
+
+    parser.add_argument('--lc_filter', required=False, type=float, 
+                        help='Percentage of the total amount of data to use')
     parser.add_argument('--index_filter', required=False, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
     
     percentage = args.percentage
-    catalog = args.catalog
     n_processes = args.n_processes
+    catalog = args.catalog
     folds = args.folds
+    inverse = args.inverse
+
     training_set_path = args.training_set_path
     result_path = args.result_path
-    lc_filter = args.lc_filter
+
     n_estimators = args.n_estimators
     criterion = args.criterion
     max_depth = args.max_depth
     min_samples_split = args.min_samples_split
+
+    lc_filter = args.lc_filter
     index_filter = args.index_filter
     feature_filter = args.feature_filter
 
@@ -67,6 +75,10 @@ if __name__ == '__main__':
     ids = []
 
     for train_index, test_index in skf:
+        if inverse:
+            aux = train_index
+            train_index = test_index
+            test_index = aux
 
         train_X, test_X = data.iloc[train_index], data.iloc[test_index]
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
