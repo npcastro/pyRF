@@ -9,6 +9,8 @@ from multiprocessing import Pool
 import argparse
 import sys
 
+import pandas as pd
+
 import metrics
 import parallel
 
@@ -23,6 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--sets_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
     parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
+    parser.add_argument('--index_filter', required=False, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
     args = parser.parse_args(sys.argv[1:])
@@ -33,7 +36,11 @@ if __name__ == '__main__':
     sets_path = args.sets_path
     result_path = args.result_path
     model = args.model
+    index_filter = args.index_filter
     feature_filter = args.feature_filter
+
+    if index_filter is not None:
+        index_filter = pd.read_csv(index_filter, index_col=0).index
 
     paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
 
