@@ -82,8 +82,8 @@ if __name__ == '__main__':
         fold_test_X = test_X.iloc[test_index]
         fold_test_y = test_y.iloc[test_index]
 
-        fold_train_X = train_X.loc[fold_test_X.index]
-        fold_train_y = train_y.loc[fold_test_y.index]
+        fold_train_X = train_X.loc[test_X.iloc[train_index].index]
+        fold_train_y = train_y.loc[test_y.iloc[train_index].index]
 
         clf = None
         clf = RandomForestClassifier(n_estimators=n_estimators, criterion=criterion,
