@@ -68,3 +68,5 @@ if __name__ == '__main__':
 
     result = metrics.aggregate_predictions(resultados)
     result.to_csv(result_path)
+
+    print metrics.weighted_f_score(metrics.confusion_matrix(result))
