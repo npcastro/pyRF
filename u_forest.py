@@ -20,6 +20,7 @@ if __name__ == '__main__':
     print ' '.join(sys.argv)
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_processes', required=True, type=int)
+    parser.add_argument('--n_samples', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds',  required=True, type=int)
     parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
@@ -35,6 +36,7 @@ if __name__ == '__main__':
 
     catalog = args.catalog
     n_processes = args.n_processes
+    n_samples = args.n_samples
     folds = args.folds
     model = args.model
     inverse = args.inverse
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     if index_filter is not None:
         index_filter = pd.read_csv(index_filter, index_col=0).index
 
-    paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(100)]
+    paths = [sets_path + catalog + '_sampled_' + str(i) + '.csv' for i in xrange(n_samples)]
 
     if model == 'tree':
         partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds,
@@ -59,8 +61,8 @@ if __name__ == '__main__':
 
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     
-    # resultados = pool.map(partial_fit, paths)
-    resultados = map(partial_fit, paths)
+    resultados = pool.map(partial_fit, paths)
+    # resultados = map(partial_fit, paths)
     pool.close()
     pool.join()
 
