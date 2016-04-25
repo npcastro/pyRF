@@ -56,8 +56,8 @@ if __name__ == '__main__':
     feature_filter = args.feature_filter
     index_filter = args.index_filter
 
-
-    index_filter = pd.read_csv(index_filter, index_col=0).index
+    if index_filter is not None:
+        index_filter = pd.read_csv(index_filter, index_col=0).index
 
     train_data = pd.read_csv(train_path, index_col=0)
     test_data = pd.read_csv(test_path, index_col=0)

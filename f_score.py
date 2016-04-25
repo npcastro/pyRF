@@ -7,14 +7,7 @@ import pandas as pd
 
 import metrics
 
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/Montecarlo/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/RF/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Tree/Regular/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Sampled/uniform/UF/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/MACHO/Sampled/uniform/UF/rf/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/Sampled/uniform/UF/rf/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Mean/'
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Small/'
+path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Regular/inverse/'
 how = 'soft'
 #how = 'hard'
 
