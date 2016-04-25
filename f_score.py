@@ -3,12 +3,24 @@
 # Toma un directorio de resultados y arma un csv con el progreso de los f_score
 # -------------------------------------------------------------------------------------------------
 
+import argparse
+import sys
+
 import pandas as pd
 
 import metrics
 
-path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Regular/inverse/'
-how = 'soft'
+parser = argparse.ArgumentParser()
+parser.add_argument('--path',  required=True, type=str)
+parser.add_argument('--how',  required=True, type=str, choices=['soft', 'hard'])
+
+args = parser.parse_args(sys.argv[1:])
+
+path = args.path
+how = args.how
+
+# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Regular/inverse/'
+# how = 'soft'
 #how = 'hard'
 
 result_dir = path + 'Predicciones/'
