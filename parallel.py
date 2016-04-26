@@ -6,6 +6,7 @@
 import pandas as pd
 from sklearn import cross_validation
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 import tree
 import utils
@@ -85,6 +86,32 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
 
         clf.fit(train_X, train_y)
         results.append(clf.predict_table(test_X, test_y))
+
+    return pd.concat(results)
+
+def fit_sktree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10,
+             inverse=False, max_depth=10, min_samples_split=20):
+
+    data = pd.read_csv(path, index_col=0)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+
+    skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+    
+    results = []
+    for train_index, test_index in skf:
+        if inverse:
+            aux = train_index
+            train_index = test_index
+            test_index = aux
+
+        train_X, test_X = data.iloc[train_index], data.iloc[test_index]
+        train_y, test_y = y.iloc[train_index], y.iloc[test_index]
+
+        clf = None
+        clf = DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split)
+
+        clf.fit(train_X, train_y)
+        results.append(metrics.predict_table(clf, test_X, test_y))
 
     return pd.concat(results)
 

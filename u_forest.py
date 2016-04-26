@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_samples', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds',  required=True, type=int)
-    parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
+    parser.add_argument('--model', default='tree', choices=['tree', 'rf', 'sktree'] )
     parser.add_argument('--inverse', required=False, action='store_true')
 
     parser.add_argument('--max_depth',  required=False, type=int)
@@ -65,6 +65,10 @@ if __name__ == '__main__':
     elif model == 'rf':
         partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds,
                               inverse=inverse)
+    elif model == 'sktree':
+        partial_fit = partial(parallel.fit_sktree, feature_filter=feature_filter, folds=folds,
+                              inverse=inverse, max_depth=max_depth,
+                              min_samples_split=min_samples_split)
 
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     
