@@ -12,7 +12,7 @@ import metrics
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--path',  required=True, type=str)
-parser.add_argument('--how',  required=True, type=str, choices=['soft', 'hard'])
+parser.add_argument('--how',  required=False, default='soft', choices=['soft', 'hard'])
 
 args = parser.parse_args(sys.argv[1:])
 
