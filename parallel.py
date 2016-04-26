@@ -57,7 +57,7 @@ def fit_montecarlo_tree(path_index, paths = None, index_filter=None, class_filte
     
 
 def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10,
-             inverse=False, max_depth=10, min_samples_split=20):
+             inverse=False, max_depth=10, min_samples_split=20, lc_filter=None):
     """
 
     path: Dirección del dataset a ocupar para entrenar
@@ -67,7 +67,7 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
 
     """
     data = pd.read_csv(path, index_col=0)
-    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter, lc_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
     
@@ -90,10 +90,10 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
     return pd.concat(results)
 
 def fit_sktree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10,
-             inverse=False, max_depth=10, min_samples_split=20):
+             inverse=False, max_depth=10, min_samples_split=20, lc_filter=None):
 
     data = pd.read_csv(path, index_col=0)
-    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter, lc_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
     
@@ -115,7 +115,8 @@ def fit_sktree(path, index_filter=None, class_filter=None, feature_filter=None, 
 
     return pd.concat(results)
 
-def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, folds=10, inverse=False):
+def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, folds=10,
+           inverse=False, lc_filter=None):
     """
 
     path: Dirección del dataset a ocupar para entrenar
@@ -125,7 +126,7 @@ def fit_rf(path, index_filter=None, class_filter=None, feature_filter=None, fold
 
     """
     data = pd.read_csv(path, index_col=0)
-    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter)
+    data, y = utils.filter_data(data, index_filter, class_filter, feature_filter, lc_filter)
 
     skf = cross_validation.StratifiedKFold(y, n_folds=folds)
     

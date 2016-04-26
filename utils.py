@@ -11,22 +11,6 @@ def remove_duplicate_index(df):
     df = df.loc[b.index]
     return df
 
-def filter_data(df, index_filter=None, class_filter=None, feature_filter=None):
-    if index_filter is not None:
-        df = df.loc[index_filter]
-    
-    if class_filter:
-        df = df[df['class'].apply(lambda x: True if x in class_filter else False)]
-
-    df = df.dropna(axis=0, how='any')
-    y = df['class']
-    df = df.drop('class', axis=1)
-
-    if feature_filter:
-        df = df[feature_filter]
-
-    return df, y
-
 def equalize_indexes(df1, df2):
     common_index = list(set(df1.index.tolist()) & set(df2.index.tolist()))
     df1 = df1.loc[common_index]
@@ -44,3 +28,21 @@ def stratified_filter(df, y, percentage=0.1):
     skf = cross_validation.StratifiedKFold(y, n_folds=int(1 / percentage))
     aux = [x for x in skf]
     return df.iloc[aux[0][1]]
+
+def filter_data(df, index_filter=None, class_filter=None, feature_filter=None, lc_filter=None):
+    if index_filter is not None:
+        df = df.loc[index_filter]
+    elif lc_filter is not None:
+        df = stratified_filter(df, df['class'], lc_filter)
+    
+    if class_filter:
+        df = df[df['class'].apply(lambda x: True if x in class_filter else False)]
+
+    df = df.dropna(axis=0, how='any')
+    y = df['class']
+    df = df.drop('class', axis=1)
+
+    if feature_filter:
+        df = df[feature_filter]
+
+    return df, y

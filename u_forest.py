@@ -32,6 +32,8 @@ if __name__ == '__main__':
     parser.add_argument('--sets_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
     
+    parser.add_argument('--lc_filter', required=False, type=float, 
+                        help='Percentage of the total amount of data to use')
     parser.add_argument('--index_filter', required=False, type=str)
     parser.add_argument('--feature_filter',  nargs='*', type=str)
 
@@ -50,6 +52,7 @@ if __name__ == '__main__':
     sets_path = args.sets_path
     result_path = args.result_path
     
+    lc_filter = args.lc_filter
     index_filter = args.index_filter
     feature_filter = args.feature_filter
 
@@ -61,14 +64,14 @@ if __name__ == '__main__':
     if model == 'tree':
         partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds,
                               inverse=inverse, max_depth=max_depth,
-                              min_samples_split=min_samples_split)
+                              min_samples_split=min_samples_split, lc_filter=lc_filter)
     elif model == 'rf':
         partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds,
-                              inverse=inverse)
+                              inverse=inverse, lc_filter=lc_filter)
     elif model == 'sktree':
         partial_fit = partial(parallel.fit_sktree, feature_filter=feature_filter, folds=folds,
                               inverse=inverse, max_depth=max_depth,
-                              min_samples_split=min_samples_split)
+                              min_samples_split=min_samples_split, lc_filter=lc_filter)
 
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     
