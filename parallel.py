@@ -55,7 +55,8 @@ def fit_montecarlo_tree(path_index, paths = None, index_filter=None, class_filte
     return pd.concat(results)
     
 
-def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10, inverse=False):
+def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, folds=10,
+             inverse=False, max_depth=10, min_samples_split=20):
     """
 
     path: Dirección del dataset a ocupar para entrenar
@@ -80,7 +81,7 @@ def fit_tree(path, index_filter=None, class_filter=None, feature_filter=None, fo
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
         clf = None
-        clf = tree.Tree('gain', max_depth=10, min_samples_split=20)
+        clf = tree.Tree('gain', max_depth=max_depth, min_samples_split=min_samples_split)
 
         clf.fit(train_X, train_y)
         results.append(clf.predict_table(test_X, test_y))

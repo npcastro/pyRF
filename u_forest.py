@@ -26,6 +26,9 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='tree', choices=['tree', 'rf'] )
     parser.add_argument('--inverse', required=False, action='store_true')
 
+    parser.add_argument('--max_depth',  required=False, type=int)
+    parser.add_argument('--min_samples_split',  required=False, type=int)
+
     parser.add_argument('--sets_path',  required=True, type=str)
     parser.add_argument('--result_path',  required=True, type=str)
     
@@ -41,6 +44,9 @@ if __name__ == '__main__':
     model = args.model
     inverse = args.inverse
 
+    max_depth = args.max_depth
+    min_samples_split = args.min_samples_split
+
     sets_path = args.sets_path
     result_path = args.result_path
     
@@ -54,7 +60,8 @@ if __name__ == '__main__':
 
     if model == 'tree':
         partial_fit = partial(parallel.fit_tree, feature_filter=feature_filter, folds=folds,
-                              inverse=inverse)
+                              inverse=inverse, max_depth=max_depth,
+                              min_samples_split=min_samples_split)
     elif model == 'rf':
         partial_fit = partial(parallel.fit_rf, feature_filter=feature_filter, folds=folds,
                               inverse=inverse)
