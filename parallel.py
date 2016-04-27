@@ -108,7 +108,8 @@ def fit_sktree(path, index_filter=None, class_filter=None, feature_filter=None, 
         train_y, test_y = y.iloc[train_index], y.iloc[test_index]
 
         clf = None
-        clf = DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split)
+        clf = DecisionTreeClassifier(criterion='entropy', max_depth=max_depth,
+                                     min_samples_split=min_samples_split)
 
         clf.fit(train_X, train_y)
         results.append(metrics.predict_table(clf, test_X, test_y))

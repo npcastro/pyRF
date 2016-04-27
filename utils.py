@@ -12,6 +12,8 @@ def remove_duplicate_index(df):
     return df
 
 def equalize_indexes(df1, df2):
+    df1 = remove_duplicate_index(df1)
+    df2 = remove_duplicate_index(df2)
     common_index = list(set(df1.index.tolist()) & set(df2.index.tolist()))
     df1 = df1.loc[common_index]
     df2 = df2.loc[common_index]
