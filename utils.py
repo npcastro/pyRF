@@ -32,6 +32,9 @@ def stratified_filter(df, y, percentage=0.1):
     return df.iloc[aux[0][1]]
 
 def filter_data(df, index_filter=None, class_filter=None, feature_filter=None, lc_filter=None):
+    """ Filtra segun indices, porcentaje de curvas, clases, features y por ultimo separa
+    las variables de la clase
+    """
     if index_filter is not None:
         df = df.loc[index_filter]
     elif lc_filter is not None:

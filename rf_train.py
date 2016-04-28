@@ -23,6 +23,10 @@ if __name__ == '__main__':
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds', required=True, type=int)
     parser.add_argument('--inverse', required=False, action='store_true')
+    parser.add_argument('--validation', required=False, type=str, defualt='kfold',
+                        choices=['kfold', 'holdout'])
+    parser.add_argument('--test_size', required=False, type=float)
+
 
     parser.add_argument('--training_set_path', required=True, type=str)
     parser.add_argument('--result_path', required=True, type=str)
@@ -44,6 +48,8 @@ if __name__ == '__main__':
     catalog = args.catalog
     folds = args.folds
     inverse = args.inverse
+    validation = args.validation
+    test_size = args.test_size
 
     training_set_path = args.training_set_path
     result_path = args.result_path
@@ -69,11 +75,14 @@ if __name__ == '__main__':
 
     data, y = utils.filter_data(data, feature_filter=feature_filter, index_filter=index_filter)
 
-    skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+    if validation == 'kfold':
+        skf = cross_validation.StratifiedKFold(y, n_folds=folds)
+    elif validation == 'holdout':
+        skf = cross_validation.StratifiedShuffleSplit(y, n_iter=folds, test_size=test_size)
 
     results = []
     ids = []
-
+    count = 1
     for train_index, test_index in skf:
         if inverse:
             aux = train_index
@@ -91,6 +100,12 @@ if __name__ == '__main__':
         clf.fit(train_X, train_y)
         results.append(metrics.predict_table(clf, test_X, test_y))
         ids.extend(test_X.index.tolist())
+
+        if validation == 'holdout':
+            aux = metrics.predict_table(clf, test_X, test_y)
+            aux.to_csv(result_path + 'Predicciones/hold_' + str(count) + '.csv')
+            print 'hold ' + str(count) + ' ' + str(metrics.weighted_f_score(metrics.confusion_matrix(aux)))
+            count += 1
 
     result = pd.concat(results)
     result['indice'] = ids

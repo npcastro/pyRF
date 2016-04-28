@@ -76,7 +76,6 @@ if __name__ == '__main__':
     pool = Pool(processes=n_processes, maxtasksperchild=2)
     
     resultados = pool.map(partial_fit, paths)
-    # resultados = map(partial_fit, paths)
     pool.close()
     pool.join()
 
