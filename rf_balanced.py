@@ -17,6 +17,7 @@ if __name__ == '__main__':
 
     print ' '.join(sys.argv)
     parser = argparse.ArgumentParser()
+    parser.add_argument('--percentage', required=True, type=str)
     parser.add_argument('--n_processes', required=True, type=int)
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
 
@@ -34,6 +35,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args(sys.argv[1:])
     
+    percentage = args.percentage
     n_processes = args.n_processes
     catalog = args.catalog
 
@@ -68,10 +70,10 @@ if __name__ == '__main__':
     result.index.name = catalog + '_id'
     result = result.drop('indice', axis=1)
 
-    output = open(result_path + 'Arboles/Arbol.pkl', 'wb+')
+    output = open(result_path + 'Arboles/Arbol_' + percentage + '.pkl', 'wb+')
     pickle.dump(clf, output)
     output.close()
 
-    result.to_csv(result_path + 'Predicciones/result.csv')
+    result.to_csv(result_path + 'Predicciones/result_' + percentage + '.csv')
 
     print metrics.weighted_f_score(metrics.confusion_matrix(result))
