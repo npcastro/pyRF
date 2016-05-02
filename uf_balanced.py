@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--percentage', required=True, type=str)
     parser.add_argument('--n_samples', required=True, type=int)
-    parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])    
+    parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
 
     parser.add_argument('--max_depth',  required=False, type=int)
     parser.add_argument('--min_samples_split',  required=False, type=int)
