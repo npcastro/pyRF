@@ -78,7 +78,7 @@ def confusion_matrix(table):
     """Generates a confusion matrix from the prediction table"""
 
     unique = np.unique(np.concatenate((table['original'].values,
-                       table['predicted'].values), axis=1))
+                       table['predicted'].values)))
 
     matrix = np.zeros((len(unique), len(unique)))
     matrix = pd.DataFrame(matrix)

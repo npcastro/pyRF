@@ -5,6 +5,8 @@
 
 import argparse
 import sys
+import os
+import re
 
 import pandas as pd
 
@@ -19,10 +21,6 @@ args = parser.parse_args(sys.argv[1:])
 path = args.path
 how = args.how
 
-# path = '/n/seasfs03/IACS/TSC/ncastro/Resultados/EROS/RF/Regular/inverse/'
-# how = 'soft'
-#how = 'hard'
-
 result_dir = path + 'Predicciones/'
 
 p_dict = {}
@@ -30,7 +28,11 @@ r_dict = {}
 f_dict = {}
 w_dict = {}
 
-for percentage in xrange(5, 10, 5):
+
+files = [f for f in os.listdir(result_dir) if '.csv' in f]
+for f in files:
+    pattern = re.compile('[0-9]+')
+    percentage = int(pattern.search(f).group())
 
     result = pd.read_csv(result_dir + 'result_' + str(percentage) + '.csv', index_col=0)
     if how == 'soft':
