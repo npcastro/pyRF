@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('--catalog', default='MACHO', choices=['MACHO', 'EROS', 'OGLE'])
     parser.add_argument('--folds', required=True, type=int)
     parser.add_argument('--inverse', required=False, action='store_true')
-    parser.add_argument('--validation', required=False, type=str, defualt='kfold',
+    parser.add_argument('--validation', required=False, type=str, default='kfold',
                         choices=['kfold', 'holdout'])
     parser.add_argument('--test_size', required=False, type=float)
 
